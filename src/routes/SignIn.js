@@ -186,7 +186,7 @@ const SignIn = () => {
   const onSubmit = async (event) => {
     event.preventDefault();
     try {
-      const result = await sign.getItemList();
+      const result = await sign.getSign();
       console.log(result);
     } catch (e) {
       console.log(e);
@@ -205,13 +205,16 @@ const SignIn = () => {
     <SignInWrap>
       <SignInContainer>
         <SignInTitleSection>
-          <SignInTitle>Welcome to AiM</SignInTitle>
+          <SignInTitle>Welcome to AiM!</SignInTitle>
         </SignInTitleSection>
-        <SignWithGoogleContainer>Sign in with Google</SignWithGoogleContainer>
+        <SignWithGoogleContainer onClick={onSubmit}>
+          Sign in with Google
+        </SignWithGoogleContainer>
         <SignDivider>
           <span>or</span>
         </SignDivider>
-        <form onSubmit={onsubmit}>
+        {/* <form  onSubmit={onsubmit}> */}
+        <form>
           <EmailSignInContainer>
             <SignInLabel>
               <label>

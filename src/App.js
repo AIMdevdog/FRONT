@@ -31,6 +31,7 @@ const GlobalStyle = createGlobalStyle`
   /* HTML5 hidden-attribute fix for newer browsers */
   *[hidden] {
       display: none;
+      
   }
   body {
     line-height: 1;
