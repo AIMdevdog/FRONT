@@ -186,7 +186,7 @@ const SignIn = () => {
   const onSubmit = async (event) => {
     event.preventDefault();
     try {
-      const result = await sign.getSign();
+      const result = await sign.setNickName("안녕", "117733455331413374026");
       console.log(result);
     } catch (e) {
       console.log(e);
