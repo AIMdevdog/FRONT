@@ -4,6 +4,7 @@ import Signup from "./routes/Signup";
 import SignIn from "./routes/SignIn";
 import Lobby from "./routes/Lobby";
 import Header from "./components/Header";
+import Room from "./routes/Room";
 
 export const Router = () => {
   return (
@@ -14,6 +15,7 @@ export const Router = () => {
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/lobby" element={<Lobby />} />
+        <Route path="/room/:roomId" element={<Room />} />
       </Routes>
     </BrowserRouter>
   );

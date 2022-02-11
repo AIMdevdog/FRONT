@@ -1,6 +1,7 @@
 import React from "react";
 import GoogleLogin from "react-google-login";
 import { useNavigate } from "react-router";
+import { localSetItem } from "../utils/handleStorage";
 
 const clientId =
   "958093468974-hqffmp56ta66fl1f7la11pb5t3tpc80o.apps.googleusercontent.com";
@@ -12,8 +13,11 @@ const GoogleButton = ({ onSocial }) => {
 
     const {
       googleId,
+      accessToken,
       profileObj: { email, name },
     } = response;
+
+    await localSetItem("session", accessToken, 20160);
 
     navigate("/lobby");
 

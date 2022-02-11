@@ -1,10 +1,11 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import styled from "styled-components";
 import GoogleButton from "../components/GoogleLogin";
 import { sign } from "../config/api";
 import assets from "../config/assets";
+import { localGetItem } from "../utils/handleStorage";
 
 const SignInWrap = styled.div`
   /* width: 100%; */
@@ -205,6 +206,13 @@ const SignIn = () => {
     //   })
     //   .then((res) => console.log(res));
   };
+
+  useEffect(() => {
+    const session = localGetItem("session");
+    if (session) {
+      navigate("/lobby");
+    }
+  });
 
   const onClickSign = async (e) => {
     e.preventDefault();

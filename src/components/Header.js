@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import styled from "styled-components";
+import { localGetItem } from "../utils/handleStorage";
 
 const HeaderContainer = styled.div`
   background-color: rgb(51, 58, 100);
@@ -162,10 +163,22 @@ const Header = () => {
     const {
       location: { pathname },
     } = window;
+
     setIsPath(pathname);
   }, [isPath]);
 
-  console.log(isPath);
+  useEffect(() => {
+    const getUserInfo = async () => {
+      try {
+        const session = localGetItem("session");
+        if (!session) return navigate("signin");
+        console.log(session);
+      } catch (e) {
+        console.log(e);
+      }
+    };
+    getUserInfo();
+  });
 
   return (
     <HeaderContainer path={isPath}>

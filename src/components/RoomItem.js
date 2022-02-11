@@ -1,5 +1,6 @@
 import { useState } from "react";
 import ReactModal from "react-modal";
+import { useNavigate } from "react-router";
 import styled from "styled-components";
 const RoomItems = styled.div`
   display: grid;
@@ -264,10 +265,18 @@ const FinishButton = styled.button`
 
 const RoomItemComponent = (props) => {
   const { data } = props;
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
 
-  const enterRoom = () => {
+  const readyToGoIntoTheRoom = () => {
     setIsOpen(!isOpen);
+  };
+
+  const enterRoom = () => {
+    navigate({
+      pathname: "/room/123",
+      // search: '?sort=date&order=newest',
+    });
   };
   return (
     <>
@@ -275,7 +284,7 @@ const RoomItemComponent = (props) => {
         {data?.map((item) => {
           return (
             <RoomItem
-              onClick={enterRoom}
+              onClick={readyToGoIntoTheRoom}
               key={item.id}
               background={item?.image}
             >
@@ -326,10 +335,10 @@ const RoomItemComponent = (props) => {
                 </UserInfoBottomInputSection>
                 <ButtonContainer>
                   <div>
-                    <BackButton onClick={enterRoom}>Back</BackButton>
+                    <BackButton onClick={readyToGoIntoTheRoom}>Back</BackButton>
                   </div>
                   <div>
-                    <FinishButton>Finish</FinishButton>
+                    <FinishButton onClick={enterRoom}>Finish</FinishButton>
                   </div>
                 </ButtonContainer>
               </UserInfoBottomSection>
