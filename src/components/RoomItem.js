@@ -1,7 +1,8 @@
 import { useState } from "react";
-import ReactModal from "react-modal";
 import { useNavigate } from "react-router";
 import styled from "styled-components";
+import { Carousel } from "react-responsive-carousel";
+
 const RoomItems = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(312px, 1fr));
@@ -278,6 +279,18 @@ const RoomItemComponent = (props) => {
       // search: '?sort=date&order=newest',
     });
   };
+
+  const DummyImageData = [
+    {
+      image:
+        "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png",
+    },
+    {
+      image:
+        "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png",
+    },
+  ];
+
   return (
     <>
       <RoomItems>
@@ -304,6 +317,9 @@ const RoomItemComponent = (props) => {
           <UserInfoModal>
             <UserInfo>
               <UserInfoTopSection>
+                <div>
+                  <span>Change your character</span>
+                </div>
                 <img
                   src="https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png"
                   alt="user-character"
@@ -311,6 +327,7 @@ const RoomItemComponent = (props) => {
               </UserInfoTopSection>
               <UserNickname>
                 <span>fred</span>
+                {/* <span>{nickname}</span> */}
               </UserNickname>
               <UserInfoBottomSection>
                 <UserInfoBottomInputSection>

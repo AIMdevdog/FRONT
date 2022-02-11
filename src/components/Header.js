@@ -151,6 +151,7 @@ const CreateButton = styled.button`
 const Header = () => {
   const navigate = useNavigate();
   const [isPath, setIsPath] = useState("");
+  const [name, setName] = useState("");
 
   const onClickLogo = () => {
     navigate("/signin");
@@ -178,7 +179,7 @@ const Header = () => {
       }
     };
     getUserInfo();
-  });
+  }, []);
 
   return (
     <HeaderContainer path={isPath}>
@@ -202,7 +203,7 @@ const Header = () => {
                 </div>
               </UserProfileImage>
               <UserProfileNickname>
-                <span>fred</span>
+                {name ? <span>{name}</span> : <span>Anonymous</span>}
               </UserProfileNickname>
             </button>
           </UserProfile>
