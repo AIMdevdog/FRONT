@@ -9,11 +9,11 @@ export class OverworldMap {
     this.cutsceneSpace = config.cutsceneSpace || {};
     this.walls = config.walls || {};
 
-    // this.lowerImage = new Image();
-    // this.lowerImage.src = config.lowerSrc;
+    this.lowerImage = new Image();
+    this.lowerImage.src = config.lowerSrc;
 
-    // this.upperImage = new Image();
-    // this.upperImage.src = config.upperSrc;
+    this.upperImage = new Image();
+    this.upperImage.src = config.upperSrc;
 
     this.isCutscenePlaying = false;
   }
@@ -106,8 +106,8 @@ export class OverworldMap {
 if (typeof window !== "undefined") {
   window.OverworldMaps = {
     DemoRoom: {
-      lowerSrc: "/images/maps/DemoLower.png",
-      upperSrc: "/images/maps/DemoUpper.png",
+      lowerSrc: "/src/game/images/maps/DemoLower.png",
+      upperSrc: "/src/game/images/maps/DemoUpper.png",
       gameObjects: {
         hero: new Person({
           isPlayerControlled: true,
@@ -197,18 +197,20 @@ if (typeof window !== "undefined") {
       },
     },
     TestingRoom: {
-      lowerSrc: "/images/maps/all hands room LIGHT.png",
-      upperSrc: "/images/maps/KitchenUpper.png",
+      lowerSrc:
+        "https://aim-image-storage.s3.ap-northeast-2.amazonaws.com/map2.png",
+      upperSrc: "/src/game/images/maps/KitchenUpper.png",
       gameObjects: {
         hero: new Person({
           isPlayerControlled: true,
           x: utils.withGrid(5),
           y: utils.withGrid(5),
+          src: "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png",
         }),
         npcB: new Person({
           x: utils.withGrid(5),
           y: utils.withGrid(5),
-          src: "/images/characters/people/avatar-dQCYs4n7O99ksXuBIe33-UzbB5TTbkmeLg7hfrUii-yFpcQh7UcvdChVN8WvIW-Qjhn5Biz0wHk7Jh0Lg0w-CgjGnJ2FTTfWiE3tf7Uj-09g8XhwETZ7wAhFTUs4s.png",
+          src: "/src/game/images/characters/people/avatar-dQCYs4n7O99ksXuBIe33-UzbB5TTbkmeLg7hfrUii-yFpcQh7UcvdChVN8WvIW-Qjhn5Biz0wHk7Jh0Lg0w-CgjGnJ2FTTfWiE3tf7Uj-09g8XhwETZ7wAhFTUs4s.png",
           talking: [
             {
               events: [

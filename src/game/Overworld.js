@@ -41,7 +41,7 @@ export class Overworld {
         });
 
       //Draw Upper layer
-      this.map.drawUpperImage(this.ctx, cameraPerson);
+      // this.map.drawUpperImage(this.ctx, cameraPerson);
 
       requestAnimationFrame(() => {
         step();

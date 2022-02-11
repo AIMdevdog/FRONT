@@ -275,7 +275,7 @@ const RoomItemComponent = (props) => {
 
   const enterRoom = () => {
     navigate({
-      pathname: "/room/123",
+      pathname: "/room",
       // search: '?sort=date&order=newest',
     });
   };
