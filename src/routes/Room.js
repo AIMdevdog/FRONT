@@ -1,29 +1,25 @@
 import { useEffect } from "react";
-import { useParams } from "react-router";
-import styled from "styled-components";
-
-const GameContainer = styled.div`
-  width: 500px;
-  height: 300px;
-  position: relative;
-  background: red;
-`;
-
-const GameCanvas = styled.canvas`
-  width: 500px;
-  height: 300px;
-  outline: 1px solid solid #fff;
-`;
+import { Helmet } from "react-helmet";
+import { Overworld } from "../game/Overworld";
 
 const Room = () => {
   useEffect(() => {
-    console.log(1);
+    const overworld = new Overworld({
+      element: document.querySelector(".game-container"),
+    });
+    overworld.init();
   });
-  const { roomId } = useParams();
+
   return (
-    <GameContainer>
-      <GameCanvas></GameCanvas>
-    </GameContainer>
+    <>
+      <div className="game-container">
+        <canvas className="game-canvas"></canvas>
+      </div>
+      {/* <Helmet> */}
+      {/* <script src="/src/game/init.js" type="text/javascript" /> */}
+      {/* <script src="/Overworld.js"></script> */}
+      {/* </Helmet> */}
+    </>
   );
 };
 

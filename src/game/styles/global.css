@@ -1,0 +1,56 @@
+:root {
+  --border-color: #291d4d;
+  --dialog-background: #fff3b4;
+
+  --menu-background: #ffe8d2;
+  --menu-border-color: #a48465;
+  --menu-font-color: #3a160d;
+  --menu-selected-background: #7fc2ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: #333;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+.game-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* min-width: 1280px; */
+  /* height: 100vh; */
+  margin: 0 auto;
+  image-rendering: pixelated;
+  /* border: 1px solid #fff; */
+
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  /* background-size: contain; */
+  /* transform: scale(3) translateY(50%); */
+}
+
+.game-container canvas {
+  image-rendering: pixelated;
+  width: 100%;
+  transform: scale(1.5);
+}
+
+@media (max-width: 1024px) {
+  .game-container canvas {
+    transform: scale(1.3);
+  }
+}
+
+@media (max-width: 760px) {
+  .game-container canvas {
+    transform: scale(1);
+  }
+}
