@@ -1,6 +1,8 @@
 import axios from "axios";
 import React, { useState } from "react";
+import { useNavigate } from "react-router";
 import styled from "styled-components";
+import GoogleButton from "../components/GoogleLogin";
 import { sign } from "../config/api";
 import assets from "../config/assets";
 
@@ -169,6 +171,7 @@ const SignInButton = styled.div`
 `;
 
 const SignIn = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const onChange = (event) => {
@@ -185,12 +188,13 @@ const SignIn = () => {
 
   const onSubmit = async (event) => {
     event.preventDefault();
-    try {
-      const result = await sign.setNickName("안녕", "117733455331413374026");
-      console.log(result);
-    } catch (e) {
-      console.log(e);
-    }
+    // const session  = session.passport.user;
+    // try {
+    //   const result = await sign.setNickName("안녕", session);
+    //   console.log(result);
+    // } catch (e) {
+    //   console.log(e);
+    // }
 
     // await axios
     //   .post("http://localhost:3000/sign", {
@@ -201,15 +205,31 @@ const SignIn = () => {
     //   })
     //   .then((res) => console.log(res));
   };
+
+  const onClickSign = async (e) => {
+    e.preventDefault();
+    try {
+      const result = await sign.sendSignData(email, password);
+      console.log(result);
+      if (result.data.code === 200) {
+        navigate("/lobby");
+      } else {
+        alert(result.data.message);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
   return (
     <SignInWrap>
       <SignInContainer>
         <SignInTitleSection>
           <SignInTitle>Welcome to AiM!</SignInTitle>
         </SignInTitleSection>
-        <SignWithGoogleContainer onClick={onSubmit}>
+        {/* <SignWithGoogleContainer onClick={onSubmit}>
           Sign in with Google
-        </SignWithGoogleContainer>
+        </SignWithGoogleContainer> */}
+        <GoogleButton />
         <SignDivider>
           <span>or</span>
         </SignDivider>
@@ -249,7 +269,7 @@ const SignIn = () => {
               />
             </SignInInput>
           </EmailSignInContainer>
-          <SignInButton>
+          <SignInButton onClick={onClickSign}>
             <button>Sign in</button>
           </SignInButton>
         </form>

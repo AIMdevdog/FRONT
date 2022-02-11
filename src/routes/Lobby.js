@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
+import RoomItemComponent from "../components/RoomItem";
+import { room } from "../config/api";
 import assets from "../config/assets";
 
 const LobbyContainer = styled.div`
@@ -117,66 +119,46 @@ const RoomContainer = styled.div`
   padding-right: 20px;
 `;
 
-const RoomItems = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(312px, 1fr));
-  gap: 32px;
-  -webkit-box-align: start;
-  align-items: start;
-  margin: 20px;
-`;
-
-const RoomItem = styled.div`
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  cursor: pointer;
-
-  div {
-    border: 3px solid transparent;
-    cursor: pointer;
-    margin-top: 10px;
-    border-radius: 16px;
-    -webkit-box-align: center;
-    align-items: center;
-    -webkit-box-pack: center;
-    justify-content: center;
-
-    span {
-      font-family: "DM Sans", sans-serif;
-      color: white;
-    }
-  }
-  img {
-    width: 100%;
-    height: 100%;
-    border-radius: 16px;
-    aspect-ratio: 16 / 9;
-    box-shadow: rgb(0 0 0 / 10%) 0px 12px 12px;
-    background-color: rgb(0, 0, 0);
-  }
-`;
-
 const Lobby = () => {
   const [search, setSearch] = useState("");
+  const [roomItems, setRoom] = useState([]);
+  //   useEffect(() => {
+  //     const getRoom = async () => {
+  //       try {
+  //         const result = await room.getRoom();
+  //         setRoom(result.data.data);
+  //         console.log(result);
+  //       } catch (e) {
+  //         console.log(e);
+  //       }
+  //     };
+
+  //     getRoom();
+
+  //     console.log(room);
+  //   }, []);
 
   const DummyData = [
     {
+      id: 1,
       image: assets.sign_page.background,
       title: "신민수 작가의 방입니다.",
       desc: "안녕하세용",
     },
     {
+      id: 2,
       image: assets.sign_page.background,
       title: "김승환 작가의 방입니다.",
       desc: "안녕하세용",
     },
     {
+      id: 3,
       image: assets.sign_page.background,
       title: "손예림 작가의 방입니다.",
       desc: "안녕하세용",
     },
     {
+      id: 4,
       image: assets.sign_page.background,
       title: "정원종 작가의 방입니다.",
       desc: "안녕하세용",
@@ -208,21 +190,7 @@ const Lobby = () => {
         </SearchInput>
       </LobbyHeader>
       <RoomContainer>
-        <RoomItems>
-          {DummyData?.map((item) => {
-            return (
-              <RoomItem background={item?.image}>
-                <img src={item.image} alt="background image" />
-                <div>
-                  <span>{item?.title}</span>
-                </div>
-                <div style={{ marginTop: 4 }}>
-                  <span>{item?.desc}</span>
-                </div>
-              </RoomItem>
-            );
-          })}
-        </RoomItems>
+        <RoomItemComponent data={DummyData} />
       </RoomContainer>
     </LobbyContainer>
   );
