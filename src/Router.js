@@ -5,13 +5,10 @@ import SignIn from "./routes/SignIn";
 import Lobby from "./routes/Lobby";
 import Header from "./components/Header";
 
-export const Router = (props) => {
-  const {
-    location: { pathname },
-  } = window;
+export const Router = () => {
   return (
     <BrowserRouter>
-      <Header path={pathname} />
+      <Header />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/signin" element={<SignIn />} />

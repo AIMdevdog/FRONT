@@ -14,7 +14,7 @@ const LobbyContainer = styled.div`
 const LobbyHeader = styled.div`
   display: flex;
   background-color: rgb(40, 45, 78);
-  padding-right: 52px;
+  padding-right: 40px;
   justify-content: flex-end;
   padding-top: 16px;
   padding-bottom: 16px;
@@ -73,20 +73,20 @@ const SearchInput = styled.div`
 
     div {
       width: 100%;
-      border: 2px solid rgb(144, 156, 226);
-      border-radius: 16px;
+
       display: flex;
       flex-direction: row;
       -webkit-box-align: center;
       align-items: center;
       transition: border 200ms ease 0s;
       box-sizing: border-box;
-      height: 40px;
-      padding: 0px 8px 0px 16px;
 
       div {
         display: flex;
-        margin-right: 8px;
+        border: 2px solid rgb(144, 156, 226);
+        border-radius: 16px;
+        height: 40px;
+        padding: 0px 8px 0px 16px;
 
         input {
           border: none;
@@ -184,7 +184,9 @@ const Lobby = () => {
         <SearchInput>
           <div>
             <div>
-              <input onChange={onChange} type="text" placeholder="Search" />
+              <div>
+                <input onChange={onChange} type="text" placeholder="Search" />
+              </div>
             </div>
           </div>
         </SearchInput>

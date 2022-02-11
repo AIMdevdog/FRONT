@@ -38,6 +38,9 @@ const RoomItem = styled.div`
     aspect-ratio: 16 / 9;
     box-shadow: rgb(0 0 0 / 10%) 0px 12px 12px;
     background-color: rgb(0, 0, 0);
+    &:hover {
+      outline: 4px solid rgb(84, 92, 143);
+    }
   }
 `;
 

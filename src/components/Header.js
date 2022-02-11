@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import styled from "styled-components";
 
 const HeaderContainer = styled.div`
@@ -5,12 +7,11 @@ const HeaderContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   z-index: 5;
-  padding: 16px 24px;
+  padding: 16px 40px;
   display: ${(props) => (props.path === "/signin" ? "none" : "flex")};
 `;
 const LeftSection = styled.div`
   display: flex;
-  margin-left: 16px;
   align-items: center;
 `;
 
@@ -108,6 +109,7 @@ const UserProfileNickname = styled.div`
 `;
 
 const LogoSpan = styled.div`
+  cursor: pointer;
   span {
     color: rgb(255, 255, 255);
     font-family: "DM Sans", sans-serif;
@@ -145,14 +147,30 @@ const CreateButton = styled.button`
   color: rgb(40, 45, 78) !important;
 `;
 
-const Header = ({ path }) => {
+const Header = () => {
+  const navigate = useNavigate();
+  const [isPath, setIsPath] = useState("");
+
+  const onClickLogo = () => {
+    navigate("/signin");
+  };
   const onCreateSpace = () => {
     alert(1);
   };
+
+  useEffect(() => {
+    const {
+      location: { pathname },
+    } = window;
+    setIsPath(pathname);
+  }, [isPath]);
+
+  console.log(isPath);
+
   return (
-    <HeaderContainer path={path}>
+    <HeaderContainer path={isPath}>
       <LeftSection>
-        <LogoSpan>
+        <LogoSpan onClick={onClickLogo}>
           <span>AiM</span>
         </LogoSpan>
       </LeftSection>
