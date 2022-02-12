@@ -1,44 +1,119 @@
 import { OverworldMap } from "./OverworldMap.js";
-import { KeyPressListener } from "./KeyPressListener.js";
 import { DirectionInput } from "./DirectionInput.js";
-export class Overworld {
-  constructor(config) {
-    this.element = config.element;
-    this.canvas = this.element.querySelector(".game-canvas");
-    this.ctx = this.canvas.getContext("2d");
-    this.map = null;
-  }
+import { Person } from "./Person.js";
+import utils from "./utils.js";
+import io from 'socket.io-client';
 
-  startGameLoop() {
+
+
+const characters = [];
+const charMap = {};
+
+
+// socket.on("join_user", function (data) {
+//   joinUser(data.id, data.x, data.y);
+// });
+
+// socket.on("leave_user", function (data) {
+//   leaveUser(data);
+// });
+
+// socket.on("update_state", function (data) {
+//   updateLocation(data);
+// })
+
+
+
+
+
+export const Overworld = (config) => {
+  const element = config;
+  const canvas = element.querySelector(".game-canvas")
+  const ctx = canvas.getContext("2d");
+
+  const map = new OverworldMap({
+      lowerSrc: "https://aim-image-storage.s3.ap-northeast-2.amazonaws.com/map2.png",
+      upperSrc: "/images/maps/KitchenUpper.png",
+      id: 123,
+      gameObjects: {
+        hero: new Person({
+          id: null,
+          isPlayerControlled: true,
+          x: utils.withGrid(5),
+          y: utils.withGrid(5),
+          src: "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png"
+        }),
+      },
+  });
+  //   map.overworld = this;
+  //   map.mountObjects();
+  const directionInput = new DirectionInput();
+  directionInput.init();
+  const socket = io("localhost:4001");
+  socket.on("join_user", function (data) {
+    console.log(data);
+    joinUser(data.id, data.x, data.y, data.src);
+  });
+
+  socket.on("leave_user", function (data) {
+    leaveUser(data);
+  });
+
+  socket.on("update_state", function (data) {
+    // console.log(data);
+    updateLocation(data);
+  })
+
+  const startGameLoop = () => {
     const step = () => {
       //Clear off the canvas
-      this.canvas.width = window.innerWidth;
-      this.canvas.height = window.innerHeight;
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
 
-      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       //Establish the camera person
-      const cameraPerson = this.map.gameObjects.hero;
+      const cameraPerson = charMap[socket.id] || map.gameObjects.hero;
 
       //Update all objects
-      Object.values(this.map.gameObjects).forEach((object) => {
-        object.update({
-          arrow: this.directionInput.direction,
-          map: this.map,
-        });
+      Object.values(charMap).forEach((object) => {
+        if (object.id === socket.id) {
+          object.update({
+            arrow: directionInput.direction,
+            map: map,
+            // id: socket.id,
+          });
+        } else {
+          object.update({
+            arrow: object.nextDirection.shift(),
+            map: map,
+            // id: socket.id,
+          });
+        }
       });
 
       //Draw Lower layer
-      this.map.drawLowerImage(this.ctx, cameraPerson);
+      map.drawLowerImage(ctx, cameraPerson);
 
       //Draw Game Objects
-      Object.values(this.map.gameObjects)
+      Object.values(charMap)
         .sort((a, b) => {
           return a.y - b.y;
         })
         .forEach((object) => {
-          object.sprite.draw(this.ctx, cameraPerson);
+          object.sprite.draw(ctx, cameraPerson);
         });
+
+      const player = charMap[socket.id];
+      if (player) {
+        const data = {
+          id: socket.id,
+          x: player.x,
+          y: player.y,
+          direction: directionInput.direction,
+        }
+        socket.emit('input', data)
+      }
 
       //Draw Upper layer
       // this.map.drawUpperImage(this.ctx, cameraPerson);
@@ -49,57 +124,69 @@ export class Overworld {
     };
     step();
   }
-
-  bindActionInput() {
-    new KeyPressListener("Enter", () => {
-      // Is there a person here to talk to?
-      this.map.checkForActionCutscene();
-    });
-  }
-
-  bindHeroPositionCheck() {
-    document.addEventListener("PersonWalkingComplete", (e) => {
-      if (e.detail.whoId === "hero") {
-        // Hero's position has changed
-        this.map.checkForFootstepCutscene();
+  const updateLocation = (data) => {
+    let char;
+    for (let i = 0; i < characters.length; i++) {
+      char = charMap[data[i].id];
+      if (char.id === socket.id) {
+        continue;
       }
+
+      char.nextDirection.unshift(data[i].direction);
+      char.x = data[i].x;
+      char.y = data[i].y;
+    }
+  }
+
+  const leaveUser = (id) => {
+    for (let i = 0; i < characters.length; ++i) {
+      if (characters[i].id === id) {
+        characters.splice(i, 1);
+        break;
+      }
+    }
+    delete charMap[id];
+  }
+
+  const joinUser = (id, x, y, src) => {
+    console.log("newUser");
+    console.log(src);
+    console.log("-----------------");
+    let character = new Person({
+      x: 0,
+      y: 0,
+      id: id,
+      src: src,
     });
-  }
+    character.id = id;
+    character.x = x;
+    character.y = y;
+    characters.push(character);
+    charMap[id] = character;
+    return character;
+  };
 
-  startMap(mapConfig) {
-    this.map = new OverworldMap(mapConfig);
-    this.map.overworld = this;
-    this.map.mountObjects();
-  }
 
-  init() {
-    // const socket = io("localhost:3000");
+  // // bindActionInput() {
+  // //   new KeyPressListener("Enter", () => {
+  // //     // Is there a person here to talk to?
+  // //     this.map.checkForActionCutscene();
+  // //   });
+  // // }
 
-    this.startMap(window.OverworldMaps.TestingRoom);
+  // // bindHeroPositionCheck() {
+  // //   document.addEventListener("PersonWalkingComplete", (e) => {
+  // //     if (e.detail.whoId === "hero") {
+  // //       // Hero's position has changed
+  // //       this.map.checkForFootstepCutscene();
+  // //     }
+  // //   });
+  // // }
 
-    // socket.on("input", function (data) {
-    //   // console.log(window.OverworldMaps.DemoRoom);
-    //   // this.startMap();
-    //   console.log(data, "this");
-    // });
+  // // this.bindActionInput();
+  // // this.bindHeroPositionCheck();
 
-    // socket.on("join_user", function (data) {
-    //   console.log(data);
-    // });
-    // console.log(this.map);
 
-    this.bindActionInput();
-    this.bindHeroPositionCheck();
 
-    this.directionInput = new DirectionInput();
-    this.directionInput.init();
-
-    this.startGameLoop();
-
-    this.map.startCutscene([
-      // { type: "battle", },
-      // { type: "changeMap", map: "DemoRoom" },
-      // { type: "textMessage", text: "This is the very first message" },
-    ]);
-  }
+  startGameLoop();
 }
