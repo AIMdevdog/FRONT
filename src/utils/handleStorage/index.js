@@ -47,6 +47,6 @@ export const setItem = (key, data, expiration) => {
 };
 
 export const removeItem = (key) => {
-  expiredStorage.removeItem(key);
+  localStorage.removeItem(key);
   // sessionStorage.removeItem(key);
 };

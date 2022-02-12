@@ -214,20 +214,20 @@ const SignIn = () => {
     }
   });
 
-  const onClickSign = async (e) => {
-    e.preventDefault();
-    try {
-      const result = await sign.sendSignData(email, password);
-      console.log(result);
-      if (result.data.code === 200) {
-        navigate("/lobby");
-      } else {
-        alert(result.data.message);
-      }
-    } catch (e) {
-      console.log(e);
-    }
-  };
+  // const onClickSign = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     const result = await sign.sendSignData(email, password);
+  //     console.log(result);
+  //     if (result.data.code === 200) {
+  //       navigate("/lobby");
+  //     } else {
+  //       alert(result.data.message);
+  //     }
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
+  // };
   return (
     <SignInWrap>
       <SignInContainer>
@@ -277,9 +277,9 @@ const SignIn = () => {
               />
             </SignInInput>
           </EmailSignInContainer>
-          <SignInButton onClick={onClickSign}>
+          {/* <SignInButton onClick={onClickSign}>
             <button>Sign in</button>
-          </SignInButton>
+          </SignInButton> */}
         </form>
       </SignInContainer>
     </SignInWrap>

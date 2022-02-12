@@ -11,6 +11,7 @@ instance.defaults.headers.post["Content-Type"] =
   "application/x-www-form-urlencoded";
 
 instance.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
+instance.defaults.headers.common["Access-Control-Allow-Credentials"] = true;
 
 instance.interceptors.request.use(
   async (response) => {

@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import styled from "styled-components";
-import { Carousel } from "react-responsive-carousel";
+import { user } from "../config/api";
+import { localGetItem } from "../utils/handleStorage";
 
 const RoomItems = styled.div`
   display: grid;
@@ -265,20 +266,69 @@ const FinishButton = styled.button`
 `;
 
 const RoomItemComponent = (props) => {
-  const { data } = props;
+  const { data, userData } = props;
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+  const [isNickname, setIsNickname] = useState("");
+  const [isSaveUserData, setIsSaveUserData] = useState(null);
 
   const readyToGoIntoTheRoom = () => {
     setIsOpen(!isOpen);
+    setIsNickname("");
   };
 
-  const enterRoom = () => {
-    navigate({
-      pathname: "/room",
-      // search: '?sort=date&order=newest',
-    });
+  const onChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+
+    setIsNickname(value);
   };
+
+  const enterRoom = async () => {
+    const accessToken = localGetItem("session");
+    try {
+      if (!isNickname) return alert("nickname을 입력해주세요.");
+      const {
+        data: { code, msg },
+      } = await user.saveUserInfo(
+        accessToken,
+        isNickname,
+        "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png"
+      );
+      if (code === 200) {
+        alert(msg);
+        const result = await user.getUserInfo(userData?.accessToken);
+        const {
+          data: { data },
+        } = result;
+        setIsSaveUserData(data);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+    // navigate({
+    //   pathname: "/room",
+    //   // search: '?sort=date&order=newest',
+    // });
+  };
+
+  useEffect(() => {
+    const userDataUpdate = async () => {
+      try {
+        const result = await user.getUserInfo(userData?.accessToken);
+        const {
+          data: { data },
+        } = result;
+        console.log(result);
+        setIsSaveUserData(data);
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    userDataUpdate();
+  }, []);
 
   const DummyImageData = [
     {
@@ -317,17 +367,21 @@ const RoomItemComponent = (props) => {
           <UserInfoModal>
             <UserInfo>
               <UserInfoTopSection>
-                <div>
+                {/* <div>
                   <span>Change your character</span>
-                </div>
+                </div> */}
                 <img
                   src="https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png"
                   alt="user-character"
                 />
               </UserInfoTopSection>
               <UserNickname>
-                <span>fred</span>
-                {/* <span>{nickname}</span> */}
+                {/* <span>fred</span> */}
+                {isSaveUserData?.nickname ? (
+                  <span>{isSaveUserData?.nickname}</span>
+                ) : (
+                  <span>Anonymous</span>
+                )}
               </UserNickname>
               <UserInfoBottomSection>
                 <UserInfoBottomInputSection>
@@ -346,7 +400,15 @@ const RoomItemComponent = (props) => {
                 <UserInfoBottomInputSection>
                   <div>
                     <div>
-                      <input type="text" maxLength="50" />
+                      <input
+                        type="text"
+                        maxLength="50"
+                        name="nickname"
+                        required
+                        value={isNickname}
+                        onChange={onChange}
+                        placeholder="Enter your nickname"
+                      />
                     </div>
                   </div>
                 </UserInfoBottomInputSection>

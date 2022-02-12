@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import GoogleLogin from "react-google-login";
 import { useNavigate } from "react-router";
+import { sign } from "../config/api";
 import { localSetItem } from "../utils/handleStorage";
 
 const clientId =
@@ -9,24 +10,24 @@ const clientId =
 const GoogleButton = ({ onSocial }) => {
   const navigate = useNavigate();
   const onSuccess = async (response) => {
-    console.log(response);
+    try {
+      const {
+        googleId,
+        accessToken,
+        profileObj: { email, name },
+      } = response;
 
-    const {
-      googleId,
-      accessToken,
-      profileObj: { email, name },
-    } = response;
-
-    await localSetItem("session", accessToken, 20160);
-
-    navigate("/lobby");
-
-    // await onSocial({
-    //   socialId: googleId,
-    //   socialType: "google",
-    //   email,
-    //   nickname: name,
-    // });
+      const result = await sign.getSign(accessToken, email);
+      const { code, data } = result?.data;
+      if (code === 200) {
+        await localSetItem("session", data?.accessToken, 20160);
+        navigate("/lobby", { state: data });
+      } else {
+        alert("로그인에 실패하였습니다.");
+      }
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   const onFailure = (error) => {
