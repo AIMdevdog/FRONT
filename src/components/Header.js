@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import styled from "styled-components";
 import { room } from "../config/api";
 import { localGetItem, removeItem } from "../utils/handleStorage";
+import LoadingComponent from "./Loading";
 
 const HeaderContainer = styled.div`
   background-color: rgb(51, 58, 100);
@@ -352,6 +353,7 @@ const Header = (props) => {
   const [isRoomTitle, setIsRoomTitle] = useState("");
   const [isRoomDesc, setIsRoomDesc] = useState("");
   const [isPath, setIsPath] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState("");
   const [isCreateRoomOpen, setIsCreateRoomOpen] = useState(false);
 
@@ -395,7 +397,6 @@ const Header = (props) => {
   }, []);
 
   const onChange = (event) => {
-    console.log(event.target.value);
     const {
       target: { name, value },
     } = event;
@@ -408,8 +409,10 @@ const Header = (props) => {
 
   const onSelectSpace = async () => {
     try {
+      setIsLoading(true);
       if (!isRoomTitle || !isRoomDesc)
         return alert("방 제목과 설명을 정확히 입력해주세요.");
+      setIsCreateRoomOpen(false);
       const result = await room.createRoom(
         user?.id,
         roomImage,
@@ -425,11 +428,14 @@ const Header = (props) => {
       }
     } catch (e) {
       console.log(e);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <>
+      {isLoading && <LoadingComponent />}
       <HeaderContainer path={isPath}>
         <LeftSection>
           <LogoSpan onClick={onClickLogo}>

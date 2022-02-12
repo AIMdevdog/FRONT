@@ -7,6 +7,7 @@ import assets from "../config/assets";
 import { user } from "../config/api";
 import { localGetItem } from "../utils/handleStorage";
 import Header from "../components/Header";
+import LoadingComponent from "../components/Loading";
 
 const LobbyContainer = styled.div`
   display: flex;
@@ -393,7 +394,7 @@ const Lobby = () => {
   const location = useLocation();
   const { state } = location;
   const navigate = useNavigate();
-
+  const [isLoading, setIsLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [isGetRoom, setIsGetRoom] = useState([]);
   const session = localGetItem("session");
@@ -446,6 +447,7 @@ const Lobby = () => {
   useEffect(() => {
     const userDataUpdate = async () => {
       try {
+        setIsLoading(true);
         const result = await user.getUserInfo(session);
         const {
           data: { data },
@@ -453,6 +455,8 @@ const Lobby = () => {
         setIsSaveUserData(data);
       } catch (e) {
         console.log(e);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -462,11 +466,14 @@ const Lobby = () => {
   useEffect(() => {
     const getRoom = async () => {
       try {
+        setIsLoading(true);
         const result = await room.getRoom();
         const { data } = result;
         setIsGetRoom(data);
       } catch (e) {
         console.log(e);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -489,6 +496,7 @@ const Lobby = () => {
 
   return (
     <>
+      {isLoading && <LoadingComponent />}
       <LobbyContainer>
         <Header user={isSaveUserData} />
         <LobbyHeader>
