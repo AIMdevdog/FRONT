@@ -1,12 +1,10 @@
 import { GameObject } from "./GameObject.js";
-import utils from "./utils.js";
 export class Person extends GameObject {
   constructor(config) {
     super(config);
     this.movingProgressRemaining = 0;
-
-    this.isPlayerControlled = config.isPlayerControlled || false;
-
+    this.nextDirection = [];
+    this.userid = config.id || false;
     this.directionUpdate = {
       up: ["y", -2],
       down: ["y", 2],
@@ -20,13 +18,8 @@ export class Person extends GameObject {
       this.updatePosition();
     } else {
       // More cases for starting to walk will come here
-
       // Case: We're keyboard ready and have an arrow pressed
-      if (
-        !state.map.isCutscenePlaying &&
-        this.isPlayerControlled &&
-        state.arrow
-      ) {
+      if (state.arrow) {
         this.startBehavior(state, {
           type: "walk",
           direction: state.arrow,
@@ -39,6 +32,7 @@ export class Person extends GameObject {
   startBehavior(state, behavior) {
     //Set character direction to whatever behavior has
     this.direction = behavior.direction;
+    console.log("Behavior start")
 
     if (behavior.type === "walk") {
       //Stop here if space is not free
@@ -52,17 +46,8 @@ export class Person extends GameObject {
       }
 
       //Ready to walk!
-      state.map.moveWall(this.x, this.y, this.direction);
-      this.movingProgressRemaining = 16;
+      this.movingProgressRemaining = 8;
       this.updateSprite(state);
-    }
-
-    if (behavior.type === "stand") {
-      setTimeout(() => {
-        utils.emitEvent("PersonStandComplete", {
-          whoId: this.id,
-        });
-      }, behavior.time);
     }
   }
 
@@ -70,13 +55,6 @@ export class Person extends GameObject {
     const [property, change] = this.directionUpdate[this.direction];
     this[property] += change;
     this.movingProgressRemaining -= 1;
-
-    if (this.movingProgressRemaining === 0) {
-      // We finished the walk!
-      utils.emitEvent("PersonWalkingComplete", {
-        whoId: this.id,
-      });
-    }
   }
 
   updateSprite() {

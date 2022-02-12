@@ -1,5 +1,4 @@
 import { Person } from "./Person.js";
-import { OverworldEvent } from "./OverworldEvent.js";
 
 import utils from "./utils.js";
 export class OverworldMap {
@@ -8,21 +7,18 @@ export class OverworldMap {
     this.gameObjects = config.gameObjects;
     this.cutsceneSpace = config.cutsceneSpace || {};
     this.walls = config.walls || {};
-    this.islowerImageLoaded = false;
+
     this.lowerImage = new Image();
     this.lowerImage.src = config.lowerSrc;
-    this.lowerImage.onload = () => {
-      this.islowerImageLoaded = true;
-    };
 
     this.upperImage = new Image();
     this.upperImage.src = config.upperSrc;
 
     this.isCutscenePlaying = false;
   }
+
   drawLowerImage(ctx, cameraPerson) {
-    // console.log(this.islowerImageLoaded);
-    this.islowerImageLoaded && ctx.drawImage(
+    ctx.drawImage(
       this.lowerImage,
       // utils.withGrid(10.5) - cameraPerson.x,
       // utils.withGrid(6) - cameraPerson.y
@@ -31,13 +27,13 @@ export class OverworldMap {
     );
   }
 
-  // drawUpperImage(ctx, cameraPerson) {
-  //   ctx.drawImage(
-  //     this.upperImage,
-  //     utils.withGrid(10.5) - cameraPerson.x,
-  //     utils.withGrid(6) - cameraPerson.y
-  //   );
-  // }
+  drawUpperImage(ctx, cameraPerson) {
+    ctx.drawImage(
+      this.upperImage,
+      utils.withGrid(10.5) - cameraPerson.x,
+      utils.withGrid(6) - cameraPerson.y
+    );
+  }
 
   isSpaceTaken(currentX, currentY, direction) {
     const { x, y } = utils.nextPosition(currentX, currentY, direction);
@@ -54,45 +50,6 @@ export class OverworldMap {
     });
   }
 
-  async startCutscene(events) {
-    this.isCutscenePlaying = true;
-
-    for (let i = 0; i < events.length; i++) {
-      const eventHandler = new OverworldEvent({
-        event: events[i],
-        map: this,
-      });
-      await eventHandler.init();
-    }
-
-    this.isCutscenePlaying = false;
-
-    // Reset NPCs to do their idle behabior
-    Object.values(this.gameObjects).forEach((object) =>
-      object.doBehaviorEvent(this)
-    );
-  }
-
-  checkForActionCutscene() {
-    const hero = this.gameObjects["hero"];
-    const nextCoords = utils.nextPosition(hero.x, hero.y, hero.direction);
-    const match = Object.values(this.gameObjects).find((object) => {
-      return `${object.x},${object.y}` === `${nextCoords.x},${nextCoords.y}`;
-    });
-
-    if (!this.isCutscenePlaying && match && match.talking.length) {
-      this.startCutscene(match.talking[0].events);
-    }
-  }
-
-  checkForFootstepCutscene() {
-    const hero = this.gameObjects["hero"];
-    const match = this.cutsceneSpace[`${hero.x},${hero.y}`];
-    if (!this.isCutscenePlaying && match) {
-      this.startCutscene(match[0].events);
-    }
-  }
-
   addWall(x, y) {
     this.walls[`${x},${y}`] = true;
   }
@@ -106,121 +63,122 @@ export class OverworldMap {
   }
 }
 
-if (typeof window !== "undefined") {
-  window.OverworldMaps = {
-    DemoRoom: {
-      lowerSrc: "/images/maps/DemoLower.png",
-      upperSrc: "/images/maps/DemoUpper.png",
-      gameObjects: {
-        hero: new Person({
-          isPlayerControlled: true,
-          x: utils.withGrid(5),
-          y: utils.withGrid(6),
-        }),
-        npcA: new Person({
-          x: utils.withGrid(7),
-          y: utils.withGrid(9),
-          src: "/images/characters/people/npc1.png",
-          behaviorLoop: [
-            { type: "stand", direction: "left", time: 800 },
-            { type: "stand", direction: "up", time: 800 },
-            { type: "stand", direction: "right", time: 1200 },
-            { type: "stand", direction: "up", time: 300 },
-          ],
-          talking: [
-            {
-              events: [
-                { type: "textMessage", text: "I'm busy...", faceHero: "npcA" },
-                { type: "textMessage", text: "Go away!" },
-                { who: "hero", type: "walk", direction: "up" },
-              ],
-            },
-          ],
-        }),
-        npcB: new Person({
-          x: utils.withGrid(8),
-          y: utils.withGrid(5),
-          src: "/images/characters/people/npc2.png",
-          // behaviorLoop: [
-          //   { type: "walk", direction: "left" },
-          //   { type: "stand", direction: "up", time: 800 },
-          //   { type: "walk", direction: "up" },
-          //   { type: "walk", direction: "right" },
-          //   { type: "walk", direction: "down" },
-          // ],
-        }),
-      },
-      walls: {
-        [utils.asGridCoord(7, 6)]: true,
-        [utils.asGridCoord(8, 6)]: true,
-        [utils.asGridCoord(7, 7)]: true,
-        [utils.asGridCoord(8, 7)]: true,
-      },
-      cutsceneSpace: {
-        [utils.asGridCoord(7, 4)]: [
+window.OverworldMaps = {
+  DemoRoom: {
+    lowerSrc: "/images/maps/DemoLower.png",
+    upperSrc: "/images/maps/DemoUpper.png",
+    gameObjects: {
+      hero: new Person({
+        isPlayerControlled: true,
+        x: utils.withGrid(5),
+        y: utils.withGrid(6),
+      }),
+      npcA: new Person({
+        x: utils.withGrid(7),
+        y: utils.withGrid(9),
+        src: "/images/characters/people/npc1.png",
+        behaviorLoop: [
+          { type: "stand", direction: "left", time: 800 },
+          { type: "stand", direction: "up", time: 800 },
+          { type: "stand", direction: "right", time: 1200 },
+          { type: "stand", direction: "up", time: 300 },
+        ],
+        talking: [
           {
             events: [
-              { who: "npcB", type: "walk", direction: "left" },
-              { who: "npcB", type: "stand", direction: "up", time: 500 },
-              { type: "textMessage", text: "You can't be in there" },
-              { who: "npcB", type: "walk", direction: "right" },
-              { who: "hero", type: "walk", direction: "down" },
-              { who: "hero", type: "walk", direction: "left" },
+              { type: "textMessage", text: "I'm busy...", faceHero: "npcA" },
+              { type: "textMessage", text: "Go away!" },
+              { who: "hero", type: "walk", direction: "up" },
             ],
           },
         ],
-        [utils.asGridCoord(5, 10)]: [
+      }),
+      npcB: new Person({
+        x: utils.withGrid(8),
+        y: utils.withGrid(5),
+        src: "/images/characters/people/npc2.png",
+        // behaviorLoop: [
+        //   { type: "walk", direction: "left" },
+        //   { type: "stand", direction: "up", time: 800 },
+        //   { type: "walk", direction: "up" },
+        //   { type: "walk", direction: "right" },
+        //   { type: "walk", direction: "down" },
+        // ],
+      }),
+    },
+    walls: {
+      [utils.asGridCoord(7, 6)]: true,
+      [utils.asGridCoord(8, 6)]: true,
+      [utils.asGridCoord(7, 7)]: true,
+      [utils.asGridCoord(8, 7)]: true,
+    },
+    cutsceneSpace: {
+      [utils.asGridCoord(7, 4)]: [
+        {
+          events: [
+            { who: "npcB", type: "walk", direction: "left" },
+            { who: "npcB", type: "stand", direction: "up", time: 500 },
+            { type: "textMessage", text: "You can't be in there" },
+            { who: "npcB", type: "walk", direction: "right" },
+            { who: "hero", type: "walk", direction: "down" },
+            { who: "hero", type: "walk", direction: "left" },
+          ],
+        },
+      ],
+      [utils.asGridCoord(5, 10)]: [
+        {
+          events: [{ type: "changeMap", map: "Kitchen" }],
+        },
+      ],
+    },
+  },
+  Kitchen: {
+    lowerSrc: "/images/maps/KitchenLower.png",
+    upperSrc: "/images/maps/KitchenUpper.png",
+    gameObjects: {
+      hero: new Person({
+        isPlayerControlled: true,
+        x: utils.withGrid(5),
+        y: utils.withGrid(5),
+      }),
+      npcB: new Person({
+        x: utils.withGrid(10),
+        y: utils.withGrid(8),
+        src: "/images/characters/people/npc3.png",
+        talking: [
           {
-            events: [{ type: "changeMap", map: "Kitchen" }],
+            events: [
+              { type: "textMessage", text: "You made it", faceHero: "npcB" },
+            ],
           },
         ],
-      },
+      }),
     },
-    Kitchen: {
-      lowerSrc: "/images/maps/KitchenLower.png",
-      upperSrc: "/images/maps/KitchenUpper.png",
-      gameObjects: {
-        hero: new Person({
-          isPlayerControlled: true,
-          x: utils.withGrid(5),
-          y: utils.withGrid(5),
-        }),
-        npcB: new Person({
-          x: utils.withGrid(10),
-          y: utils.withGrid(8),
-          src: "/images/characters/people/npc3.png",
-          talking: [
-            {
-              events: [
-                { type: "textMessage", text: "You made it", faceHero: "npcB" },
-              ],
-            },
-          ],
-        }),
-      },
+  },
+  TestingRoom: {
+    lowerSrc: "https://aim-image-storage.s3.ap-northeast-2.amazonaws.com/map2.png",
+    upperSrc: "/images/maps/KitchenUpper.png",
+    id: 123,
+    gameObjects: {
+      hero: new Person({
+        id: null,
+        isPlayerControlled: true,
+        x: utils.withGrid(5),
+        y: utils.withGrid(5),
+        src: null,
+      }),
+      // npcB: new Person({
+      //   x: utils.withGrid(5),
+      //   y: utils.withGrid(5),
+      //   src: "/images/characters/people/avatar-dQCYs4n7O99ksXuBIe33-UzbB5TTbkmeLg7hfrUii-yFpcQh7UcvdChVN8WvIW-Qjhn5Biz0wHk7Jh0Lg0w-CgjGnJ2FTTfWiE3tf7Uj-09g8XhwETZ7wAhFTUs4s.png",
+      //   talking: [
+      //     {
+      //       events: [
+      //         { type: "textMessage", text: "You made it", faceHero: "npcB" },
+      //       ],
+      //     },
+      //   ],
+      // }),
     },
-    TestingRoom: {
-      lowerSrc: "/Users/ksh19933/Desktop/FRONT/src/assets/images/game/all hands room LIGHT.png",
-      // upperSrc: "/images/maps/KitchenUpper.png",
-      gameObjects: {
-        hero: new Person({
-          isPlayerControlled: true,
-          x: utils.withGrid(5),
-          y: utils.withGrid(5),
-        }),
-        npcB: new Person({
-          x: utils.withGrid(5),
-          y: utils.withGrid(5),
-          src: "/images/characters/people/avatar-dQCYs4n7O99ksXuBIe33-UzbB5TTbkmeLg7hfrUii-yFpcQh7UcvdChVN8WvIW-Qjhn5Biz0wHk7Jh0Lg0w-CgjGnJ2FTTfWiE3tf7Uj-09g8XhwETZ7wAhFTUs4s.png",
-          talking: [
-            {
-              events: [
-                { type: "textMessage", text: "You made it", faceHero: "npcB" },
-              ],
-            },
-          ],
-        }),
-      },
-    },
-  };
-}
+  },
+};
