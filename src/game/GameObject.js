@@ -1,7 +1,9 @@
 import { Sprite } from "./Sprite.js";
+import { OverworldEvent } from "./OverworldEvent";
 
 export class GameObject {
   constructor(config) {
+    // console.log(config.src);
     this.id = null;
     this.isMounted = false;
     this.x = config.x || 0;
@@ -9,7 +11,7 @@ export class GameObject {
     this.direction = config.direction || "down";
     this.sprite = new Sprite({
       gameObject: this,
-      src: "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png",
+      src: config.src,
     });
 
     this.behaviorLoop = config.behaviorLoop || [];

@@ -32,7 +32,6 @@ export class Person extends GameObject {
   startBehavior(state, behavior) {
     //Set character direction to whatever behavior has
     this.direction = behavior.direction;
-    console.log("Behavior start")
 
     if (behavior.type === "walk") {
       //Stop here if space is not free

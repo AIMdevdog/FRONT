@@ -3,10 +3,15 @@ import { Person } from "./Person.js";
 import utils from "./utils.js";
 export class OverworldMap {
   constructor(config) {
+    // const {config, src} = data;
+    
     this.overworld = null;
     this.gameObjects = config.gameObjects;
     this.cutsceneSpace = config.cutsceneSpace || {};
     this.walls = config.walls || {};
+    // console.log(this.gameObjects.hero.src);
+    // this.gameObjects.hero.src = src;
+    // console.log(this.gameObjects.hero.src);
 
     this.lowerImage = new Image();
     this.lowerImage.src = config.lowerSrc;
@@ -63,122 +68,19 @@ export class OverworldMap {
   }
 }
 
-window.OverworldMaps = {
-  DemoRoom: {
-    lowerSrc: "/images/maps/DemoLower.png",
-    upperSrc: "/images/maps/DemoUpper.png",
-    gameObjects: {
-      hero: new Person({
-        isPlayerControlled: true,
-        x: utils.withGrid(5),
-        y: utils.withGrid(6),
-      }),
-      npcA: new Person({
-        x: utils.withGrid(7),
-        y: utils.withGrid(9),
-        src: "/images/characters/people/npc1.png",
-        behaviorLoop: [
-          { type: "stand", direction: "left", time: 800 },
-          { type: "stand", direction: "up", time: 800 },
-          { type: "stand", direction: "right", time: 1200 },
-          { type: "stand", direction: "up", time: 300 },
-        ],
-        talking: [
-          {
-            events: [
-              { type: "textMessage", text: "I'm busy...", faceHero: "npcA" },
-              { type: "textMessage", text: "Go away!" },
-              { who: "hero", type: "walk", direction: "up" },
-            ],
-          },
-        ],
-      }),
-      npcB: new Person({
-        x: utils.withGrid(8),
-        y: utils.withGrid(5),
-        src: "/images/characters/people/npc2.png",
-        // behaviorLoop: [
-        //   { type: "walk", direction: "left" },
-        //   { type: "stand", direction: "up", time: 800 },
-        //   { type: "walk", direction: "up" },
-        //   { type: "walk", direction: "right" },
-        //   { type: "walk", direction: "down" },
-        // ],
-      }),
-    },
-    walls: {
-      [utils.asGridCoord(7, 6)]: true,
-      [utils.asGridCoord(8, 6)]: true,
-      [utils.asGridCoord(7, 7)]: true,
-      [utils.asGridCoord(8, 7)]: true,
-    },
-    cutsceneSpace: {
-      [utils.asGridCoord(7, 4)]: [
-        {
-          events: [
-            { who: "npcB", type: "walk", direction: "left" },
-            { who: "npcB", type: "stand", direction: "up", time: 500 },
-            { type: "textMessage", text: "You can't be in there" },
-            { who: "npcB", type: "walk", direction: "right" },
-            { who: "hero", type: "walk", direction: "down" },
-            { who: "hero", type: "walk", direction: "left" },
-          ],
-        },
-      ],
-      [utils.asGridCoord(5, 10)]: [
-        {
-          events: [{ type: "changeMap", map: "Kitchen" }],
-        },
-      ],
-    },
-  },
-  Kitchen: {
-    lowerSrc: "/images/maps/KitchenLower.png",
-    upperSrc: "/images/maps/KitchenUpper.png",
-    gameObjects: {
-      hero: new Person({
-        isPlayerControlled: true,
-        x: utils.withGrid(5),
-        y: utils.withGrid(5),
-      }),
-      npcB: new Person({
-        x: utils.withGrid(10),
-        y: utils.withGrid(8),
-        src: "/images/characters/people/npc3.png",
-        talking: [
-          {
-            events: [
-              { type: "textMessage", text: "You made it", faceHero: "npcB" },
-            ],
-          },
-        ],
-      }),
-    },
-  },
-  TestingRoom: {
-    lowerSrc: "https://aim-image-storage.s3.ap-northeast-2.amazonaws.com/map2.png",
-    upperSrc: "/images/maps/KitchenUpper.png",
-    id: 123,
-    gameObjects: {
-      hero: new Person({
-        id: null,
-        isPlayerControlled: true,
-        x: utils.withGrid(5),
-        y: utils.withGrid(5),
-        src: null,
-      }),
-      // npcB: new Person({
-      //   x: utils.withGrid(5),
-      //   y: utils.withGrid(5),
-      //   src: "/images/characters/people/avatar-dQCYs4n7O99ksXuBIe33-UzbB5TTbkmeLg7hfrUii-yFpcQh7UcvdChVN8WvIW-Qjhn5Biz0wHk7Jh0Lg0w-CgjGnJ2FTTfWiE3tf7Uj-09g8XhwETZ7wAhFTUs4s.png",
-      //   talking: [
-      //     {
-      //       events: [
-      //         { type: "textMessage", text: "You made it", faceHero: "npcB" },
-      //       ],
-      //     },
-      //   ],
-      // }),
-    },
-  },
-};
+// window.OverworldMaps = {
+//   TestingRoom: {
+//     lowerSrc: "https://aim-image-storage.s3.ap-northeast-2.amazonaws.com/map2.png",
+//     upperSrc: "/images/maps/KitchenUpper.png",
+//     id: 123,
+//     gameObjects: {
+//       hero: new Person({
+//         id: null,
+//         isPlayerControlled: true,
+//         x: utils.withGrid(5),
+//         y: utils.withGrid(5),
+//         // src: "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png"
+//       }),
+//     },
+//   },
+// };
