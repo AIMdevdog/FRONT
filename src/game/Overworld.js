@@ -41,7 +41,7 @@ export class Overworld {
         });
 
       //Draw Upper layer
-      this.map.drawUpperImage(this.ctx, cameraPerson);
+      // this.map.drawUpperImage(this.ctx, cameraPerson);
 
       requestAnimationFrame(() => {
         step();
@@ -95,11 +95,5 @@ export class Overworld {
     this.directionInput.init();
 
     this.startGameLoop();
-
-    this.map.startCutscene([
-      // { type: "battle", },
-      // { type: "changeMap", map: "DemoRoom" },
-      // { type: "textMessage", text: "This is the very first message" },
-    ]);
   }
 }

@@ -8,18 +8,21 @@ export class OverworldMap {
     this.gameObjects = config.gameObjects;
     this.cutsceneSpace = config.cutsceneSpace || {};
     this.walls = config.walls || {};
+    this.islowerImageLoaded = false;
+    this.lowerImage = new Image();
+    this.lowerImage.src = config.lowerSrc;
+    this.lowerImage.onload = () => {
+      this.islowerImageLoaded = true;
+    };
 
-    // this.lowerImage = new Image();
-    // this.lowerImage.src = config.lowerSrc;
-
-    // this.upperImage = new Image();
-    // this.upperImage.src = config.upperSrc;
+    this.upperImage = new Image();
+    this.upperImage.src = config.upperSrc;
 
     this.isCutscenePlaying = false;
   }
-
   drawLowerImage(ctx, cameraPerson) {
-    ctx.drawImage(
+    // console.log(this.islowerImageLoaded);
+    this.islowerImageLoaded && ctx.drawImage(
       this.lowerImage,
       // utils.withGrid(10.5) - cameraPerson.x,
       // utils.withGrid(6) - cameraPerson.y
@@ -28,13 +31,13 @@ export class OverworldMap {
     );
   }
 
-  drawUpperImage(ctx, cameraPerson) {
-    ctx.drawImage(
-      this.upperImage,
-      utils.withGrid(10.5) - cameraPerson.x,
-      utils.withGrid(6) - cameraPerson.y
-    );
-  }
+  // drawUpperImage(ctx, cameraPerson) {
+  //   ctx.drawImage(
+  //     this.upperImage,
+  //     utils.withGrid(10.5) - cameraPerson.x,
+  //     utils.withGrid(6) - cameraPerson.y
+  //   );
+  // }
 
   isSpaceTaken(currentX, currentY, direction) {
     const { x, y } = utils.nextPosition(currentX, currentY, direction);
@@ -197,8 +200,8 @@ if (typeof window !== "undefined") {
       },
     },
     TestingRoom: {
-      lowerSrc: "/images/maps/all hands room LIGHT.png",
-      upperSrc: "/images/maps/KitchenUpper.png",
+      lowerSrc: "/Users/ksh19933/Desktop/FRONT/src/assets/images/game/all hands room LIGHT.png",
+      // upperSrc: "/images/maps/KitchenUpper.png",
       gameObjects: {
         hero: new Person({
           isPlayerControlled: true,
