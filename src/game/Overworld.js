@@ -50,9 +50,19 @@ export const Overworld = (config) => {
   const directionInput = new DirectionInput();
   directionInput.init();
   const socket = io("localhost:4001");
+
+
   socket.on("join_user", function (data) {
-    console.log(data);
-    joinUser(data.id, data.x, data.y, data.src);
+    socket.emit("send_user_src", {
+      src: map.gameObjects.hero.sprite.image.src,
+    })
+    joinUser(data.id, data.x, data.y);
+    socket.on("user_src", function (data){
+      Object.values(charMap).forEach((object) => {
+          object.sprite.image.src = data.src;
+        });
+    })
+
   });
 
   socket.on("leave_user", function (data) {
@@ -74,7 +84,7 @@ export const Overworld = (config) => {
 
       //Establish the camera person
       const cameraPerson = charMap[socket.id] || map.gameObjects.hero;
-
+      const player = charMap[socket.id];
       //Update all objects
       Object.values(charMap).forEach((object) => {
         if (object.id === socket.id) {
@@ -89,8 +99,14 @@ export const Overworld = (config) => {
             map: map,
             // id: socket.id,
           });
+          if(Math.abs(player.x -object.x) < 64 && Math.abs(player.y - object.y) < 96){
+            socket.emit("close",function(data){
+
+            })
+          }
         }
       });
+
 
       //Draw Lower layer
       map.drawLowerImage(ctx, cameraPerson);
@@ -104,7 +120,7 @@ export const Overworld = (config) => {
           object.sprite.draw(ctx, cameraPerson);
         });
 
-      const player = charMap[socket.id];
+
       if (player) {
         const data = {
           id: socket.id,
@@ -149,9 +165,6 @@ export const Overworld = (config) => {
   }
 
   const joinUser = (id, x, y, src) => {
-    console.log("newUser");
-    console.log(src);
-    console.log("-----------------");
     let character = new Person({
       x: 0,
       y: 0,

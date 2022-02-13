@@ -88,6 +88,7 @@ export class Sprite {
   }
 
   draw(ctx, cameraPerson) {
+    // console.log(this.image);
     const x =
       this.gameObject.x -
       8 +

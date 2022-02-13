@@ -3,7 +3,7 @@ import { OverworldEvent } from "./OverworldEvent";
 
 export class GameObject {
   constructor(config) {
-    // console.log(config.src);
+    // console.log("gameobject_src: ", config.src);
     this.id = null;
     this.isMounted = false;
     this.x = config.x || 0;
