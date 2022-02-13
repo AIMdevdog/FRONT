@@ -8,7 +8,10 @@ import { user } from "../config/api";
 import { localGetItem } from "../utils/handleStorage";
 import Header from "../components/Header";
 import LoadingComponent from "../components/Loading";
+import Slider from "react-slick";
 
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 const LobbyContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -40,7 +43,7 @@ const TabButton = styled.button`
 
   span {
     /* color: ${(props) =>
-      !props.room ? "rgb(84, 92, 143)" : "transparent"}; */
+    !props.room ? "rgb(84, 92, 143)" : "transparent"}; */
     color: rgb(255, 255, 255);
     font-family: "DM Sans", sans-serif;
     font-weight: 700;
@@ -222,7 +225,7 @@ const UserInfoTopSection = styled.div`
     object-position: 0px 0px;
     image-rendering: pixelated;
     position: absolute;
-    bottom: 17px;
+    bottom: 0px;
     z-index: 1;
     transform: translate3d(0px, 0px, 0px);
   }
@@ -390,6 +393,25 @@ const FinishButton = styled.button`
   color: rgb(40, 45, 78) !important;
 `;
 
+
+const ArrowWrap = styled.div`
+    .slick-prev {
+        left: 3% !important;
+        z-index: 1;
+      }
+    .slick-next {
+        right: 3% !important;
+        z-index: 1;
+    }
+    .slick-slide > div > div {
+        display: flex !important;
+        justify-content: center;
+        width: 180px;
+        height: 180px; 
+    }
+    
+`;
+
 const Lobby = () => {
   const location = useLocation();
   const { state } = location;
@@ -403,6 +425,34 @@ const Lobby = () => {
   const [isSaveUserData, setIsSaveUserData] = useState(null);
   const [isChangeRoom, setIsChangeRoom] = useState(false);
   const [isMyRoom, setIsMyRoom] = useState([]);
+  const [isCurrent, setCurrent] = useState(null);
+  const charImgs = [
+    "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-sb7g6nQb3ZYxzNHryIbM.png",
+    "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-vjTD4tj1AdR3182C7mHH.png",
+    "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png",
+    "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-XJBZpqmKhGvW3haxYtJO-I7vkRzijl8vBGm5LRwQT-uBxqrmbWQ15ykHxtWAi5-VztAi3oJnxQHhHU1sWpH-WW1GTt4cFIfI7aG4zd1o.png",
+    "https://dynamic-assets.gather.town/sprite/avatar-pYI5t3fZnQhRlQnCPEE1-C0ykfrlDx7AkQsLyLcNS-XJBZpqmKhGvW3haxYtJO-I7vkRzijl8vBGm5LRwQT-SC1roOyG6AGYCzcBSZam-VV89xZCDRo6OfVKMiHDL.png",
+    "https://dynamic-assets.gather.town/sprite/avatar-pP91s8KE7enD7HAXD27i-dQCYs4n7O99ksXuBIe33-XJBZpqmKhGvW3haxYtJO-I7vkRzijl8vBGm5LRwQT-sVKwufLMwK1Arxlf97pz-lnwpCVixsUIqSixRPC8T.png",
+    "https://dynamic-assets.gather.town/sprite/avatar-C0ykfrlDx7AkQsLyLcNS-O4fcHqx7z1JBI5wTYaS6-yFpcQh7UcvdChVN8WvIW-Hj5gUXZlV0buPDZNyVjq-ajuL49i7C1GPb3SSzdGE-JB1jFMCsTzYIs8ZXSewh.png",
+    "https://dynamic-assets.gather.town/sprite/avatar-aeJhE2yHSYx7EfnQKpTW-ZMvgHzgMYMTUHLHlSmLS-8hCSfYIK6RvpToNgMJNB-xayLOInw3HISMHHNcXwg-yFpcQh7UcvdChVN8WvIW-SC1roOyG6AGYCzcBSZam-QD1dfiGx3GhblDjHCj3T-eeWeU121K33Guk3ms1Kn-5rg2xBZpHHxlFKNCLJvZ.png"
+  ]
+
+  const settings = {
+    dots: true,
+    // lazyLoad: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    initialSlide: 0,
+    beforeChange: (current, next) => {
+      console.log(charImgs[current], next)
+      setCurrent((before) => before = charImgs[next]);
+    }
+
+    // this.setState({ oldSlide: current, activeSlide: next }),
+    //  afterChange: current => this.setState({ activeSlide2: current })
+  };
 
   const readyToGoIntoTheRoom = () => {
     setIsOpen(!isOpen);
@@ -425,7 +475,7 @@ const Lobby = () => {
       } = await user.saveUserInfo(
         session,
         isNickname,
-        "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png"
+        isCurrent,
       );
       if (code === 200) {
         alert(msg);
@@ -434,14 +484,13 @@ const Lobby = () => {
           data: { data },
         } = result;
         setIsSaveUserData(data);
+        navigate("/room", { state: isCurrent });
+
       }
     } catch (e) {
       console.log(e);
     }
-    // navigate({
-    //   pathname: "/room",
-    //   // search: '?sort=date&order=newest',
-    // });
+
   };
 
   useEffect(() => {
@@ -568,12 +617,31 @@ const Lobby = () => {
                 <UserInfo>
                   <UserInfoTopSection>
                     {/* <div>
-                  <span>Change your character</span>
-                </div> */}
-                    <img
-                      src="https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png"
-                      alt="user-character"
-                    />
+                    <span>Change your character</span>
+                  </div> */}
+                    {/* <img
+                        src="https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png"
+                        alt="user-character"
+                        /> */}
+                    <div style={{ marginTop: "15px", width: "400px", height: "240px" }}>
+                      <ArrowWrap>
+                        <Slider {...settings}>
+                          {
+                            charImgs.map((charSrc) => {
+                              return (
+                                <div key={charSrc}>
+
+                                  <img
+                                    src={charSrc}
+                                    alt="user-character"
+                                  />
+                                </div>
+                              )
+                            })
+                          }
+                        </Slider>
+                      </ArrowWrap>
+                    </div>
                   </UserInfoTopSection>
                   <UserNickname>
                     {/* <span>fred</span> */}

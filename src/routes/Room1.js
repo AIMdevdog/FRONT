@@ -1,35 +1,31 @@
 import { useEffect } from "react";
-import { useLocation } from "react-router";
 import { Overworld } from "../game/Overworld";
 import { Person } from "../game/Person";
 
 const Room = () => {
-  const location = useLocation();
-  console.log(location);
-  const charSrc = location.state || "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-sb7g6nQb3ZYxzNHryIbM.png";
-  console.log(charSrc);
+  const charSrc = "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png";
   useEffect(() => {
     Overworld(
       {
         config: document.querySelector(".game-container"),
         Room: {
-          RoomSrc: "https://aim-image-storage.s3.ap-northeast-2.amazonaws.com/map2.png",
+          RoomSrc: "https://raw.githubusercontent.com/gathertown/mapmaking/master/maps/templates/All%20Hands%20Room%20Medium/med_thumbnail2.png",
           id: 123,
           gameObjects: {
             player: new Person({
               id: null,
               isPlayerControlled: true,
-              x: 80,
-              y: 80,
+              x: 400,
+              y: 400,
               src: charSrc,
             }),
           },
         },
-        otherMaps: [
+        otherMaps:[
           {
-            x: 16,
-            y: 448,
-            url: 'http://localhost:3000/room1',
+            x: 96,
+            y: 336,
+            url: 'http://localhost:3000/room',
           }
         ]
       }
@@ -39,7 +35,7 @@ const Room = () => {
 
   return (
     <>
-      <div className="game-container" style={{ backgroundColor: "black" }}>
+      <div className="game-container">
         <canvas className="game-canvas"></canvas>
       </div>
     </>

@@ -5,6 +5,10 @@ import SignIn from "./routes/SignIn";
 import Lobby from "./routes/Lobby";
 import Header from "./components/Header";
 import Room from "./routes/Room";
+import Room1 from "./routes/Room1";
+import SimpleSlider from "./components/CharacterSlider";
+
+
 
 export const Router = () => {
   return (
@@ -16,6 +20,8 @@ export const Router = () => {
         <Route path="/signup" element={<Signup />} />
         <Route path="/lobby" element={<Lobby />} />
         <Route path="/room" element={<Room />} />
+        <Route path="/room1" element={<Room1 />} />
+        <Route path="/slider" element={<SimpleSlider />} />
       </Routes>
     </BrowserRouter>
   );

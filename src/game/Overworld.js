@@ -26,44 +26,40 @@ const charMap = {};
 
 
 
-export const Overworld = (config) => {
+export const Overworld = (data) => {
+  const config = data.config;
   const element = config;
   const canvas = element.querySelector(".game-canvas")
   const ctx = canvas.getContext("2d");
 
-  const map = new OverworldMap({
-      lowerSrc: "https://aim-image-storage.s3.ap-northeast-2.amazonaws.com/map2.png",
-      upperSrc: "/images/maps/KitchenUpper.png",
-      id: 123,
-      gameObjects: {
-        hero: new Person({
-          id: null,
-          isPlayerControlled: true,
-          x: utils.withGrid(5),
-          y: utils.withGrid(5),
-          src: "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png"
-        }),
-      },
-  });
-  //   map.overworld = this;
-  //   map.mountObjects();
+  const map = new OverworldMap(data.Room);
+  const otherMaps = data.otherMaps;
   const directionInput = new DirectionInput();
   directionInput.init();
   const socket = io("localhost:4001");
 
 
   socket.on("join_user", function (data) {
+
+    // console.log(socket.id);
+    console.log("join_serrrrr")
+    console.log(map.gameObjects.player.sprite.image.src);
     socket.emit("send_user_src", {
-      src: map.gameObjects.hero.sprite.image.src,
+      id: socket.id,
+      src: map.gameObjects.player.sprite.image.src,
     })
     joinUser(data.id, data.x, data.y);
-    socket.on("user_src", function (data){
-      Object.values(charMap).forEach((object) => {
-          object.sprite.image.src = data.src;
-        });
-    })
 
   });
+  socket.on("user_src", function (data) {
+    console.log("user_srcccccccc")
+    const User = charMap[data.id];
+    console.log(User.sprite.image.src);
+    User.sprite.image.src = data.src;
+    // Object.values(charMap).forEach((object) => {
+    //   object.sprite.image.src = data.src;
+    // });
+  })
 
   socket.on("leave_user", function (data) {
     leaveUser(data);
@@ -83,11 +79,17 @@ export const Overworld = (config) => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       //Establish the camera person
-      const cameraPerson = charMap[socket.id] || map.gameObjects.hero;
+      const cameraPerson = charMap[socket.id] || map.gameObjects.player;
       const player = charMap[socket.id];
       //Update all objects
       Object.values(charMap).forEach((object) => {
         if (object.id === socket.id) {
+          for (let i = 0; i < otherMaps.length; i++) {
+            if (object.x === otherMaps[i].x && object.y === otherMaps[i].y) {
+              console.log("warp!!!");
+              window.location.replace(otherMaps[i].url);
+            }
+          }
           object.update({
             arrow: directionInput.direction,
             map: map,
@@ -99,10 +101,9 @@ export const Overworld = (config) => {
             map: map,
             // id: socket.id,
           });
-          if(Math.abs(player.x -object.x) < 64 && Math.abs(player.y - object.y) < 96){
-            socket.emit("close",function(data){
-
-            })
+          if (Math.abs(player.x - object.x) < 64 && Math.abs(player.y - object.y) < 96) {
+            //화상 통화 연결
+            // console.log("가까워짐")
           }
         }
       });
@@ -147,7 +148,6 @@ export const Overworld = (config) => {
       if (char.id === socket.id) {
         continue;
       }
-
       char.nextDirection.unshift(data[i].direction);
       char.x = data[i].x;
       char.y = data[i].y;
@@ -189,7 +189,7 @@ export const Overworld = (config) => {
 
   // // bindHeroPositionCheck() {
   // //   document.addEventListener("PersonWalkingComplete", (e) => {
-  // //     if (e.detail.whoId === "hero") {
+  // //     if (e.detail.whoId === "player") {
   // //       // Hero's position has changed
   // //       this.map.checkForFootstepCutscene();
   // //     }

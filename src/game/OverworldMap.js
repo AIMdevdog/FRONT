@@ -14,12 +14,7 @@ export class OverworldMap {
     // console.log(this.gameObjects.hero.src);
 
     this.lowerImage = new Image();
-    this.lowerImage.src = config.lowerSrc;
-
-    this.upperImage = new Image();
-    this.upperImage.src = config.upperSrc;
-
-    this.isCutscenePlaying = false;
+    this.lowerImage.src = config.RoomSrc;
   }
 
   drawLowerImage(ctx, cameraPerson) {
@@ -29,14 +24,6 @@ export class OverworldMap {
       // utils.withGrid(6) - cameraPerson.y
       utils.withGrid(ctx.canvas.clientWidth / 16 / 2) - cameraPerson.x,
       utils.withGrid(ctx.canvas.clientHeight / 16 / 2) - cameraPerson.y
-    );
-  }
-
-  drawUpperImage(ctx, cameraPerson) {
-    ctx.drawImage(
-      this.upperImage,
-      utils.withGrid(10.5) - cameraPerson.x,
-      utils.withGrid(6) - cameraPerson.y
     );
   }
 
