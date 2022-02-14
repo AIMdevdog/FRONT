@@ -2,13 +2,11 @@ import { OverworldMap } from "./OverworldMap.js";
 import { DirectionInput } from "./DirectionInput.js";
 import { Person } from "./Person.js";
 import utils from "./utils.js";
-import io from 'socket.io-client';
-
-
+import io from "socket.io-client";
+import _const from "../config/const.js";
 
 const characters = [];
 const charMap = {};
-
 
 // socket.on("join_user", function (data) {
 //   joinUser(data.id, data.x, data.y);
@@ -22,16 +20,12 @@ const charMap = {};
 //   updateLocation(data);
 // })
 
-
-
-
-
 export const Overworld = (data) => {
   const config = data.config;
   const element = config;
-  const canvas = element.querySelector(".game-canvas")
+  const canvas = element.querySelector(".game-canvas");
   const ctx = canvas.getContext("2d");
-  const socket = io("http://3.34.142.113:8000/");
+  const socket = io(_const.HOST);
   const cameraConstraints = {
     audio: true,
     video: true,
@@ -43,19 +37,17 @@ export const Overworld = (data) => {
   directionInput.init();
   // const socket = io("localhost:4001");
   // const wssocket = io("localhost:8000");
-  
+
   // const startTest = () => {
-    
+
   // }
   // startTest();
-
-
 
   socket.on("join_user", function (data) {
     // socket.emit("join_room", 1, socket.id);
     //====================  비디오 추가 함수 =================//
-    console.log("새로운 유저 접속")
-    paintPeerFace()
+    console.log("새로운 유저 접속");
+    paintPeerFace();
 
     // console.log(socket.id);
     // console.log("join_serrrrr")
@@ -63,9 +55,8 @@ export const Overworld = (data) => {
     socket.emit("send_user_src", {
       id: socket.id,
       src: map.gameObjects.player.sprite.image.src,
-    })
+    });
     joinUser(data.id, data.x, data.y);
-
   });
   socket.on("user_src", function (data) {
     // console.log("user_srcccccccc")
@@ -75,7 +66,7 @@ export const Overworld = (data) => {
     // Object.values(charMap).forEach((object) => {
     //   object.sprite.image.src = data.src;
     // });
-  })
+  });
 
   socket.on("leave_user", function (data) {
     leaveUser(data);
@@ -84,10 +75,12 @@ export const Overworld = (data) => {
   socket.on("update_state", function (data) {
     // console.log(data);
     updateLocation(data);
-  })
+  });
 
   const paintPeerFace = async () => {
-    const myStream = await navigator.mediaDevices.getUserMedia(cameraConstraints);
+    const myStream = await navigator.mediaDevices.getUserMedia(
+      cameraConstraints
+    );
 
     const streams = document.querySelector("#streams");
     const div = document.createElement("div");
@@ -99,12 +92,12 @@ export const Overworld = (data) => {
     video.height = "100";
     video.srcObject = myStream;
     // const nicknameContainer = document.createElement("h3");
-  
+
     div.appendChild(video);
     // div.appendChild(nicknameContainer);
     streams.appendChild(div);
     // sortStreams();
-  }
+  };
 
   const startGameLoop = () => {
     const step = () => {
@@ -138,17 +131,19 @@ export const Overworld = (data) => {
             map: map,
             // id: socket.id,
           });
-          if (Math.abs(player.x - object.x) < 64 && Math.abs(player.y - object.y) < 96) {
+          if (
+            Math.abs(player.x - object.x) < 64 &&
+            Math.abs(player.y - object.y) < 96
+          ) {
             //화상 통화 연결
             socket.emit("user_call", {
               caller: player.id,
               callee: object.id,
-            })
+            });
             // console.log("가까워짐")
           }
         }
       });
-
 
       //Draw Lower layer
       map.drawLowerImage(ctx, cameraPerson);
@@ -162,15 +157,14 @@ export const Overworld = (data) => {
           object.sprite.draw(ctx, cameraPerson);
         });
 
-
       if (player) {
         const data = {
           id: socket.id,
           x: player.x,
           y: player.y,
           direction: directionInput.direction,
-        }
-        socket.emit('input', data)
+        };
+        socket.emit("input", data);
       }
 
       //Draw Upper layer
@@ -181,7 +175,7 @@ export const Overworld = (data) => {
       });
     };
     step();
-  }
+  };
   const updateLocation = (data) => {
     let char;
     for (let i = 0; i < characters.length; i++) {
@@ -193,7 +187,7 @@ export const Overworld = (data) => {
       char.x = data[i].x;
       char.y = data[i].y;
     }
-  }
+  };
 
   const leaveUser = (id) => {
     for (let i = 0; i < characters.length; ++i) {
@@ -203,7 +197,7 @@ export const Overworld = (data) => {
       }
     }
     delete charMap[id];
-  }
+  };
 
   const joinUser = (id, x, y, src) => {
     let character = new Person({
@@ -219,7 +213,6 @@ export const Overworld = (data) => {
     charMap[id] = character;
     return character;
   };
-
 
   // // bindActionInput() {
   // //   new KeyPressListener("Enter", () => {
@@ -240,7 +233,5 @@ export const Overworld = (data) => {
   // // this.bindActionInput();
   // // this.bindHeroPositionCheck();
 
-
-
   startGameLoop();
-}
+};
