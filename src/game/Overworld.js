@@ -171,14 +171,14 @@ export const Overworld = (data) => {
 
   const joinUser = (id, x, y, src) => {
     let character = new Person({
-      x: x,
-      y: y,
+      x: 0,
+      y: 0,
       id: id,
       src: src,
     });
-    // character.id = id;
-    // character.x = x;
-    // character.y = y;
+    character.id = id;
+    character.x = x;
+    character.y = y;
     characters.push(character);
     charMap[id] = character;
     return character;
