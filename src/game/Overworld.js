@@ -31,24 +31,31 @@ export const Overworld = (data) => {
   const element = config;
   const canvas = element.querySelector(".game-canvas")
   const ctx = canvas.getContext("2d");
+  const socket = io("http://3.34.142.113:8000/");
+  const cameraConstraints = {
+    audio: true,
+    video: true,
+  };
 
   const map = new OverworldMap(data.Room);
   const otherMaps = data.otherMaps;
   const directionInput = new DirectionInput();
   directionInput.init();
-  const socket = io("localhost:4001");
+  // const socket = io("localhost:4001");
   // const wssocket = io("localhost:8000");
-
   
-
-  const startTest = () => {
-    socket.emit("join_room", 1, 2);
-  }
-  startTest();
+  // const startTest = () => {
+    
+  // }
+  // startTest();
 
 
 
   socket.on("join_user", function (data) {
+    // socket.emit("join_room", 1, socket.id);
+    //====================  비디오 추가 함수 =================//
+    console.log("새로운 유저 접속")
+    paintPeerFace()
 
     // console.log(socket.id);
     // console.log("join_serrrrr")
@@ -78,6 +85,26 @@ export const Overworld = (data) => {
     // console.log(data);
     updateLocation(data);
   })
+
+  const paintPeerFace = async () => {
+    const myStream = await navigator.mediaDevices.getUserMedia(cameraConstraints);
+
+    const streams = document.querySelector("#streams");
+    const div = document.createElement("div");
+    // div.id = id;
+    const video = document.createElement("video");
+    video.autoplay = true;
+    video.playsInline = true;
+    video.width = "200";
+    video.height = "100";
+    video.srcObject = myStream;
+    // const nicknameContainer = document.createElement("h3");
+  
+    div.appendChild(video);
+    // div.appendChild(nicknameContainer);
+    streams.appendChild(div);
+    // sortStreams();
+  }
 
   const startGameLoop = () => {
     const step = () => {

@@ -3,6 +3,8 @@ import { useLocation } from "react-router";
 import { Overworld } from "../game/Overworld";
 import { Person } from "../game/Person";
 import React from 'react';
+import io from 'socket.io-client';
+
 const Room = () => {
   const location = useLocation();
   console.log(location);
@@ -39,16 +41,17 @@ const Room = () => {
 
 
   useEffect(() => {
+    const cameraConstraints = {
+      audio: true,
+      video: true,
+    };
+  
     
 const getMedia = async () =>  {
   
   const myFace = document.querySelector("#myFace");
   
-  const cameraConstraints = {
-    audio: true,
-    video: true,
-  };
-
+ 
   try {
     const myStream = await navigator.mediaDevices.getUserMedia(cameraConstraints);
     console.log(myStream)
@@ -61,7 +64,28 @@ const getMedia = async () =>  {
     }
   }
 
+  const paintPeerFace = async () => {
+    const myStream = await navigator.mediaDevices.getUserMedia(cameraConstraints);
+
+    const streams = document.querySelector("#streams");
+    const div = document.createElement("div");
+    // div.id = id;
+    const video = document.createElement("video");
+    video.autoplay = true;
+    video.playsInline = true;
+    video.width = "400";
+    video.height = "400";
+    video.srcObject = myStream;
+    const nicknameContainer = document.createElement("h3");
+  
+    div.appendChild(video);
+    div.appendChild(nicknameContainer);
+    streams.appendChild(div);
+    // sortStreams();
+  }
+
   getMedia();
+  // paintPeerFace();
   }, [])
 
   return (
@@ -70,10 +94,14 @@ const getMedia = async () =>  {
         
         <canvas className="game-canvas"></canvas>
       </div>
-      <div style={{position: "fixed", right: 0, bottom: 0, width: 200, height: 200, backgroundColor: 'white'}}>
+      <div id="streams" style={{position: "absolute", display: 'flex', left: 0, bottom: 100, width: 200, height: 100, backgroundColor: 'white'}}>
         
-        <video id="myFace" autoplay="autoplay" style={{width: 200, height: 200}}></video>
       </div>
+      {/* <div  style={{position: "fixed", right: 0, bottom: 0, width: 200, height: 200, backgroundColor: 'white'}}>
+      <video id="myFace" autoplay="autoplay" style={{width: 200, height: 200}}></video>
+
+      </div> */}
+
     </>
   );
 };
