@@ -82,6 +82,7 @@ export const Overworld = (data) => {
       const cameraPerson = charMap[socket.id] || map.gameObjects.player;
       const player = charMap[socket.id];
       //Update all objects
+      console.log(charMap);
       Object.values(charMap).forEach((object) => {
         if (object.id === socket.id) {
           for (let i = 0; i < otherMaps.length; i++) {

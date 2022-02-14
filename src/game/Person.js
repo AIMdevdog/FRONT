@@ -45,7 +45,7 @@ export class Person extends GameObject {
       }
 
       //Ready to walk!
-      this.movingProgressRemaining = 8;
+      this.movingProgressRemaining = 16;
       this.updateSprite(state);
     }
   }

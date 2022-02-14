@@ -39,7 +39,7 @@ const Room = () => {
 
   return (
     <>
-      <div className="game-container" style={{ backgroundColor: "black" }}>
+      <div className="game-container" style={{ backgroundColor: "black", display: "block" }}>
         <canvas className="game-canvas"></canvas>
       </div>
     </>
