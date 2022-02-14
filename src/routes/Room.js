@@ -37,10 +37,42 @@ const Room = () => {
     // overworld.init();
   }, []);
 
+
+  useEffect(() => {
+    
+const getMedia = async () =>  {
+  
+  const myFace = document.querySelector("#myFace");
+  
+  const cameraConstraints = {
+    audio: true,
+    video: true,
+  };
+
+  try {
+    const myStream = await navigator.mediaDevices.getUserMedia(cameraConstraints);
+    console.log(myStream)
+    // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
+    myFace.srcObject = myStream;
+    // myFace.muted = true;
+
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  getMedia();
+  }, [])
+
   return (
     <>
       <div className="game-container" style={{ backgroundColor: "black", display: "block" }}>
+        
         <canvas className="game-canvas"></canvas>
+      </div>
+      <div style={{position: "fixed", right: 0, bottom: 0, width: 200, height: 200, backgroundColor: 'white'}}>
+        
+        <video id="myFace" autoplay="autoplay" style={{width: 200, height: 200}}></video>
       </div>
     </>
   );

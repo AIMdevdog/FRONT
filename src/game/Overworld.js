@@ -37,13 +37,22 @@ export const Overworld = (data) => {
   const directionInput = new DirectionInput();
   directionInput.init();
   const socket = io("localhost:4001");
+  // const wssocket = io("localhost:8000");
+
+  
+
+  const startTest = () => {
+    socket.emit("join_room", 1, 2);
+  }
+  startTest();
+
 
 
   socket.on("join_user", function (data) {
 
     // console.log(socket.id);
-    console.log("join_serrrrr")
-    console.log(map.gameObjects.player.sprite.image.src);
+    // console.log("join_serrrrr")
+    // console.log(map.gameObjects.player.sprite.image.src);
     socket.emit("send_user_src", {
       id: socket.id,
       src: map.gameObjects.player.sprite.image.src,
@@ -52,9 +61,9 @@ export const Overworld = (data) => {
 
   });
   socket.on("user_src", function (data) {
-    console.log("user_srcccccccc")
+    // console.log("user_srcccccccc")
     const User = charMap[data.id];
-    console.log(User.sprite.image.src);
+    // console.log(User.sprite.image.src);
     User.sprite.image.src = data.src;
     // Object.values(charMap).forEach((object) => {
     //   object.sprite.image.src = data.src;
@@ -82,7 +91,7 @@ export const Overworld = (data) => {
       const cameraPerson = charMap[socket.id] || map.gameObjects.player;
       const player = charMap[socket.id];
       //Update all objects
-      console.log(charMap);
+      // console.log(charMap);
       Object.values(charMap).forEach((object) => {
         if (object.id === socket.id) {
           for (let i = 0; i < otherMaps.length; i++) {
