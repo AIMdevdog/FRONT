@@ -9,7 +9,7 @@ import { localGetItem } from "../utils/handleStorage";
 import Header from "../components/Header";
 import LoadingComponent from "../components/Loading";
 import Slider from "react-slick";
-
+import React from 'react';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 const LobbyContainer = styled.div`

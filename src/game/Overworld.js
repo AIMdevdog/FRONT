@@ -103,7 +103,7 @@ export const Overworld = (data) => {
           });
           if (Math.abs(player.x - object.x) < 64 && Math.abs(player.y - object.y) < 96) {
             //화상 통화 연결
-            // console.log("가까워짐")
+            console.log("가까워짐");
           }
         }
       });

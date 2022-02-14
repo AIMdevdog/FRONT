@@ -5,6 +5,7 @@ import styled from "styled-components";
 import { room } from "../config/api";
 import { localGetItem, removeItem } from "../utils/handleStorage";
 import LoadingComponent from "./Loading";
+import React from 'react';
 
 const HeaderContainer = styled.div`
   background-color: rgb(51, 58, 100);

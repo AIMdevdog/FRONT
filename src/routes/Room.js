@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useLocation } from "react-router";
 import { Overworld } from "../game/Overworld";
 import { Person } from "../game/Person";
-
+import React from 'react';
 const Room = () => {
   const location = useLocation();
   console.log(location);
