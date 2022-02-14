@@ -103,7 +103,11 @@ export const Overworld = (data) => {
           });
           if (Math.abs(player.x - object.x) < 64 && Math.abs(player.y - object.y) < 96) {
             //화상 통화 연결
-            console.log("가까워짐");
+            socket.emit("user_call", {
+              caller: player.id,
+              callee: object.id,
+            })
+            // console.log("가까워짐")
           }
         }
       });
@@ -166,14 +170,14 @@ export const Overworld = (data) => {
 
   const joinUser = (id, x, y, src) => {
     let character = new Person({
-      x: 0,
-      y: 0,
+      x: x,
+      y: y,
       id: id,
       src: src,
     });
-    character.id = id;
-    character.x = x;
-    character.y = y;
+    // character.id = id;
+    // character.x = x;
+    // character.y = y;
     characters.push(character);
     charMap[id] = character;
     return character;
