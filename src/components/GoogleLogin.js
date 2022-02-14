@@ -17,9 +17,11 @@ const GoogleButton = ({ onSocial }) => {
         profileObj: { email, name },
       } = response;
 
+      console.log(accessToken, email)
+
       const result = await sign.getSign(accessToken, email);
-      const { code, data } = result?.data;
-      if (code === 200) {
+      const { data, status } = result;
+      if (status === 200) {
         await localSetItem("session", data?.accessToken, 20160);
         navigate("/lobby", { state: data });
       } else {

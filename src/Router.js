@@ -7,7 +7,7 @@ import Header from "./components/Header";
 import Room from "./routes/Room";
 import Room1 from "./routes/Room1";
 import SimpleSlider from "./components/CharacterSlider";
-
+import React from 'react';
 
 
 export const Router = () => {
