@@ -1,7 +1,7 @@
 import { OverworldMap } from "./OverworldMap.js";
 import { DirectionInput } from "./DirectionInput.js";
 import { Person } from "./Person.js";
-// import utils from "./utils.js";
+import utils from "./utils.js";
 import io from 'socket.io-client';
 import _const from "../config/const.js";
 
@@ -100,9 +100,12 @@ export const Overworld = (data) => {
   
   async function getMedia() {
     const myFace = document.querySelector("#myFace");
+    console.log("Myface");
     
     try {
-      myStream = await navigator.mediaDevices.getUserMedia(cameraConstraints);
+      const myStream = await navigator.mediaDevices.getUserMedia(cameraConstraints);
+      console.log("mystream", myStream);
+      // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
       myFace.srcObject = myStream;
     } catch (error) {
       console.log(error);
@@ -180,13 +183,11 @@ export const Overworld = (data) => {
 
   socket.on("offer", async (offer, remoteSocketId, remoteNickname) => {
     try {
-      console.log("received the offer");
       const newPC = createConnection(remoteSocketId, remoteNickname);
       await newPC.setRemoteDescription(offer);
       const answer = await newPC.createAnswer();
       await newPC.setLocalDescription(answer);
       socket.emit("answer", answer, remoteSocketId);
-      console.log("sent the answer");
       // writeChat(`notice! __${remoteNickname}__ joined the room`, NOTICE_CN);
     } catch (err) {
       console.error(err);
@@ -194,12 +195,10 @@ export const Overworld = (data) => {
   });
 
   socket.on("answer", async (answer, remoteSocketId) => {
-    console.log("received the answer");
     await pcObj[remoteSocketId].setRemoteDescription(answer);
   });
 
   socket.on("ice", async (ice, remoteSocketId) => {
-    console.log("received candidate");
     await pcObj[remoteSocketId].addIceCandidate(ice);
   });
 
@@ -219,7 +218,7 @@ export const Overworld = (data) => {
   });
 
   socket.on("user_src", function (data) {
-    // console.log("user_srcccccccc")
+    console.log("user_srccc")
     const User = charMap[data.id];
     // console.log(User.sprite.image.src);
     User.sprite.image.src = data.src;
@@ -228,7 +227,7 @@ export const Overworld = (data) => {
   });
   
   // });
-  socket.on("leave_user", function (data) {
+  socket.on("leave_user", function () {
     leaveUser(data);
   });
 
@@ -271,6 +270,7 @@ export const Overworld = (data) => {
           });
           if (!object.isUserCalling && Math.abs(player.x - object.x) < 64 && Math.abs(player.y - object.y) < 96) {
             //화상 통화 연결
+            console.log("가까워짐")
             player.isUserCalling = true;
             object.isUserCalling = true;
             socket.emit("user_call", {
@@ -278,6 +278,16 @@ export const Overworld = (data) => {
               callee: object.id,
             });
           }
+            if (Math.abs(player.x - object.x) > 96 || Math.abs(player.y - object.y) > 128) {
+              console.log("멀어짐")
+              // console.log(socket)
+              player.isUserCalling = false;
+              object.isUserCalling = false;
+              // console.log(player, object);
+              socket.emit("leave_Group", object.id);
+              // socket.emit("disconnected");
+
+            }
         }
       });
 
