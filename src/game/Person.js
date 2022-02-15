@@ -11,6 +11,8 @@ export class Person extends GameObject {
       left: ["x", -2],
       right: ["x", 2],
     };
+
+    this.isUserCalling = false;
   }
 
   update(state) {

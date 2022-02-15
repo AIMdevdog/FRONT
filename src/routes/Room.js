@@ -39,55 +39,7 @@ const Room = () => {
     // overworld.init();
   }, []);
 
-
-  useEffect(() => {
-    const cameraConstraints = {
-      audio: true,
-      video: true,
-    };
   
-    
-const getMedia = async () =>  {
-  
-  const myFace = document.querySelector("#myFace");
-  
- 
-  try {
-    const myStream = await navigator.mediaDevices.getUserMedia(cameraConstraints);
-    console.log(myStream)
-    // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
-    myFace.srcObject = myStream;
-    // myFace.muted = true;
-
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  const paintPeerFace = async () => {
-    const myStream = await navigator.mediaDevices.getUserMedia(cameraConstraints);
-
-    const streams = document.querySelector("#streams");
-    const div = document.createElement("div");
-    // div.id = id;
-    const video = document.createElement("video");
-    video.autoplay = true;
-    video.playsInline = true;
-    video.width = "400";
-    video.height = "400";
-    video.srcObject = myStream;
-    const nicknameContainer = document.createElement("h3");
-  
-    div.appendChild(video);
-    div.appendChild(nicknameContainer);
-    streams.appendChild(div);
-    // sortStreams();
-  }
-
-  getMedia();
-  // paintPeerFace();
-  }, [])
-
   return (
     <>
       <div className="game-container" style={{ backgroundColor: "black", display: "block" }}>
@@ -97,10 +49,10 @@ const getMedia = async () =>  {
       <div id="streams" style={{position: "absolute", display: 'flex', left: 0, bottom: 100, width: 200, height: 100, backgroundColor: 'white'}}>
         
       </div>
-      {/* <div  style={{position: "fixed", right: 0, bottom: 0, width: 200, height: 200, backgroundColor: 'white'}}>
+      <div  style={{position: "fixed", right: 0, bottom: 0, width: 200, height: 200, backgroundColor: 'white'}}>
       <video id="myFace" autoplay="autoplay" style={{width: 200, height: 200}}></video>
 
-      </div> */}
+      </div>
 
     </>
   );

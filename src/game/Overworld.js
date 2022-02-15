@@ -3,27 +3,44 @@ import { DirectionInput } from "./DirectionInput.js";
 import { Person } from "./Person.js";
 import utils from "./utils.js";
 import io from 'socket.io-client';
+import _const from "../config/const.js";
 
+let myStream;
+let pcObj = {
+  // remoteSocketId: pc
+};
 
+let peopleInRoom = 1;
 
 const characters = [];
 const charMap = {};
 
+function sortStreams() {
+  const streams = document.querySelector("#streams");
+  const streamArr = streams.querySelectorAll("div");
+  streamArr.forEach((stream) => (stream.className = `people${peopleInRoom}`));
+}
 
-// socket.on("join_user", function (data) {
-//   joinUser(data.id, data.x, data.y);
-// });
+function handleAddStream(event, remoteSocketId, remoteNickname) {
+  const peerStream = event.stream;
+  paintPeerFace(peerStream, remoteSocketId, remoteNickname);
+}
 
-// socket.on("leave_user", function (data) {
-//   leaveUser(data);
-// });
+function paintPeerFace(peerStream, id, remoteNickname) {
 
-// socket.on("update_state", function (data) {
-//   updateLocation(data);
-// })
-
-
-
+  const streams = document.querySelector("#streams");
+  const div = document.createElement("div");
+  div.id = id;
+  const video = document.createElement("video");
+  video.autoplay = true;
+  video.playsInline = true;
+  video.width = "200";
+  video.height = "100";
+  // video.srcObject = peerStream;
+  div.appendChild(video);
+  streams.appendChild(div);
+  sortStreams();
+}
 
 
 export const Overworld = (data) => {
@@ -31,7 +48,7 @@ export const Overworld = (data) => {
   const element = config;
   const canvas = element.querySelector(".game-canvas")
   const ctx = canvas.getContext("2d");
-  const socket = io("http://3.34.142.113:8000/");
+  const socket = io(_const.HOST);
   const cameraConstraints = {
     audio: true,
     video: true,
@@ -49,13 +66,97 @@ export const Overworld = (data) => {
   // }
   // startTest();
 
+  function handleIce(event, remoteSocketId) {
+    if (event.candidate) {
+      socket.emit("ice", event.candidate, remoteSocketId);
+    }
+  }
 
+  const getMedia = async () =>  {
+    console.log("getMedia함수");
+    const myFace = document.querySelector("#myFace");
+    
+    try {
+      const myStream = await navigator.mediaDevices.getUserMedia(cameraConstraints);
+      // console.log(myStream)
+      // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
+      myFace.srcObject = myStream;
+      // myFace.muted = true;
+  
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  
+    // getMedia();
+    // paintPeerFace();
+  
+    
+  async function initCall() {
+    // welcome.hidden = true;            // HTML 관련 코드
+    // call.classList.remove(HIDDEN_CN); // HTML 관련 코드
+    console.log("initCall 함수");
+    await getMedia(); // Room.js에 들어있음
+  }
+
+
+  // data 안에 소켓id, nickname 있음 
+  // data for문 돌면서 isUserCalling checking 혹은..
+  // [PASS] 2명+3명 그룹 합쳐질 때 그룹 통화중이라는 것을 표시해둬야 함 / 변수 하나 더 추가 true, false 체크
+    
+  socket.on("accept_join", async (userObjArr) => {
+    console.log("accept join 실행");
+    console.log(userObjArr);
+    await initCall();
+  
+    const length = userObjArr.length;
+    if (length === 1) {
+      return;
+    }
+  
+    // writeChat("Notice!", NOTICE_CN);
+    for (let i = 0; i < length - 1; ++i) {
+      try {
+        const newPC = createConnection(
+          userObjArr[i].socketId,
+          userObjArr[i].nickname
+        );
+        const offer = await newPC.createOffer();
+        await newPC.setLocalDescription(offer);
+        socket.emit("offer", offer, userObjArr[i].socketId, userObjArr[i].nickname);
+        // writeChat(`__${userObjArr[i].nickname}__`, NOTICE_CN);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    // writeChat("is in the room.", NOTICE_CN);
+  });
+
+  socket.on("offer", async (offer, remoteSocketId, remoteNickname) => {
+    try {
+      const newPC = createConnection(remoteSocketId, remoteNickname);
+      await newPC.setRemoteDescription(offer);
+      const answer = await newPC.createAnswer();
+      await newPC.setLocalDescription(answer);
+      socket.emit("answer", answer, remoteSocketId);
+      // writeChat(`notice! __${remoteNickname}__ joined the room`, NOTICE_CN);
+    } catch (err) {
+      console.error(err);
+    }
+  });
+
+  socket.on("answer", async (answer, remoteSocketId) => {
+    await pcObj[remoteSocketId].setRemoteDescription(answer);
+  });
+
+  socket.on("ice", async (ice, remoteSocketId) => {
+    await pcObj[remoteSocketId].addIceCandidate(ice);
+  });
 
   socket.on("join_user", function (data) {
-    // socket.emit("join_room", 1, socket.id);
     //====================  비디오 추가 함수 =================//
     console.log("새로운 유저 접속")
-    paintPeerFace()
+    // paintPeerFace(cameraConstraints)
 
     // console.log(socket.id);
     // console.log("join_serrrrr")
@@ -67,6 +168,7 @@ export const Overworld = (data) => {
     joinUser(data.id, data.x, data.y);
 
   });
+
   socket.on("user_src", function (data) {
     // console.log("user_srcccccccc")
     const User = charMap[data.id];
@@ -74,9 +176,9 @@ export const Overworld = (data) => {
     User.sprite.image.src = data.src;
     // Object.values(charMap).forEach((object) => {
     //   object.sprite.image.src = data.src;
-    // });
-  })
-
+  });
+  
+  // });
   socket.on("leave_user", function (data) {
     leaveUser(data);
   });
@@ -84,27 +186,44 @@ export const Overworld = (data) => {
   socket.on("update_state", function (data) {
     // console.log(data);
     updateLocation(data);
-  })
+  });
 
-  const paintPeerFace = async () => {
-    const myStream = await navigator.mediaDevices.getUserMedia(cameraConstraints);
-
-    const streams = document.querySelector("#streams");
-    const div = document.createElement("div");
-    // div.id = id;
-    const video = document.createElement("video");
-    video.autoplay = true;
-    video.playsInline = true;
-    video.width = "200";
-    video.height = "100";
-    video.srcObject = myStream;
-    // const nicknameContainer = document.createElement("h3");
+  function createConnection(remoteSocketId, remoteNickname) {
+    const myPeerConnection = new RTCPeerConnection({
+      iceServers: [
+        {
+          urls: [
+            "stun:stun.l.google.com:19302",
+            "stun:stun1.l.google.com:19302",
+            "stun:stun2.l.google.com:19302",
+            "stun:stun3.l.google.com:19302",
+            "stun:stun4.l.google.com:19302",
+          ],
+        },
+      ],
+    });
+    myPeerConnection.addEventListener("icecandidate", (event) => {
+      console.log("icecheck")
+      handleIce(event, remoteSocketId);
+    });
+    myPeerConnection.addEventListener("addstream", (event) => {
+      handleAddStream(event, remoteSocketId, remoteNickname);
+    });
+    // myPeerConnection.addEventListener(
+    //   "iceconnectionstatechange",
+    //   handleConnectionStateChange
+    // );
+    myStream 
+      .getTracks()
+      .forEach((track) => myPeerConnection.addTrack(track, myStream));
   
-    div.appendChild(video);
-    // div.appendChild(nicknameContainer);
-    streams.appendChild(div);
-    // sortStreams();
+    pcObj[remoteSocketId] = myPeerConnection;
+  
+    ++peopleInRoom;
+    sortStreams();
+    return myPeerConnection;
   }
+  
 
   const startGameLoop = () => {
     const step = () => {
@@ -138,16 +257,23 @@ export const Overworld = (data) => {
             map: map,
             // id: socket.id,
           });
-          if (Math.abs(player.x - object.x) < 64 && Math.abs(player.y - object.y) < 96) {
+          if (!object.isUserCalling && Math.abs(player.x - object.x) < 64 && Math.abs(player.y - object.y) < 96) {
             //화상 통화 연결
+            player.isUserCalling = true;
+            object.isUserCalling = true;
             socket.emit("user_call", {
               caller: player.id,
               callee: object.id,
             })
             // console.log("가까워짐")
+            // socket.emit("makegroup", {
+            //     caller: player.id,
+            //     callee: object.id,
+            //   });
           }
         }
       });
+
 
 
       //Draw Lower layer
@@ -220,6 +346,7 @@ export const Overworld = (data) => {
     return character;
   };
 
+  
 
   // // bindActionInput() {
   // //   new KeyPressListener("Enter", () => {
