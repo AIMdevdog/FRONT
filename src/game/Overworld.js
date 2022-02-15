@@ -46,7 +46,7 @@ function paintPeerFace(peerStream, id, remoteNickname) {
 export const Overworld = (data) => {
   const config = data.config;
   const element = config;
-  const canvas = element.querySelector(".game-canvas")
+  const canvas = element.querySelector(".game-canvas");
   const ctx = canvas.getContext("2d");
   const socket = io(_const.HOST);
   const cameraConstraints = {
@@ -60,9 +60,9 @@ export const Overworld = (data) => {
   directionInput.init();
   // const socket = io("localhost:4001");
   // const wssocket = io("localhost:8000");
-  
+
   // const startTest = () => {
-    
+
   // }
   // startTest();
 
@@ -164,9 +164,8 @@ export const Overworld = (data) => {
     socket.emit("send_user_src", {
       id: socket.id,
       src: map.gameObjects.player.sprite.image.src,
-    })
+    });
     joinUser(data.id, data.x, data.y);
-
   });
 
   socket.on("user_src", function (data) {
@@ -264,7 +263,7 @@ export const Overworld = (data) => {
             socket.emit("user_call", {
               caller: player.id,
               callee: object.id,
-            })
+            });
             // console.log("가까워짐")
             // socket.emit("makegroup", {
             //     caller: player.id,
@@ -288,15 +287,14 @@ export const Overworld = (data) => {
           object.sprite.draw(ctx, cameraPerson);
         });
 
-
       if (player) {
         const data = {
           id: socket.id,
           x: player.x,
           y: player.y,
           direction: directionInput.direction,
-        }
-        socket.emit('input', data)
+        };
+        socket.emit("input", data);
       }
 
       //Draw Upper layer
@@ -307,7 +305,7 @@ export const Overworld = (data) => {
       });
     };
     step();
-  }
+  };
   const updateLocation = (data) => {
     let char;
     for (let i = 0; i < characters.length; i++) {
@@ -319,7 +317,7 @@ export const Overworld = (data) => {
       char.x = data[i].x;
       char.y = data[i].y;
     }
-  }
+  };
 
   const leaveUser = (id) => {
     for (let i = 0; i < characters.length; ++i) {
@@ -329,7 +327,7 @@ export const Overworld = (data) => {
       }
     }
     delete charMap[id];
-  }
+  };
 
   const joinUser = (id, x, y, src) => {
     let character = new Person({
@@ -367,7 +365,5 @@ export const Overworld = (data) => {
   // // this.bindActionInput();
   // // this.bindHeroPositionCheck();
 
-
-
   startGameLoop();
-}
+};
