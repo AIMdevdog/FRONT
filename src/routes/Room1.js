@@ -9,17 +9,22 @@ const Room = () => {
       {
         config: document.querySelector(".game-container"),
         Room: {
-          RoomSrc: "https://raw.githubusercontent.com/gathertown/mapmaking/master/maps/templates/All%20Hands%20Room%20Medium/med_thumbnail2.png",
+          RoomSrc: "https://www.comedywildlifephoto.com/images/wysiwyg/images/2020_winners/arthur-telle-thiemann_smiley_00000091.jpg",
           id: 123,
+          roomNum: 1,
           gameObjects: {
             player: new Person({
               id: null,
               isPlayerControlled: true,
-              x: 400,
-              y: 400,
+              x: 80,
+              y: 80,
               src: charSrc,
             }),
           },
+        },        
+        adjust: {
+          axios: 220,
+          ratio: 1.70,
         },
         otherMaps:[
           {
@@ -35,7 +40,7 @@ const Room = () => {
 
   return (
     <>
-      <div className="game-container">
+      <div className="game-container" style={{ backgroundColor: "black" }}>
         <canvas className="game-canvas"></canvas>
       </div>
     </>

@@ -409,6 +409,11 @@ const ArrowWrap = styled.div`
         width: 180px;
         height: 180px; 
     }
+
+  .slick-dots > ul > li{
+    width: 30px;
+    height: 30px;
+  }
     
 `;
 
@@ -421,11 +426,12 @@ const Lobby = () => {
   const [isGetRoom, setIsGetRoom] = useState([]);
   const session = localGetItem("session");
   const [isOpen, setIsOpen] = useState(false);
+  const [isRoomId, setIsRoomId] = useState(0);
   const [isNickname, setIsNickname] = useState("");
   const [isSaveUserData, setIsSaveUserData] = useState(null);
   const [isChangeRoom, setIsChangeRoom] = useState(false);
   const [isMyRoom, setIsMyRoom] = useState([]);
-  const [isCurrent, setCurrent] = useState(null);
+  const [isCurrentImg, setCurrent] = useState(null);
   const charImgs = [
     "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-sb7g6nQb3ZYxzNHryIbM.png",
     "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-vjTD4tj1AdR3182C7mHH.png",
@@ -446,15 +452,46 @@ const Lobby = () => {
     slidesToScroll: 1,
     initialSlide: 0,
     beforeChange: (current, next) => {
-      console.log(charImgs[current], next)
+      console.log(`${charImgs[current]}`);
       setCurrent((before) => before = charImgs[next]);
-    }
+    },
+    appendDots: dots => (
+      <div
+        style={{
+          // width: "32px",
+          // height: "32px",
+          // overflow: "hidden",
+          // position: "relative",
+        }}
+      >
+        <ul style={{ margin: "0px" }}> {dots} </ul>
+      </div>
+    ),
+    customPaging: i => (
+      <div style={{
+        width: "100%",
+        height: "100%",
+        borderRadius: "50%",
+        overflow: "hidden",
+        position: "relative",
+        backgroundColor: "rgb(34, 34, 34)",
+        }}>
+        <img 
+          src={`${charImgs[i]}`}
+          style={{right:"-1px", objectFit: "cover", objectPosition: "-1px 9px", width: "100%", height: "200%", 
+                  imageRendering: "pixelated", transform: "scale(1.25)"}}
+        />
+      </div>
+    )
+
 
     // this.setState({ oldSlide: current, activeSlide: next }),
     //  afterChange: current => this.setState({ activeSlide2: current })
   };
 
-  const readyToGoIntoTheRoom = () => {
+  const readyToGoIntoTheRoom = (item) => {
+
+    setIsRoomId(item.id)
     setIsOpen(!isOpen);
     setIsNickname("");
   };
@@ -475,7 +512,7 @@ const Lobby = () => {
       } = await user.saveUserInfo(
         session,
         isNickname,
-        isCurrent,
+        isCurrentImg,
       );
       if (code === 200) {
         alert(msg);
@@ -484,7 +521,7 @@ const Lobby = () => {
           data: { data },
         } = result;
         setIsSaveUserData(data);
-        navigate("/room", { state: isCurrent });
+        navigate("/room", { state: { isCurrentImg, isRoomId } });
 
       }
     } catch (e) {
@@ -595,7 +632,7 @@ const Lobby = () => {
               {isGetRoom?.map((item) => {
                 return (
                   <RoomItem
-                    onClick={readyToGoIntoTheRoom}
+                    onClick={() => readyToGoIntoTheRoom(item)}
                     key={item.id}
                     background={item?.image}
                   >

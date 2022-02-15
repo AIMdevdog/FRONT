@@ -57,6 +57,12 @@ export class Sprite {
 
     //Reference the game object
     this.gameObject = config.gameObject;
+
+    //컨셉방을 위한 조정 값
+    this.axios = 0;
+    this.ratio = 1;
+
+
   }
 
   get frame() {
@@ -88,17 +94,14 @@ export class Sprite {
   }
 
   draw(ctx, cameraPerson) {
-    // console.log(this.image);
     const x =
-      this.gameObject.x -
-      8 +
+      this.gameObject.x - 8 +
       utils.withGrid(ctx.canvas.clientWidth / 16 / 2) -
       cameraPerson.x;
     const y =
-      this.gameObject.y -
-      18 +
+      this.gameObject.y - 18 + this.axios +
       utils.withGrid(ctx.canvas.clientHeight / 16 / 2) -
-      cameraPerson.y;
+      cameraPerson.y*this.ratio;
 
     this.isShadowLoaded && ctx.drawImage(this.shadow, x, y);
 
