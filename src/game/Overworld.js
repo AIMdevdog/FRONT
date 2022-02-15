@@ -1,7 +1,7 @@
 import { OverworldMap } from "./OverworldMap.js";
 import { DirectionInput } from "./DirectionInput.js";
 import { Person } from "./Person.js";
-// import utils from "./utils.js";
+import utils from "./utils.js";
 import io from 'socket.io-client';
 import _const from "../config/const.js";
 
@@ -22,15 +22,12 @@ function sortStreams() {
 }
 
 function handleAddStream(event, remoteSocketId, remoteNickname) {
-
-  console.log(event);
   const peerStream = event.stream;
-  console.log(peerStream);
-  console.log("handleAddstream실행");
   paintPeerFace(peerStream, remoteSocketId, remoteNickname);
 }
 
 function paintPeerFace(peerStream, id, remoteNickname) {
+
   const streams = document.querySelector("#streams");
   const div = document.createElement("div");
   div.id = id;
@@ -39,7 +36,7 @@ function paintPeerFace(peerStream, id, remoteNickname) {
   video.playsInline = true;
   video.width = "200";
   video.height = "100";
-  video.srcObject = peerStream;
+  // video.srcObject = peerStream;
   div.appendChild(video);
   streams.appendChild(div);
   sortStreams();
@@ -78,10 +75,11 @@ export const Overworld = (data) => {
   const getMedia = async () =>  {
     console.log("getMedia함수");
     const myFace = document.querySelector("#myFace");
+    console.log("Myface");
     
     try {
-      myStream = await navigator.mediaDevices.getUserMedia(cameraConstraints);
-      // console.log(myStream)
+      const myStream = await navigator.mediaDevices.getUserMedia(cameraConstraints);
+      console.log("mystream", myStream);
       // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
       myFace.srcObject = myStream;
       // myFace.muted = true;
@@ -114,14 +112,12 @@ export const Overworld = (data) => {
   
     const length = userObjArr.length;
     if (length === 1) {
-      console.log("한명이라 offer안함");
       return;
     }
   
     // writeChat("Notice!", NOTICE_CN);
     for (let i = 0; i < length - 1; ++i) {
       try {
-        console.log(userObjArr[i].socketId,userObjArr[i].nickname);
         const newPC = createConnection(
           userObjArr[i].socketId,
           userObjArr[i].nickname
@@ -139,13 +135,11 @@ export const Overworld = (data) => {
 
   socket.on("offer", async (offer, remoteSocketId, remoteNickname) => {
     try {
-      console.log("received the offer");
       const newPC = createConnection(remoteSocketId, remoteNickname);
       await newPC.setRemoteDescription(offer);
       const answer = await newPC.createAnswer();
       await newPC.setLocalDescription(answer);
       socket.emit("answer", answer, remoteSocketId);
-      console.log("sent the answer");
       // writeChat(`notice! __${remoteNickname}__ joined the room`, NOTICE_CN);
     } catch (err) {
       console.error(err);
@@ -153,12 +147,10 @@ export const Overworld = (data) => {
   });
 
   socket.on("answer", async (answer, remoteSocketId) => {
-    console.log("received the answer");
     await pcObj[remoteSocketId].setRemoteDescription(answer);
   });
 
   socket.on("ice", async (ice, remoteSocketId) => {
-    console.log("received candidate");
     await pcObj[remoteSocketId].addIceCandidate(ice);
   });
 
@@ -178,7 +170,7 @@ export const Overworld = (data) => {
   });
 
   socket.on("user_src", function (data) {
-    // console.log("user_srcccccccc")
+    console.log("user_srccc")
     const User = charMap[data.id];
     // console.log(User.sprite.image.src);
     User.sprite.image.src = data.src;
@@ -187,7 +179,7 @@ export const Overworld = (data) => {
   });
   
   // });
-  socket.on("leave_user", function (data) {
+  socket.on("leave_user", function () {
     leaveUser(data);
   });
 
@@ -215,21 +207,23 @@ export const Overworld = (data) => {
       handleIce(event, remoteSocketId);
     });
     myPeerConnection.addEventListener("addstream", (event) => {
-      console.log("addstream이 돼야지");
       handleAddStream(event, remoteSocketId, remoteNickname);
     });
+    // myPeerConnection.addEventListener(
+    //   "iceconnectionstatechange",
+    //   handleConnectionStateChange
+    // );
     myStream 
       .getTracks()
       .forEach((track) => myPeerConnection.addTrack(track, myStream));
-    
-    pcObj[remoteSocketId] = myPeerConnection;
   
+    pcObj[remoteSocketId] = myPeerConnection;
+    console.log('*pcObj');
     ++peopleInRoom;
     sortStreams();
     return myPeerConnection;
   }
   
-  console.log(pcObj);
 
   const startGameLoop = () => {
     const step = () => {
@@ -265,18 +259,23 @@ export const Overworld = (data) => {
           });
           if (!object.isUserCalling && Math.abs(player.x - object.x) < 64 && Math.abs(player.y - object.y) < 96) {
             //화상 통화 연결
+            console.log("가까워짐")
             player.isUserCalling = true;
             object.isUserCalling = true;
             socket.emit("user_call", {
               caller: player.id,
               callee: object.id,
             });
-            // console.log("가까워짐")
-            // socket.emit("makegroup", {
-            //     caller: player.id,
-            //     callee: object.id,
-            //   });
           }
+            if (Math.abs(player.x - object.x) > 96 || Math.abs(player.y - object.y) > 128) {
+              console.log("멀어짐")
+              player.isUserCalling = false;
+              object.isUserCalling = false;
+              // console.log(player, object);
+              socket.emit("leave_Group");
+              console.log("leave_group")
+              socket.emit("disconnected");
+            }
         }
       });
 
