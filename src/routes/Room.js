@@ -3,7 +3,6 @@ import { useLocation } from "react-router";
 import { Overworld } from "../game/Overworld";
 import { Person } from "../game/Person";
 import React from 'react';
-import io from 'socket.io-client';
 
 const Room = () => {
   const location = useLocation();
@@ -37,7 +36,7 @@ const Room = () => {
       }
     )
     // overworld.init();
-  }, []);
+  });
 
   
   return (
@@ -46,7 +45,7 @@ const Room = () => {
         
         <canvas className="game-canvas"></canvas>
       </div>
-      <div id="streams" style={{position: "absolute", display: 'flex', left: 0, bottom: 100, width: 200, height: 100, backgroundColor: 'white'}}>
+      <div id="streams" style={{position: "fixed", display: 'flex', left: 0, bottom: 100, width: 200, height: 100, backgroundColor: 'white'}}>
         
       </div>
       <div  style={{position: "fixed", right: 0, bottom: 0, width: 200, height: 200, backgroundColor: 'white'}}>
