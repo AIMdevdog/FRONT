@@ -269,12 +269,13 @@ export const Overworld = (data) => {
           }
             if (Math.abs(player.x - object.x) > 96 || Math.abs(player.y - object.y) > 128) {
               console.log("멀어짐")
+              // console.log(socket)
               player.isUserCalling = false;
               object.isUserCalling = false;
               // console.log(player, object);
-              socket.emit("leave_Group");
-              console.log("leave_group")
-              socket.emit("disconnected");
+              socket.emit("leave_Group", object.id);
+              // socket.emit("disconnected");
+
             }
         }
       });
