@@ -53,6 +53,15 @@ const Room = () => {
 
       </div>
 
+      <div id="chatRoom">
+        <ul id="chatBox">
+          <form id="chatForm">
+            <input type="text" placeholder="Write your chat" required/>
+            <button>Send</button>
+          </form>
+        </ul>
+      </div>
+
     </>
   );
 };

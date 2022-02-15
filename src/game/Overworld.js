@@ -15,37 +15,6 @@ let peopleInRoom = 1;
 const characters = [];
 const charMap = {};
 
-function sortStreams() {
-  const streams = document.querySelector("#streams");
-  const streamArr = streams.querySelectorAll("div");
-  streamArr.forEach((stream) => (stream.className = `people${peopleInRoom}`));
-}
-
-function handleAddStream(event, remoteSocketId, remoteNickname) {
-
-  console.log(event);
-  const peerStream = event.stream;
-  console.log(peerStream);
-  console.log("handleAddstream실행");
-  paintPeerFace(peerStream, remoteSocketId, remoteNickname);
-}
-
-function paintPeerFace(peerStream, id, remoteNickname) {
-  const streams = document.querySelector("#streams");
-  const div = document.createElement("div");
-  div.id = id;
-  const video = document.createElement("video");
-  video.autoplay = true;
-  video.playsInline = true;
-  video.width = "200";
-  video.height = "100";
-  video.srcObject = peerStream;
-  div.appendChild(video);
-  streams.appendChild(div);
-  sortStreams();
-}
-
-
 export const Overworld = (data) => {
   const config = data.config;
   const element = config;
@@ -61,40 +30,85 @@ export const Overworld = (data) => {
   const otherMaps = data.otherMaps;
   const directionInput = new DirectionInput();
   directionInput.init();
-  // const socket = io("localhost:4001");
-  // const wssocket = io("localhost:8000");
 
-  // const startTest = () => {
-
-  // }
-  // startTest();
-
+  // data 안에 소켓id, nickname 있음 
+  // data for문 돌면서 isUserCalling checking 혹은..
+  // [PASS] 2명+3명 그룹 합쳐질 때 그룹 통화중이라는 것을 표시해둬야 함 / 변수 하나 더 추가 true, false 체크
+    
+  function sortStreams() {
+    const streams = document.querySelector("#streams");
+    const streamArr = streams.querySelectorAll("div");
+    streamArr.forEach((stream) => (stream.className = `people${peopleInRoom}`));
+  }
+  
+  function handleAddStream(event, remoteSocketId, remoteNickname) {
+    const peerStream = event.stream;
+    paintPeerFace(peerStream, remoteSocketId, remoteNickname);
+  }
+  
+  function paintPeerFace(peerStream, id, remoteNickname) {
+    const streams = document.querySelector("#streams");
+    const div = document.createElement("div");
+    div.id = id;
+    const video = document.createElement("video");
+    video.autoplay = true;
+    video.playsInline = true;
+    video.width = "200";
+    video.height = "100";
+    video.srcObject = peerStream;
+    div.appendChild(video);
+    streams.appendChild(div);
+    sortStreams();
+  }
+  
+  function createConnection(remoteSocketId, remoteNickname) {
+    const myPeerConnection = new RTCPeerConnection({
+      iceServers: [
+        {
+          urls: [
+            "stun:stun.l.google.com:19302",
+            "stun:stun1.l.google.com:19302",
+            "stun:stun2.l.google.com:19302",
+            "stun:stun3.l.google.com:19302",
+            "stun:stun4.l.google.com:19302",
+          ],
+        },
+      ],
+    });
+    myPeerConnection.addEventListener("icecandidate", (event) => {
+      handleIce(event, remoteSocketId);
+    });
+    myPeerConnection.addEventListener("addstream", (event) => {
+      handleAddStream(event, remoteSocketId, remoteNickname);
+    });
+    myStream 
+      .getTracks()
+      .forEach((track) => myPeerConnection.addTrack(track, myStream));
+    
+    pcObj[remoteSocketId] = myPeerConnection;
+  
+    ++peopleInRoom;
+    sortStreams();
+    return myPeerConnection;
+  }
+  
   function handleIce(event, remoteSocketId) {
     if (event.candidate) {
       socket.emit("ice", event.candidate, remoteSocketId);
     }
   }
-
-  const getMedia = async () =>  {
-    console.log("getMedia함수");
+  
+  async function getMedia() {
     const myFace = document.querySelector("#myFace");
     
     try {
       myStream = await navigator.mediaDevices.getUserMedia(cameraConstraints);
-      // console.log(myStream)
-      // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
       myFace.srcObject = myStream;
-      // myFace.muted = true;
-  
-      } catch (error) {
-        console.log(error);
-      }
+    } catch (error) {
+      console.log(error);
     }
+  }
   
-    // getMedia();
-    // paintPeerFace();
-  
-    
   async function initCall() {
     // welcome.hidden = true;            // HTML 관련 코드
     // call.classList.remove(HIDDEN_CN); // HTML 관련 코드
@@ -102,26 +116,53 @@ export const Overworld = (data) => {
     await getMedia(); // Room.js에 들어있음
   }
 
+  // chat form
 
-  // data 안에 소켓id, nickname 있음 
-  // data for문 돌면서 isUserCalling checking 혹은..
-  // [PASS] 2명+3명 그룹 합쳐질 때 그룹 통화중이라는 것을 표시해둬야 함 / 변수 하나 더 추가 true, false 체크
-    
+  const chatForm = document.querySelector("#chatForm");
+  const chatBox = document.querySelector("#chatBox");
+
+  const MYCHAT_CN = "myChat";
+  const NOTICE_CN = "noticeChat";
+
+  chatForm.addEventListener("submit", handleChatSubmit);
+
+  function handleChatSubmit(event) {
+    event.preventDefault();
+    const chatInput = chatForm.querySelector("input");
+    const message = chatInput.value;
+    chatInput.value = "";
+
+    let nickname = "Anon";
+    let roomName = 0;
+
+    socket.emit("chat", `${nickname}: ${message}`, roomName);
+    writeChat(`You: ${message}`, MYCHAT_CN);
+  }
+
+  function writeChat(message, className = null) {
+    const li = document.createElement("li");
+    const span = document.createElement("span");
+    span.innerText = message;
+    li.appendChild(span);
+    li.classList.add(className);
+    chatBox.prepend(li);
+  }
+
+  socket.on("chat", (message) => {
+    writeChat(message);
+  });
+
   socket.on("accept_join", async (userObjArr) => {
-    console.log("accept join 실행");
-    console.log(userObjArr);
     await initCall();
   
     const length = userObjArr.length;
     if (length === 1) {
-      console.log("한명이라 offer안함");
       return;
     }
   
     // writeChat("Notice!", NOTICE_CN);
     for (let i = 0; i < length - 1; ++i) {
       try {
-        console.log(userObjArr[i].socketId,userObjArr[i].nickname);
         const newPC = createConnection(
           userObjArr[i].socketId,
           userObjArr[i].nickname
@@ -196,41 +237,6 @@ export const Overworld = (data) => {
     updateLocation(data);
   });
 
-  function createConnection(remoteSocketId, remoteNickname) {
-    const myPeerConnection = new RTCPeerConnection({
-      iceServers: [
-        {
-          urls: [
-            "stun:stun.l.google.com:19302",
-            "stun:stun1.l.google.com:19302",
-            "stun:stun2.l.google.com:19302",
-            "stun:stun3.l.google.com:19302",
-            "stun:stun4.l.google.com:19302",
-          ],
-        },
-      ],
-    });
-    myPeerConnection.addEventListener("icecandidate", (event) => {
-      console.log("icecheck")
-      handleIce(event, remoteSocketId);
-    });
-    myPeerConnection.addEventListener("addstream", (event) => {
-      console.log("addstream이 돼야지");
-      handleAddStream(event, remoteSocketId, remoteNickname);
-    });
-    myStream 
-      .getTracks()
-      .forEach((track) => myPeerConnection.addTrack(track, myStream));
-    
-    pcObj[remoteSocketId] = myPeerConnection;
-  
-    ++peopleInRoom;
-    sortStreams();
-    return myPeerConnection;
-  }
-  
-  console.log(pcObj);
-
   const startGameLoop = () => {
     const step = () => {
       //Clear off the canvas
@@ -271,11 +277,6 @@ export const Overworld = (data) => {
               caller: player.id,
               callee: object.id,
             });
-            // console.log("가까워짐")
-            // socket.emit("makegroup", {
-            //     caller: player.id,
-            //     callee: object.id,
-            //   });
           }
         }
       });
