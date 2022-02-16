@@ -26,7 +26,7 @@ const lottieOptions = {
   },
 };
 
-const ThumbsUpComponent = () => {
+const LoadingComponent = () => {
   const [isStopped, SetIsStopped] = useState(false);
   const [isPaused, SetIsPaused] = useState(false);
 
@@ -62,4 +62,4 @@ const ThumbsUpComponent = () => {
   );
 };
 
-export default ThumbsUpComponent;
+export default LoadingComponent;

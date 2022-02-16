@@ -1,29 +1,31 @@
 import React, { useState } from "react";
 import {
-    ProSidebar,
-    Menu,
-    MenuItem,
-    SubMenu,
-    SidebarHeader,
-    SidebarContent,
-    SidebarFooter
+  ProSidebar,
+  Menu,
+  MenuItem,
+  SubMenu,
+  SidebarHeader,
+  SidebarContent,
+  SidebarFooter,
 } from "react-pro-sidebar";
 import { FaGem, FaList, FaGithub, FaLinux, FaSteam } from "react-icons/fa";
-import 'react-pro-sidebar/dist/css/styles.css';
+import "react-pro-sidebar/dist/css/styles.css";
 import styled from "styled-components";
 
 const SidebarStyle = styled.div`
-    .sidebar-wrap{
-        position: fixed;
-        // left: ${props => props.left ? '100px' : '0px'};
-    }
-    .sidebar-btn-wrapper {
+  .sidebar-wrap {
+    position: fixed;
+    /* min-width: 300px; */
+    /* border-right: 1px solid rgba(255, 255, 255, 0.1); */
+    // left: ${(props) => (props.left ? "100px" : "0px")};
+  }
+  .sidebar-btn-wrapper {
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 20px 24px;
   }
-  
+
   .sidebar-btn {
     padding: 1px 15px;
     border-radius: 40px;
@@ -38,65 +40,90 @@ const SidebarStyle = styled.div`
     text-overflow: ellipsis;
     overflow: hidden;
   }
-  
+
   .sidebar-btn span {
     margin-left: 10px;
     font-size: 13px;
   }
-`
+`;
 
+const ChatContainer = styled.div`
+  padding-left: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+
+  .chatSendBox {
+    display: flex;
+    align-items: center;
+  }
+`;
 
 export default function Aside() {
-    const [linuxCollapsed, SetLinuxCollapsed] = useState(true);
-    const [linuxPosition, setLinuxPosition] = useState("0px");
-    const headerStyle = {
-        padding: "24px",
-        textTransform: "uppercase",
-        fontWeight: "bold",
-        letterSpacing: "1px",
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-        whiteSpace: "noWrap"
-    };
+  const [linuxCollapsed, SetLinuxCollapsed] = useState(true);
+  const [linuxPosition, setLinuxPosition] = useState("0px");
+  const headerStyle = {
+    padding: "24px",
+    textTransform: "uppercase",
+    fontWeight: "bold",
+    letterSpacing: "1px",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "noWrap",
+  };
 
-    const changeLinuxCollapsed = () => {
-        SetLinuxCollapsed((linuxCollapsed) => linuxCollapsed ? false : true)
-        setLinuxPosition((linuxPosition) => linuxPosition === "0px" ? "80px" : "0px")
-        console.log(linuxPosition)
-    }
+  const changeLinuxCollapsed = () => {
+    SetLinuxCollapsed((linuxCollapsed) => (linuxCollapsed ? false : true));
+    setLinuxPosition((linuxPosition) =>
+      linuxPosition === "0px" ? "80px" : "0px"
+    );
+    console.log(linuxPosition);
+  };
 
-    return (
-        <>
-            {/* 리눅스 사이드바 */}
-            <SidebarStyle>
-                <ProSidebar
-                    className="sidebar-wrap"
-                    width="180px"
-                    collapsed={linuxCollapsed}
-                    style={{ left: linuxPosition }}
-                >
-                    {/* <SidebarHeader style={headerStyle} onClick={changeCollapsed}>   <FaList /></SidebarHeader> */}
-                    <SidebarContent>
-                        <div style={{marginTop:"30px"}}>
-                            here is for linux
-                        </div>
-                    </SidebarContent>
-                    <SidebarFooter style={{ textAlign: "center" }}>
-                    </SidebarFooter>
-                </ProSidebar>
-            </SidebarStyle>
-            <SidebarStyle>
-                <ProSidebar className="sidebar-wrap" collapsed="true" >
-                    {/* <SidebarHeader style={headerStyle} onClick={changeCollapsed}>   <FaList /></SidebarHeader> */}
-                    <SidebarContent>
-                        <Menu iconShape="circle">
-                            <MenuItem icon={<FaLinux />} onClick={changeLinuxCollapsed}></MenuItem>
-                            <MenuItem icon={<FaGem />}></MenuItem>
-                            <MenuItem icon={<FaSteam />}></MenuItem>
-                        </Menu>
+  return (
+    <>
+      {/* 리눅스 사이드바 */}
+      <SidebarStyle>
+        <ProSidebar
+          className="sidebar-wrap"
+          width="180px"
+          collapsed={linuxCollapsed}
+          style={{ left: linuxPosition }}
+        >
+          {/* <SidebarHeader style={headerStyle} onClick={changeCollapsed}>   <FaList /></SidebarHeader> */}
+          <SidebarContent>
+            <ChatContainer>
+              <div style={{ marginTop: "30px" }}>here is for linux</div>
+              <div id="chatRoom">
+                <ul id="chatBox">
+                  <form id="chatForm" className="chatSendBox">
+                    <input type="text" placeholder="Write your chat" required />
+                    <button>Send</button>
+                  </form>
+                </ul>
+              </div>
+            </ChatContainer>
+          </SidebarContent>
 
+          <SidebarFooter style={{ textAlign: "center" }}></SidebarFooter>
+        </ProSidebar>
+      </SidebarStyle>
+      <SidebarStyle>
+        <ProSidebar className="sidebar-wrap" collapsed="true">
+          {/* <SidebarHeader style={headerStyle} onClick={changeCollapsed}>   <FaList /></SidebarHeader> */}
+          <SidebarContent>
+            <Menu iconShape="circle">
+              <MenuItem
+                icon={<FaLinux />}
+                onClick={changeLinuxCollapsed}
+              ></MenuItem>
+              <MenuItem icon={<FaGem />}></MenuItem>
+              <MenuItem icon={<FaSteam />}></MenuItem>
+            </Menu>
 
-                        {/* <Menu iconShape="circle">
+            {/* <Menu iconShape="circle">
                         <SubMenu
                             suffix={<span className="badge yellow">3</span>}
                             title="With Suffix"
@@ -106,11 +133,10 @@ export default function Aside() {
                             <MenuItem> 3 </MenuItem>
                         </SubMenu>
                     </Menu> */}
-                    </SidebarContent>
-                    <SidebarFooter style={{ textAlign: "center" }}>
-                    </SidebarFooter>
-                </ProSidebar>
-            </SidebarStyle>
-        </>
-    );
+          </SidebarContent>
+          <SidebarFooter style={{ textAlign: "center" }}></SidebarFooter>
+        </ProSidebar>
+      </SidebarStyle>
+    </>
+  );
 }
