@@ -51,6 +51,7 @@ export const Overworld = (data) => {
     // }
   }
   
+  // 영상 connect
   function paintPeerFace(peerStream, id, remoteNickname) {
     const streams = document.querySelector("#streams");
     const div = document.createElement("div");
@@ -65,7 +66,8 @@ export const Overworld = (data) => {
     streams.appendChild(div);
     sortStreams();
   }
-
+  
+  // 영상 disconnect
   function removePeerFace(id) {
     const streams = document.querySelector("#streams");
     const streamArr = streams.querySelectorAll("div");
@@ -177,13 +179,12 @@ export const Overworld = (data) => {
 
   socket.on("accept_join", async (userObjArr) => {
     await initCall();
-  
+
     const length = userObjArr.length;
     if (length === 1) {
       return;
     }
   
-    // writeChat("Notice!", NOTICE_CN);
     for (let i = 0; i < length - 1; ++i) {
       try {
         const newPC = createConnection(
@@ -193,7 +194,6 @@ export const Overworld = (data) => {
         const offer = await newPC.createOffer();
         await newPC.setLocalDescription(offer);
         socket.emit("offer", offer, userObjArr[i].socketId, userObjArr[i].nickname);
-        // writeChat(`__${userObjArr[i].nickname}__`, NOTICE_CN);
       } catch (err) {
         console.error(err);
       }
@@ -228,7 +228,6 @@ export const Overworld = (data) => {
     // paintPeerFace(cameraConstraints)
 
     // console.log(socket.id);
-    // console.log("join_serrrrr")
     // console.log(map.gameObjects.player.sprite.image.src);
     socket.emit("send_user_src", {
       id: socket.id,
@@ -272,7 +271,7 @@ export const Overworld = (data) => {
       //Establish the camera person
       const cameraPerson = charMap[socket.id] || map.gameObjects.player;
       const player = charMap[socket.id];
-      console.log(player);
+      // console.log(player);
       //Update all objects
       // console.log(charMap);
       Object.values(charMap).forEach((object) => {
@@ -281,7 +280,7 @@ export const Overworld = (data) => {
           for (let i = 0; i < otherMaps.length; i++) {
             if (object.x === otherMaps[i].x && object.y === otherMaps[i].y) {
               console.log("warp!!!");
-              console.log(object.sprite.image.src);
+              // console.log(object.sprite.image.src);
               window.location.replace(`${otherMaps[i].url}?src=${object.sprite.image.src}`);
             }
           }
@@ -306,7 +305,7 @@ export const Overworld = (data) => {
               callee: object.id,
             });
           }
-            if (Math.abs(player.x - object.x) > 96 || Math.abs(player.y - object.y) > 128) {
+            if (object.isUserCalling && (Math.abs(player.x - object.x) > 96 || Math.abs(player.y - object.y) > 128)) {
               console.log("멀어짐")
               // console.log(socket)
               player.isUserCalling = false;

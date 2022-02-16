@@ -70,7 +70,7 @@ const Room = () => {
         
       </div>
       <div  style={{position: "fixed", right: 0, bottom: 0, width: 200, height: 200, backgroundColor: 'white'}}>
-      <video id="myFace" autoplay="autoplay" style={{width: 200, height: 200}}></video>
+      <video id="myFace" autoPlay="autoplay" style={{width: 200, height: 200}}></video>
 
       </div>
 
