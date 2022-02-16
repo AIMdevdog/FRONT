@@ -12,19 +12,40 @@ export class OverworldMap {
     // console.log(this.gameObjects.hero.src);
     // this.gameObjects.hero.src = src;
     // console.log(this.gameObjects.hero.src);
-
+    
+    this.roomNum = config.roomNum;
     this.lowerImage = new Image();
     this.lowerImage.src = config.RoomSrc;
+
+
+    //이미지 로드 확인
+    this.isImageLoaded = false;
+    this.lowerImage.onload = () => {
+      this.isImageLoaded = true;
+    };
   }
 
   drawLowerImage(ctx, cameraPerson) {
-    ctx.drawImage(
-      this.lowerImage,
-      // utils.withGrid(10.5) - cameraPerson.x,
-      // utils.withGrid(6) - cameraPerson.y
-      utils.withGrid(ctx.canvas.clientWidth / 16 / 2) - cameraPerson.x,
-      utils.withGrid(ctx.canvas.clientHeight / 16 / 2) - cameraPerson.y
-    );
+    if (this.roomNum === 0) {
+      ctx.drawImage(
+        this.lowerImage,
+        // utils.withGrid(10.5) - cameraPerson.x,
+        // utils.withGrid(6) - cameraPerson.y
+        utils.withGrid(ctx.canvas.clientWidth / 16 / 2) - cameraPerson.x,
+        utils.withGrid(ctx.canvas.clientHeight / 16 / 2) - cameraPerson.y
+      );
+    } else if(this.roomNum === 1){
+      // ctx.drawImage(
+      //   this.lowerImage,
+      //   // utils.withGrid(10.5) - cameraPerson.x,
+      //   // utils.withGrid(6) - cameraPerson.y
+      //   utils.withGrid(ctx.canvas.clientWidth / 16 / 2) - cameraPerson.x,
+      //   utils.withGrid(ctx.canvas.clientHeight / 16 / 2) - 300,
+      //   this.lowerImage.naturalWidth * (cameraPerson.y/400),
+      //   this.lowerImage.naturalHeight * 0.5 ,
+
+      // );
+    }
   }
 
   isSpaceTaken(currentX, currentY, direction) {

@@ -27,6 +27,7 @@ export const Overworld = (data) => {
   };
 
   const map = new OverworldMap(data.Room);
+  const adjustValue = data.adjust;
   const otherMaps = data.otherMaps;
   const directionInput = new DirectionInput();
   directionInput.init();
@@ -247,22 +248,31 @@ export const Overworld = (data) => {
   const startGameLoop = () => {
     const step = () => {
       //Clear off the canvas
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      if(map.roomNum !== 1){
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }else{
+        canvas.width = window.innerWidth;
+        canvas.height = 100;
+      }
+
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       //Establish the camera person
       const cameraPerson = charMap[socket.id] || map.gameObjects.player;
       const player = charMap[socket.id];
+      console.log(player);
       //Update all objects
       // console.log(charMap);
       Object.values(charMap).forEach((object) => {
         if (object.id === socket.id) {
+          // console.log(object.sprite.image.src);
           for (let i = 0; i < otherMaps.length; i++) {
             if (object.x === otherMaps[i].x && object.y === otherMaps[i].y) {
               console.log("warp!!!");
-              window.location.replace(otherMaps[i].url);
+              console.log(object.sprite.image.src);
+              window.location.replace(`${otherMaps[i].url}?src=${object.sprite.image.src}`);
             }
           }
           object.update({
@@ -355,16 +365,18 @@ export const Overworld = (data) => {
     delete charMap[id];
   };
 
-  const joinUser = (id, x, y, src) => {
+  const joinUser = (id, x, y) => {
     let character = new Person({
       x: 0,
       y: 0,
       id: id,
-      src: src,
     });
     character.id = id;
     character.x = x;
     character.y = y;
+    character.sprite.xaxios = adjustValue.xaxios;
+    character.sprite.yaxios = adjustValue.yaxios;
+    character.sprite.yratio = adjustValue.yratio;
     characters.push(character);
     charMap[id] = character;
     return character;
