@@ -172,7 +172,8 @@ const Overworld = (data) => {
     span.innerText = message;
     li.appendChild(span);
     li.classList.add(className);
-    chatBox.prepend(li);
+    li.classList.add("message-list");
+    chatBox.appendChild(li);
   }
 
   socket.on("chat", (message) => {

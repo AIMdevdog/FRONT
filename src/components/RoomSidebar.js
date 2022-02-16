@@ -25,15 +25,11 @@ const Layout = styled.div`
   .pro-sidebar > .pro-sidebar-inner {
     background-color: rgb(51, 58, 100);
   }
-  GrSend div.btn {
+
+  div.btn {
     display: inline-block;
-    margin: 10px 0;
-    padding: 8px 20px;
-    background-color: #fff;
     text-decoration: none;
     color: #000;
-    box-shadow: 1px 1px 4px #8990ad;
-    width: 100px;
     text-align: center;
     border-radius: 4px;
     font-size: 0.9rem;
@@ -79,10 +75,12 @@ const ChatContainer = styled.div`
   position: absolute;
   bottom: 20px;
   width: 100%;
+  opacity: ${(props) => (props.collapsed ? 0 : 1)};
 
   .chatSendBox {
     width: 100%;
     padding: 0 20px;
+    position: relative;
 
     button {
       position: absolute;
@@ -95,6 +93,22 @@ const ChatContainer = styled.div`
   }
 `;
 
+const MessageContaienr = styled.div`
+  width: 100%;
+  padding: 0 20px;
+  ul {
+    width: 100%;
+    margin-bottom: 20px !important;
+    li {
+      padding-bottom: 10px;
+    }
+
+    li.myChat {
+      text-align: right;
+    }
+  }
+`;
+
 const RoomSideBar = () => {
   const [collapsed, setCollapsed] = useState(true);
 
@@ -103,21 +117,19 @@ const RoomSideBar = () => {
       <div className="layout">
         <aside>
           <ProSidebar collapsed={collapsed}>
-            {!collapsed && (
-              <ChatContainer>
-                <div id="chatRoom">
-                  <ul id="chatBox"></ul>
-                </div>
-                <form id="chatForm" className="chatSendBox">
-                  <InputContainer>
-                    <input type="text" placeholder="Write your chat" required />
-                  </InputContainer>
-                  <button>
-                    <IoSend size="16" />
-                  </button>
-                </form>
-              </ChatContainer>
-            )}
+            <ChatContainer collapsed={collapsed}>
+              <MessageContaienr id="chatRoom">
+                <ul id="chatBox"></ul>
+              </MessageContaienr>
+              <form id="chatForm" className="chatSendBox">
+                <InputContainer>
+                  <input type="text" placeholder="Write your chat" required />
+                </InputContainer>
+                <button>
+                  <IoSend size="16" />
+                </button>
+              </form>
+            </ChatContainer>
           </ProSidebar>
         </aside>
         <main className="content">
