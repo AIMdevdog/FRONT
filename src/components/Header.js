@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { room } from "../config/api";
 import { localGetItem, removeItem } from "../utils/handleStorage";
 import LoadingComponent from "./Loading";
-import React from 'react';
+import React from "react";
 
 const HeaderContainer = styled.div`
   background-color: rgb(51, 58, 100);
@@ -351,6 +351,8 @@ const Header = (props) => {
   const { user } = props;
   const navigate = useNavigate();
   const session = localGetItem("session");
+  const defaultImage =
+    "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png";
   const [isRoomTitle, setIsRoomTitle] = useState("");
   const [isRoomDesc, setIsRoomDesc] = useState("");
   const [isPath, setIsPath] = useState("");
@@ -451,7 +453,7 @@ const Header = (props) => {
                   <div>
                     <div>
                       <img
-                        src="https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png"
+                        src={user?.character ? user?.character : defaultImage}
                         alt="profile image"
                       />
                     </div>
