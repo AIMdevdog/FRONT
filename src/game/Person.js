@@ -13,6 +13,7 @@ export class Person extends GameObject {
     };
 
     this.isUserCalling = false;
+    // this.isUserJoin = false;
   }
 
   update(state) {

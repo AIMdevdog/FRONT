@@ -43,7 +43,11 @@ export const Overworld = (data) => {
   
   function handleAddStream(event, remoteSocketId, remoteNickname) {
     const peerStream = event.stream;
-    paintPeerFace(peerStream, remoteSocketId, remoteNickname);
+    // const user = charMap[remoteSocketId]
+    // if (!user.isUserJoin) { // 유저가 어떤 그룹에도 속하지 않을 때 영상을 키겠다
+    //   user.isUserCalling = true;
+      paintPeerFace(peerStream, remoteSocketId, remoteNickname);
+    // }
   }
   
   function paintPeerFace(peerStream, id, remoteNickname) {
@@ -223,7 +227,6 @@ export const Overworld = (data) => {
   });
 
   socket.on("user_src", function (data) {
-    console.log("user_srccc")
     const User = charMap[data.id];
     // console.log(User.sprite.image.src);
     User.sprite.image.src = data.src;
