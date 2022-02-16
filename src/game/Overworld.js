@@ -65,6 +65,16 @@ export const Overworld = (data) => {
     streams.appendChild(div);
     sortStreams();
   }
+
+  function removePeerFace(id) {
+    const streams = document.querySelector("#streams");
+    const streamArr = streams.querySelectorAll("div");
+    streamArr.forEach((streamElement) => {
+      if (streamElement.id === id) {
+        streams.removeChild(streamElement);
+      }
+    });
+  }
   
   function createConnection(remoteSocketId, remoteNickname) {
     const myPeerConnection = new RTCPeerConnection({
@@ -302,7 +312,7 @@ export const Overworld = (data) => {
               player.isUserCalling = false;
               object.isUserCalling = false;
               // console.log(player, object);
-              socket.emit("leave_Group", object.id);
+              socket.emit("leave_Group", object.id, removePeerFace);
               // socket.emit("disconnected");
 
             }
