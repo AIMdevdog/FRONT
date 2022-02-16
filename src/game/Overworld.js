@@ -49,7 +49,7 @@ const Overworld = (data) => {
     const user = charMap[remoteSocketId] // person.js에 있는 거랑 같이
     if (!user.isUserJoin) { // 유저가 어떤 그룹에도 속하지 않을 때 영상을 키겠다
       user.isUserJoin = true;
-    paintPeerFace(peerStream, remoteSocketId, remoteNickname);
+      paintPeerFace(peerStream, remoteSocketId, remoteNickname);
     }
   }
 
@@ -73,7 +73,7 @@ const Overworld = (data) => {
   function removePeerFace(id) {
     const streams = document.querySelector("#streams");
     const streamArr = streams.querySelectorAll("div");
-    console.log("총 길이 " , streamArr.length);
+    // console.log("총 길이 " , streamArr.length);
     streamArr.forEach((streamElement) => {
       console.log(streamArr, streamElement.id, id);
       if (streamElement.id === id) {
@@ -81,7 +81,7 @@ const Overworld = (data) => {
 
       }
     });
-    console.log(streams);
+    // console.log(streams);
   }
 
   function createConnection(remoteSocketId, remoteNickname) {
@@ -180,6 +180,8 @@ const Overworld = (data) => {
 
   // 남는 사람 기준
   socket.on("leave_succ", function(data){
+    const user = charMap[data.removeSid];
+    user.isUserJoin = false;
     removePeerFace(data.removeSid);
   })
 
@@ -331,6 +333,7 @@ const Overworld = (data) => {
               closer = closer.filter((element) => element !== object.id);
               // console.log(socket)
               object.isUserCalling = false;
+              object.isUserJoin = false;
               // console.log(player, object);
               // socket.emit("disconnected");
               
@@ -344,7 +347,8 @@ const Overworld = (data) => {
             stream.removeChild(stream.firstChild)
           }
           socket.emit("leave_Group", player.id); 
-          player.isUserCalling = false; 
+          player.isUserCalling = false;
+          player.isUserJoin = false;
         }
       //Draw Lower layer
       map.drawLowerImage(ctx, cameraPerson);
