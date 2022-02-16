@@ -12,6 +12,8 @@ import Slider from "react-slick";
 import React from "react";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import moment from "moment";
+
 const LobbyContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -145,10 +147,11 @@ const RoomItem = styled.div`
   display: flex;
   flex-direction: column;
   position: relative;
-  cursor: pointer;
+`;
 
+const RoomItemImageWrap = styled.div`
   div {
-    border: 3px solid transparent;
+    border: 2px solid transparent;
     cursor: pointer;
     margin-top: 10px;
     border-radius: 16px;
@@ -156,21 +159,66 @@ const RoomItem = styled.div`
     align-items: center;
     -webkit-box-pack: center;
     justify-content: center;
+    box-shadow: rgb(0 0 0 / 10%) 0px 12px 12px;
+    height: 80%;
 
-    span {
-      font-family: "DM Sans", sans-serif;
-      color: white;
+    div {
+      width: 100%;
+      height: 100%;
+      background-size: cover !important;
+      background-repeat: no-repeat;
+      background-position: center center;
+      border-radius: 16px;
+      aspect-ratio: 16 / 9;
+
+      background-color: rgb(0, 0, 0);
+      background: url(${(props) => props.background});
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      p {
+        display: none;
+      }
+      &:hover {
+        outline: 4px solid rgb(84, 92, 143);
+        /* opacity: 0.4; */
+
+        p {
+          display: flex;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.6);
+          justify-content: center;
+          align-items: center;
+          border-radius: 16px;
+
+          img {
+            display: block;
+            width: 50px;
+            -webkit-filter: grayscale(1) invert(1);
+            filter: grayscale(1) invert(1);
+            opacity: 0.8;
+          }
+        }
+      }
     }
   }
-  img {
-    width: 100%;
-    height: 100%;
-    border-radius: 16px;
-    aspect-ratio: 16 / 9;
-    box-shadow: rgb(0 0 0 / 10%) 0px 12px 12px;
-    background-color: rgb(0, 0, 0);
-    &:hover {
-      outline: 4px solid rgb(84, 92, 143);
+`;
+
+const RoomItemDescription = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+
+  span {
+    font-family: "DM Sans", sans-serif;
+    color: white;
+    font-size: 14px;
+
+    &:nth-child(2) {
+      color: grey;
     }
   }
 `;
@@ -429,7 +477,7 @@ const Lobby = () => {
   const [isSaveUserData, setIsSaveUserData] = useState(null);
   const [isChangeRoom, setIsChangeRoom] = useState(false);
   const [isMyRoom, setIsMyRoom] = useState([]);
-  const [isCurrentImg, setCurrent] = useState(null);
+  const [isCurrentImg, setCurrent] = useState(0);
   const charImgs = [
     "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png",
     "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-sb7g6nQb3ZYxzNHryIbM.png",
@@ -440,6 +488,9 @@ const Lobby = () => {
     "https://dynamic-assets.gather.town/sprite/avatar-C0ykfrlDx7AkQsLyLcNS-O4fcHqx7z1JBI5wTYaS6-yFpcQh7UcvdChVN8WvIW-Hj5gUXZlV0buPDZNyVjq-ajuL49i7C1GPb3SSzdGE-JB1jFMCsTzYIs8ZXSewh.png",
     "https://dynamic-assets.gather.town/sprite/avatar-aeJhE2yHSYx7EfnQKpTW-ZMvgHzgMYMTUHLHlSmLS-8hCSfYIK6RvpToNgMJNB-xayLOInw3HISMHHNcXwg-yFpcQh7UcvdChVN8WvIW-SC1roOyG6AGYCzcBSZam-QD1dfiGx3GhblDjHCj3T-eeWeU121K33Guk3ms1Kn-5rg2xBZpHHxlFKNCLJvZ.png",
   ];
+
+  const EnterIcon =
+    "https://icon-library.com/images/enter-icon/enter-icon-1.jpg";
 
   const settings = {
     dots: true,
@@ -467,31 +518,34 @@ const Lobby = () => {
         <ul style={{ margin: "0px" }}> {dots} </ul>
       </div>
     ),
-    customPaging: (i) => (
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          borderRadius: "50%",
-          overflow: "hidden",
-          position: "relative",
-          backgroundColor: "rgb(34, 34, 34)",
-        }}
-      >
-        <img
-          src={`${charImgs[i]}`}
+    customPaging: (i) => {
+      return (
+        <div
           style={{
-            right: "-1px",
-            objectFit: "cover",
-            objectPosition: "-1px 9px",
             width: "100%",
-            height: "200%",
-            imageRendering: "pixelated",
-            transform: "scale(1.25)",
+            height: "100%",
+            borderRadius: "50%",
+            overflow: "hidden",
+            position: "relative",
+            backgroundColor: "rgb(34, 34, 34)",
+            outline: charImgs[i] === isCurrentImg ? "2px solid white" : "none",
           }}
-        />
-      </div>
-    ),
+        >
+          <img
+            src={`${charImgs[i]}`}
+            style={{
+              right: "-1px",
+              objectFit: "cover",
+              objectPosition: "-1px 9px",
+              width: "100%",
+              height: "200%",
+              imageRendering: "pixelated",
+              transform: "scale(1.25)",
+            }}
+          />
+        </div>
+      );
+    },
 
     // this.setState({ oldSlide: current, activeSlide: next }),
     //  afterChange: current => this.setState({ activeSlide2: current })
@@ -501,6 +555,7 @@ const Lobby = () => {
     setIsRoomId(item.id);
     setIsOpen(!isOpen);
     setIsNickname("");
+    setCurrent(charImgs[0]);
   };
 
   const onChange = (event) => {
@@ -621,18 +676,21 @@ const Lobby = () => {
             <RoomItems>
               {isMyRoom?.map((item) => {
                 return (
-                  <RoomItem
-                    onClick={readyToGoIntoTheRoom}
-                    key={item.id}
-                    background={item?.image}
-                  >
-                    <img src={item.image} alt="background image" />
-                    <div>
+                  <RoomItem onClick={readyToGoIntoTheRoom} key={item.id}>
+                    <RoomItemImageWrap background={item?.image}>
+                      <div>
+                        <div>
+                          <p>
+                            <img src={EnterIcon} alt="" />
+                          </p>
+                        </div>
+                      </div>
+                    </RoomItemImageWrap>
+                    <RoomItemDescription>
                       <span>{item?.title}</span>
-                    </div>
-                    <div style={{ marginTop: 4 }}>
-                      <span>{item?.desc}</span>
-                    </div>
+                      <span>{moment(item?.createdAt).fromNow()}</span>
+                    </RoomItemDescription>
+                    <div className="hover-action"></div>
                   </RoomItem>
                 );
               })}
@@ -644,15 +702,20 @@ const Lobby = () => {
                   <RoomItem
                     onClick={() => readyToGoIntoTheRoom(item)}
                     key={item.id}
-                    background={item?.image}
                   >
-                    <img src={item.image} alt="background image" />
-                    <div>
+                    <RoomItemImageWrap background={item?.image}>
+                      <div>
+                        <div>
+                          <p>
+                            <img src={EnterIcon} alt="" />
+                          </p>
+                        </div>
+                      </div>
+                    </RoomItemImageWrap>
+                    <RoomItemDescription>
                       <span>{item?.title}</span>
-                    </div>
-                    <div style={{ marginTop: 4 }}>
-                      <span>{item?.desc}</span>
-                    </div>
+                      <span>{moment(item?.createdAt).fromNow()}</span>
+                    </RoomItemDescription>
                   </RoomItem>
                 );
               })}
@@ -679,9 +742,9 @@ const Lobby = () => {
                     >
                       <ArrowWrap>
                         <Slider {...settings}>
-                          {charImgs.map((charSrc) => {
+                          {charImgs.map((charSrc, index) => {
                             return (
-                              <div key={charSrc}>
+                              <div key={index}>
                                 <img src={charSrc} alt="user-character" />
                               </div>
                             );

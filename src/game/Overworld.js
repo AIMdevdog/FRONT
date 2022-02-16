@@ -15,7 +15,7 @@ let peopleInRoom = 1;
 const characters = [];
 const charMap = {};
 
-const Overworld = (data) => {
+export const Overworld = (data) => {
   const config = data.config;
   const element = config;
   const canvas = element.querySelector(".game-canvas");
@@ -146,10 +146,16 @@ const Overworld = (data) => {
   const chatForm = document.querySelector("#chatForm");
   const chatBox = document.querySelector("#chatBox");
 
+  console.log(document.getElementById("chatForm"));
+  console.log(chatForm);
+  console.log(chatBox);
+
   const MYCHAT_CN = "myChat";
   const NOTICE_CN = "noticeChat";
 
-  chatForm.addEventListener("submit", handleChatSubmit);
+  console.log(chatForm);
+
+  chatForm && chatForm.addEventListener("submit", handleChatSubmit, false);
 
   function handleChatSubmit(event) {
     event.preventDefault();
@@ -423,5 +429,3 @@ const Overworld = (data) => {
 
   startGameLoop();
 };
-
-export default Overworld;

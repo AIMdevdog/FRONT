@@ -15,7 +15,6 @@ import styled from "styled-components";
 const SidebarStyle = styled.div`
   .sidebar-wrap {
     position: fixed;
-    /* min-width: 300px; */
     /* border-right: 1px solid rgba(255, 255, 255, 0.1); */
     // left: ${(props) => (props.left ? "100px" : "0px")};
   }

@@ -1,6 +1,6 @@
 import { Router } from "./Router";
 import { createGlobalStyle } from "styled-components";
-import React from 'react';
+import React from "react";
 const GlobalStyle = createGlobalStyle`
   @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400&display=swap');
   html, body, div, span, applet, object, iframe,
@@ -61,6 +61,10 @@ const GlobalStyle = createGlobalStyle`
   a {
     text-decoration: none;
     color: inherit;
+  }
+
+  canvas {
+    image-rendering: pixelated !important;
   }
 
   input:focus { outline: none; }

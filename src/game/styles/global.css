@@ -43,6 +43,10 @@ body {
   transform: scale(1.5);
 }
 
+.game-canvas {
+  image-rendering: pixelated !important;
+}
+
 @media (max-width: 1024px) {
   .game-container canvas {
     transform: scale(1.3);
