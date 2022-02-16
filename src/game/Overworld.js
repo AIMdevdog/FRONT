@@ -141,9 +141,9 @@ export const Overworld = (data) => {
     chatInput.value = "";
 
     let nickname = "Anon";
-    let roomName = 0;
+    let groupName = 1;
 
-    socket.emit("chat", `${nickname}: ${message}`, roomName);
+    socket.emit("chat", `${nickname}: ${message}`, groupName);
     writeChat(`You: ${message}`, MYCHAT_CN);
   }
 
