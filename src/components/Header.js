@@ -367,7 +367,7 @@ const Header = (props) => {
     if (session) {
       navigate("/lobby");
     } else {
-      navigate("/signin");
+      navigate("/");
     }
   };
   const onCreateSpace = () => {
@@ -376,7 +376,7 @@ const Header = (props) => {
   const isLogOut = () => {
     const result = removeItem("session");
     console.log(result);
-    navigate("/signin");
+    navigate("/");
   };
 
   useEffect(() => {

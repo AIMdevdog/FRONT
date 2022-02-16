@@ -1,9 +1,10 @@
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Overworld from "../game/Overworld";
 import { Person } from "../game/Person";
 import { useParams } from "react-router-dom";
 import Gallery1 from "../components/Gallery1";
 import styled from "styled-components";
+import LoadingComponent from "../components/Loading";
 
 const pexel = (id) =>
   `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260`;
@@ -71,6 +72,7 @@ const ThreeCanvas = styled.div`
 
 const Room = (props) => {
   console.log(window.location.href);
+  const [isLoading, setIsLoading] = useState(false);
   const urlStr = window.location.href;
   const url = new URL(urlStr);
   const urlParams = url.searchParams;
@@ -113,8 +115,20 @@ const Room = (props) => {
     // overworld.init();
   }, []);
 
+  useEffect(() => {
+    const loadingFn = () => {
+      setIsLoading(true);
+    };
+
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
+    loadingFn();
+  }, []);
+
   return (
     <div>
+      {isLoading && <LoadingComponent />}
       <ThreeCanvas>
         <Suspense fallback={null}>
           <Gallery1 images={images} />

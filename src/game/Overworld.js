@@ -325,7 +325,7 @@ const Overworld = (data) => {
             player.isUserCalling = false;
             object.isUserCalling = false;
             // console.log(player, object);
-            socket.emit("leave_Group", player.id, removePeerFace);
+            socket.emit("leave_Group", object.id, removePeerFace);
             // socket.emit("disconnected");
           }
         }
