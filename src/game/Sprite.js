@@ -1,3 +1,4 @@
+import { FaThemeisle } from "react-icons/fa";
 import utils from "./utils.js";
 export class Sprite {
   constructor(config) {
@@ -59,8 +60,10 @@ export class Sprite {
     this.gameObject = config.gameObject;
 
     //컨셉방을 위한 조정 값
-    this.axios = 0;
-    this.ratio = 1;
+    this.xaxios = 0;
+    this.xratio = 1;
+    this.yaxios = 0;
+    this.yratio = 1;
 
 
   }
@@ -95,13 +98,13 @@ export class Sprite {
 
   draw(ctx, cameraPerson) {
     const x =
-      this.gameObject.x - 8 +
+      this.gameObject.x - 8 + this.xaxios +
       utils.withGrid(ctx.canvas.clientWidth / 16 / 2) -
       cameraPerson.x;
     const y =
-      this.gameObject.y - 18 + this.axios +
+      this.gameObject.y - 18 + this.yaxios +
       utils.withGrid(ctx.canvas.clientHeight / 16 / 2) -
-      cameraPerson.y*this.ratio;
+      cameraPerson.y*this.yratio;
 
     this.isShadowLoaded && ctx.drawImage(this.shadow, x, y);
 

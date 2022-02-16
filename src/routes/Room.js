@@ -9,7 +9,14 @@ import Header from "../components/Header";
 const Room = () => {
   const location = useLocation();
   console.log(location.state);
-  const charSrc = location.state.isCurrentImg || "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-sb7g6nQb3ZYxzNHryIbM.png";
+
+  console.log(window.location.href);
+  const urlStr = window.location.href;
+  const url = new URL(urlStr);
+  const urlParams = url.searchParams;
+  const src = urlParams.get("src");
+
+  const charSrc = src || location.state.isCurrentImg || "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-sb7g6nQb3ZYxzNHryIbM.png";
   console.log(charSrc);
   useEffect(() => {
     Overworld(
@@ -30,8 +37,9 @@ const Room = () => {
           },
         },
         adjust: {
-          axios: 0,
-          ratio: 1,
+          xaxios: 0,
+          yaxios: 0,
+          yratio: 1,
         },
         otherMaps: [
           {
