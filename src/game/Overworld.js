@@ -44,7 +44,7 @@ export const Overworld = (data) => {
   
   function handleAddStream(event, remoteSocketId, remoteNickname) {
     const peerStream = event.stream;
-    // const user = charMap[remoteSocketId]
+    // const user = charMap[remoteSocketId] // person.js에 있는 거랑 같이인데 주석 풀면 터짐
     // if (!user.isUserJoin) { // 유저가 어떤 그룹에도 속하지 않을 때 영상을 키겠다
     //   user.isUserCalling = true;
       paintPeerFace(peerStream, remoteSocketId, remoteNickname);

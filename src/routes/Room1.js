@@ -97,7 +97,28 @@ const Room = (props) => {
           <canvas className="game-canvas" style={{backgroundColor:"#131318"}}></canvas>
         </div>
 
+        <div id="streams" style={{position: "fixed", display: 'flex', left: 0, bottom: 100, width: 200, height: 100, backgroundColor: 'white'}}>
+        
+        </div>
+        <div style={{position: "fixed", right: 0, bottom: 0, width: 200, height: 200, backgroundColor: 'white'}}>
+        <video id="myFace" autoplay="autoplay" style={{width: 200, height: 200}}></video>
+  
+        </div>
+  
+        <div id="chatRoom">
+          <ul id="chatBox">
+            <form id="chatForm">
+              <input type="text" placeholder="Write your chat" required/>
+              <button>Send</button>
+            </form>
+          </ul>
+        </div>
+
+
     </div>
+
+    
+    
   );
 };
 
