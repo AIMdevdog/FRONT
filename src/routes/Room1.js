@@ -137,11 +137,17 @@ const Room = (props) => {
       <div className="game-container">
         <canvas
           className="game-canvas"
-          style={{ backgroundColor: "#131318" }}
+          style={{
+            backgroundColor: "#131318",
+            // backgroundImage: "linear-gradient(red, yellow)",
+
+            position: "fixed",
+            bottom: 0,
+          }}
         ></canvas>
       </div>
 
-      <div
+      {/* <div
         id="streams"
         style={{
           position: "fixed",
@@ -168,7 +174,7 @@ const Room = (props) => {
           autoplay="autoplay"
           style={{ width: 200, height: 200 }}
         ></video>
-      </div>
+      </div> */}
 
       <div id="chatRoom">
         <ul id="chatBox">
