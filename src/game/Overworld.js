@@ -311,7 +311,7 @@ export const Overworld = (data) => {
               player.isUserCalling = false;
               object.isUserCalling = false;
               // console.log(player, object);
-              socket.emit("leave_Group", object.id, removePeerFace);
+              socket.emit("leave_Group", object.id, removePeerFace); // 상대방 화면을 remove해야하므로 object.id를 보냄
               // socket.emit("disconnected");
 
             }
