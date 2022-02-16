@@ -25,13 +25,14 @@ const Overworld = (data) => {
     audio: true,
     video: true,
   };
-
+  
   const map = new OverworldMap(data.Room);
   const adjustValue = data.adjust;
   const otherMaps = data.otherMaps;
   const directionInput = new DirectionInput();
   directionInput.init();
-
+  let closer = [];
+  
   // data 안에 소켓id, nickname 있음
   // data for문 돌면서 isUserCalling checking 혹은..
   // [PASS] 2명+3명 그룹 합쳐질 때 그룹 통화중이라는 것을 표시해둬야 함 / 변수 하나 더 추가 true, false 체크
@@ -45,11 +46,11 @@ const Overworld = (data) => {
   function handleAddStream(event, remoteSocketId, remoteNickname) {
     const peerStream = event.stream;
     console.log(peerStream);
-    // const user = charMap[remoteSocketId] // person.js에 있는 거랑 같이인데 주석 풀면 터짐
-    // if (!user.isUserJoin) { // 유저가 어떤 그룹에도 속하지 않을 때 영상을 키겠다
-    //   user.isUserCalling = true;
+    const user = charMap[remoteSocketId] // person.js에 있는 거랑 같이
+    if (!user.isUserJoin) { // 유저가 어떤 그룹에도 속하지 않을 때 영상을 키겠다
+      user.isUserJoin = true;
     paintPeerFace(peerStream, remoteSocketId, remoteNickname);
-    // }
+    }
   }
 
   // 영상 connect
@@ -72,11 +73,15 @@ const Overworld = (data) => {
   function removePeerFace(id) {
     const streams = document.querySelector("#streams");
     const streamArr = streams.querySelectorAll("div");
+    console.log("총 길이 " , streamArr.length);
     streamArr.forEach((streamElement) => {
+      console.log(streamArr, streamElement.id, id);
       if (streamElement.id === id) {
         streams.removeChild(streamElement);
+
       }
     });
+    console.log(streams);
   }
 
   function createConnection(remoteSocketId, remoteNickname) {
@@ -140,15 +145,15 @@ const Overworld = (data) => {
     console.log("initCall 함수");
     await getMedia(); // Room.js에 들어있음
   }
-
+  
   // chat form
-
+  
   const chatForm = document.querySelector("#chatForm");
   const chatBox = document.querySelector("#chatBox");
-
+  
   const MYCHAT_CN = "myChat";
   const NOTICE_CN = "noticeChat";
-
+  
   chatForm.addEventListener("submit", handleChatSubmit);
 
   function handleChatSubmit(event) {
@@ -172,6 +177,11 @@ const Overworld = (data) => {
     li.classList.add(className);
     chatBox.prepend(li);
   }
+
+  // 남는 사람 기준
+  socket.on("leave_succ", function(data){
+    removePeerFace(data.removeSid);
+  })
 
   socket.on("chat", (message) => {
     writeChat(message);
@@ -253,7 +263,7 @@ const Overworld = (data) => {
   socket.on("leave_user", function () {
     leaveUser(data);
   });
-
+  
   socket.on("update_state", function (data) {
     // console.log(data);
     updateLocation(data);
@@ -307,6 +317,7 @@ const Overworld = (data) => {
             Math.abs(player.y - object.y) < 96
           ) {
             //화상 통화 연결
+            closer.push(object.id);
             console.log("가까워짐");
             player.isUserCalling = true;
             object.isUserCalling = true;
@@ -317,17 +328,24 @@ const Overworld = (data) => {
           }
             if (object.isUserCalling && (Math.abs(player.x - object.x) > 96 || Math.abs(player.y - object.y) > 128)) {
               console.log("멀어짐")
+              closer = closer.filter((element) => element !== object.id);
               // console.log(socket)
-              player.isUserCalling = false;
               object.isUserCalling = false;
               // console.log(player, object);
-              socket.emit("leave_Group", object.id, removePeerFace); // 상대방 화면을 remove해야하므로 object.id를 보냄
               // socket.emit("disconnected");
-
+              
             }
+          }
+        });
+        const playercheck = player ? player.isUserCalling : false;
+        if (playercheck && closer.length === 0) { // 나가는 사람 기준
+          const stream = document.querySelector("#streams");
+          while(stream.hasChildNodes()){ // 내가 가지고있는 다른 사람의 영상을 전부 삭제
+            stream.removeChild(stream.firstChild)
+          }
+          socket.emit("leave_Group", player.id); 
+          player.isUserCalling = false; 
         }
-      });
-
       //Draw Lower layer
       map.drawLowerImage(ctx, cameraPerson);
 
