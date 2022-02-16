@@ -7,16 +7,15 @@ import Header from "./components/Header";
 import Room from "./routes/Room";
 import Room1 from "./routes/Room1";
 import SimpleSlider from "./components/CharacterSlider";
-import React from 'react';
-
+import React from "react";
 
 export const Router = () => {
   return (
     <BrowserRouter>
       {/* <Header /> */}
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/signin" element={<SignIn />} />
+        {/* <Route path="/" element={<Home />} /> */}
+        <Route path="/" element={<SignIn />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/lobby" element={<Lobby />} />
         <Route path="/room" element={<Room />} />
