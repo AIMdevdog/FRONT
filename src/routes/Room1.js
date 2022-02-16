@@ -1,5 +1,5 @@
 import { Suspense, useEffect, useState } from "react";
-import { Overworld } from "../game/Overworld";
+import Overworld from "../game/Overworld";
 import { Person } from "../game/Person";
 import { useParams } from "react-router-dom";
 import Gallery1 from "../components/Gallery1";
