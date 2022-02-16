@@ -77,13 +77,18 @@ export const Overworld = (data) => {
     });
     myPeerConnection.addEventListener("icecandidate", (event) => {
       handleIce(event, remoteSocketId);
+      console.log('+------Ice------+');
     });
     myPeerConnection.addEventListener("addstream", (event) => {
       handleAddStream(event, remoteSocketId, remoteNickname);
+      console.log('+------addstream------+');
     });
+
+    console.log('+------before getTracks------+');
     myStream 
       .getTracks()
       .forEach((track) => myPeerConnection.addTrack(track, myStream));
+    console.log('+------getTracks------+', myStream);
     
     pcObj[remoteSocketId] = myPeerConnection;
   
@@ -103,7 +108,7 @@ export const Overworld = (data) => {
     console.log("Myface");
     
     try {
-      const myStream = await navigator.mediaDevices.getUserMedia(cameraConstraints);
+      myStream = await navigator.mediaDevices.getUserMedia(cameraConstraints);
       console.log("mystream", myStream);
       // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
       myFace.srcObject = myStream;
