@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation, useParams } from "react-router";
+import { useLocation } from "react-router";
 import Overworld from "../game/Overworld";
 import { Person } from "../game/Person";
 import React from "react";
@@ -59,7 +59,6 @@ const MyVideo = styled.video`
 
 const Room = () => {
   const location = useLocation();
-  const params = useParams();
   // const { state } = location;
   const urlStr = window.location.href;
   const url = new URL(urlStr);
@@ -111,7 +110,7 @@ const Room = () => {
         {
           x: 16,
           y: 448,
-          url: "/room1",
+          url: "http://localhost:3000/room1",
         },
       ],
     });

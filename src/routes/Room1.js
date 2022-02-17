@@ -108,7 +108,8 @@ const Room = (props) => {
         {
           x: 96,
           y: 336,
-          url: "http://localhost:3000/room",
+          // url: "http://localhost:3000/room",
+          url: "/room1",
         },
       ],
     });
@@ -127,7 +128,7 @@ const Room = (props) => {
   }, []);
 
   return (
-    <div>
+    <div style={{ height: "100vh", backgroundColor: "black" }}>
       {isLoading && <LoadingComponent background={true} />}
       <ThreeCanvas>
         <Suspense fallback={null}>
@@ -176,7 +177,7 @@ const Room = (props) => {
         ></video>
       </div> */}
 
-      <div id="chatRoom">
+      <div style={{ opacity: 0 }} id="chatRoom">
         <ul id="chatBox">
           <form id="chatForm">
             <input type="text" placeholder="Write your chat" required />
