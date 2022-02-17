@@ -110,7 +110,8 @@ const Room = () => {
         {
           x: 16,
           y: 448,
-          url: "http://localhost:3000/room1",
+          // url: "http://localhost:3000/room1",
+          url: "/room1",
         },
       ],
     });
