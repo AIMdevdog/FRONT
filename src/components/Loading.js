@@ -6,7 +6,8 @@ import ThumbsUp from "../assets/lottie/lf30_editor_shtnllxd_white.json";
 const LottieTag = styled.div`
   width: 100%;
   height: 100vh;
-  background: rgb(0, 0, 0, 0.6);
+  background: ${(props) =>
+    props.background ? "rgb(0, 0, 0, 1)" : "rgb(0, 0, 0, 0.6)"};
   position: absolute;
   left: 0px;
   top: 0px;
@@ -26,7 +27,7 @@ const lottieOptions = {
   },
 };
 
-const LoadingComponent = () => {
+const LoadingComponent = ({ background = false }) => {
   const [isStopped, SetIsStopped] = useState(false);
   const [isPaused, SetIsPaused] = useState(false);
 
@@ -39,7 +40,7 @@ const LoadingComponent = () => {
   };
 
   return (
-    <LottieTag>
+    <LottieTag opa={background}>
       <Lottie
         options={lottieOptions}
         // isStopped={isStopped}

@@ -122,13 +122,13 @@ const Room = (props) => {
 
     setTimeout(() => {
       setIsLoading(false);
-    }, 2000);
+    }, 3000);
     loadingFn();
   }, []);
 
   return (
     <div>
-      {isLoading && <LoadingComponent />}
+      {isLoading && <LoadingComponent background={true} />}
       <ThreeCanvas>
         <Suspense fallback={null}>
           <Gallery1 images={images} />
