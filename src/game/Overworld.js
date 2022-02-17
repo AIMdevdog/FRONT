@@ -43,30 +43,40 @@ const Overworld = (data) => {
     streamArr.forEach((stream) => (stream.className = `people${peopleInRoom}`));
   }
 
-  function handleAddStream(event, remoteSocketId, remoteNickname) {
+  async function handleAddStream (event, remoteSocketId, remoteNickname) {
     const peerStream = event.stream;
     console.log(peerStream);
     const user = charMap[remoteSocketId] // person.js에 있는 거랑 같이
+    
     if (!user.isUserJoin) { // 유저가 어떤 그룹에도 속하지 않을 때 영상을 키겠다
       user.isUserJoin = true;
-      paintPeerFace(peerStream, remoteSocketId, remoteNickname);
+      try{
+        await paintPeerFace(peerStream, remoteSocketId, remoteNickname);
+      } catch (err) {
+        console.error(err);
+      }
     }
   }
 
   // 영상 connect
-  function paintPeerFace(peerStream, id, remoteNickname) {
+  async function paintPeerFace(peerStream, id, remoteNickname) {
     const streams = document.querySelector("#streams");
     const div = document.createElement("div");
     // div.classList.add("userVideoContainer");
     div.id = id;
-    const video = document.createElement("video");
-    video.className = "userVideo";
-    video.autoplay = true;
-    video.playsInline = true;
-    video.srcObject = peerStream;
-    div.appendChild(video);
-    streams.appendChild(div);
-    sortStreams();
+
+    try {
+      const video = document.createElement("video");
+        video.className = "userVideo";
+        video.autoplay = true;
+        video.playsInline = true;
+        video.srcObject = peerStream;
+        div.appendChild(video);
+        streams.appendChild(div);
+        await sortStreams();
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   // 영상 disconnect
@@ -103,7 +113,11 @@ const Overworld = (data) => {
       console.log("+------Ice------+");
     });
     myPeerConnection.addEventListener("addstream", (event) => {
-      handleAddStream(event, remoteSocketId, remoteNickname);
+      try {
+        handleAddStream(event, remoteSocketId, remoteNickname);
+      } catch (err) {
+        console.error(err);
+      }
       console.log("+------addstream------+");
     });
 
@@ -134,8 +148,8 @@ const Overworld = (data) => {
       console.log("mystream", myStream);
       // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
       myFace.srcObject = myStream;
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      console.log(err);
     }
   }
 
@@ -143,7 +157,11 @@ const Overworld = (data) => {
     // welcome.hidden = true;            // HTML 관련 코드
     // call.classList.remove(HIDDEN_CN); // HTML 관련 코드
     console.log("initCall 함수");
-    await getMedia(); // Room.js에 들어있음
+    try {
+      await getMedia(); // Room.js에 들어있음
+    } catch (err) {
+      console.log(err);
+    }
   }
   
   // chat form
