@@ -25,14 +25,14 @@ const Overworld = (data) => {
     audio: true,
     video: true,
   };
-  
+
   const map = new OverworldMap(data.Room);
   const adjustValue = data.adjust;
   const otherMaps = data.otherMaps;
   const directionInput = new DirectionInput();
   directionInput.init();
   let closer = [];
-  
+
   // data 안에 소켓id, nickname 있음
   // data for문 돌면서 isUserCalling checking 혹은..
   // [PASS] 2명+3명 그룹 합쳐질 때 그룹 통화중이라는 것을 표시해둬야 함 / 변수 하나 더 추가 true, false 체크
@@ -43,14 +43,15 @@ const Overworld = (data) => {
     streamArr.forEach((stream) => (stream.className = `people${peopleInRoom}`));
   }
 
-  async function handleAddStream (event, remoteSocketId, remoteNickname) {
+  async function handleAddStream(event, remoteSocketId, remoteNickname) {
     const peerStream = event.stream;
     console.log(peerStream);
-    const user = charMap[remoteSocketId] // person.js에 있는 거랑 같이
-    
-    if (!user.isUserJoin) { // 유저가 어떤 그룹에도 속하지 않을 때 영상을 키겠다
+    const user = charMap[remoteSocketId]; // person.js에 있는 거랑 같이
+
+    if (!user.isUserJoin) {
+      // 유저가 어떤 그룹에도 속하지 않을 때 영상을 키겠다
       user.isUserJoin = true;
-      try{
+      try {
         await paintPeerFace(peerStream, remoteSocketId, remoteNickname);
       } catch (err) {
         console.error(err);
@@ -67,13 +68,13 @@ const Overworld = (data) => {
 
     try {
       const video = document.createElement("video");
-        video.className = "userVideo";
-        video.autoplay = true;
-        video.playsInline = true;
-        video.srcObject = peerStream;
-        div.appendChild(video);
-        streams.appendChild(div);
-        await sortStreams();
+      video.className = "userVideo";
+      video.autoplay = true;
+      video.playsInline = true;
+      video.srcObject = peerStream;
+      div.appendChild(video);
+      streams.appendChild(div);
+      await sortStreams();
     } catch (err) {
       console.error(err);
     }
@@ -88,50 +89,57 @@ const Overworld = (data) => {
       console.log(streamArr, streamElement.id, id);
       if (streamElement.id === id) {
         streams.removeChild(streamElement);
-
       }
     });
     // console.log(streams);
   }
 
-  function createConnection(remoteSocketId, remoteNickname) {
-    const myPeerConnection = new RTCPeerConnection({
-      iceServers: [
-        {
-          urls: [
-            "stun:stun.l.google.com:19302",
-            "stun:stun1.l.google.com:19302",
-            "stun:stun2.l.google.com:19302",
-            "stun:stun3.l.google.com:19302",
-            "stun:stun4.l.google.com:19302",
-          ],
-        },
-      ],
-    });
-    myPeerConnection.addEventListener("icecandidate", (event) => {
-      handleIce(event, remoteSocketId);
-      console.log("+------Ice------+");
-    });
-    myPeerConnection.addEventListener("addstream", (event) => {
-      try {
-        handleAddStream(event, remoteSocketId, remoteNickname);
-      } catch (err) {
-        console.error(err);
-      }
-      console.log("+------addstream------+");
-    });
+  async function createConnection(remoteSocketId, remoteNickname) {
+    try {
+      const myPeerConnection = new RTCPeerConnection({
+        iceServers: [
+          {
+            urls: [
+              "stun:stun.l.google.com:19302",
+              "stun:stun1.l.google.com:19302",
+              "stun:stun2.l.google.com:19302",
+              "stun:stun3.l.google.com:19302",
+              "stun:stun4.l.google.com:19302",
+            ],
+          },
+        ],
+      });
+      myPeerConnection.addEventListener("icecandidate", async (event) => {
+        try {
+          await handleIce(event, remoteSocketId);
+        } catch (e) {
+          console.log(e);
+        }
+        console.log("+------Ice------+");
+      });
+      myPeerConnection.addEventListener("addstream", async (event) => {
+        try {
+          await handleAddStream(event, remoteSocketId, remoteNickname);
+        } catch (err) {
+          console.error(err);
+        }
+        console.log("+------addstream------+");
+      });
 
-    console.log("+------before getTracks------+");
-    myStream
-      .getTracks()
-      .forEach((track) => myPeerConnection.addTrack(track, myStream));
-    console.log("+------getTracks------+", myStream);
+      console.log("+------before getTracks------+");
+      myStream
+        .getTracks()
+        .forEach((track) => myPeerConnection.addTrack(track, myStream));
+      console.log("+------getTracks------+", myStream);
 
-    pcObj[remoteSocketId] = myPeerConnection;
+      pcObj[remoteSocketId] = myPeerConnection;
 
-    ++peopleInRoom;
-    sortStreams();
-    return myPeerConnection;
+      ++peopleInRoom;
+      sortStreams();
+      return myPeerConnection;
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   function handleIce(event, remoteSocketId) {
@@ -163,15 +171,15 @@ const Overworld = (data) => {
       console.log(err);
     }
   }
-  
+
   // chat form
-  
+
   const chatForm = document.querySelector("#chatForm");
   const chatBox = document.querySelector("#chatBox");
-  
+
   const MYCHAT_CN = "myChat";
   const NOTICE_CN = "noticeChat";
-  
+
   chatForm.addEventListener("submit", handleChatSubmit);
 
   function handleChatSubmit(event) {
@@ -198,27 +206,27 @@ const Overworld = (data) => {
   }
 
   // 남는 사람 기준
-  socket.on("leave_succ", function(data){
+  socket.on("leave_succ", function (data) {
     const user = charMap[data.removeSid];
     user.isUserJoin = false;
     removePeerFace(data.removeSid);
-  })
+  });
 
   socket.on("chat", (message) => {
     writeChat(message);
   });
 
   socket.on("accept_join", async (userObjArr) => {
-    await initCall();
+    try {
+      await initCall();
 
-    const length = userObjArr.length;
-    if (length === 1) {
-      return;
-    }
+      const length = userObjArr.length;
+      if (length === 1) {
+        return;
+      }
 
-    for (let i = 0; i < length - 1; ++i) {
-      try {
-        const newPC = createConnection(
+      for (let i = 0; i < length - 1; ++i) {
+        const newPC = await createConnection(
           userObjArr[i].socketId,
           userObjArr[i].nickname
         );
@@ -230,16 +238,16 @@ const Overworld = (data) => {
           userObjArr[i].socketId,
           userObjArr[i].nickname
         );
-      } catch (err) {
-        console.error(err);
       }
+    } catch (err) {
+      console.error(err);
     }
     // writeChat("is in the room.", NOTICE_CN);
   });
 
   socket.on("offer", async (offer, remoteSocketId, remoteNickname) => {
     try {
-      const newPC = createConnection(remoteSocketId, remoteNickname);
+      const newPC = await createConnection(remoteSocketId, remoteNickname);
       await newPC.setRemoteDescription(offer);
       const answer = await newPC.createAnswer();
       await newPC.setLocalDescription(answer);
@@ -284,7 +292,7 @@ const Overworld = (data) => {
   socket.on("leave_user", function () {
     leaveUser(data);
   });
-  
+
   socket.on("update_state", function (data) {
     // console.log(data);
     updateLocation(data);
@@ -347,28 +355,33 @@ const Overworld = (data) => {
               callee: object.id,
             });
           }
-            if (object.isUserCalling && (Math.abs(player.x - object.x) > 96 || Math.abs(player.y - object.y) > 128)) {
-              console.log("멀어짐")
-              closer = closer.filter((element) => element !== object.id);
-              // console.log(socket)
-              object.isUserCalling = false;
-              object.isUserJoin = false;
-              // console.log(player, object);
-              // socket.emit("disconnected");
-              
-            }
+          if (
+            object.isUserCalling &&
+            (Math.abs(player.x - object.x) > 96 ||
+              Math.abs(player.y - object.y) > 128)
+          ) {
+            console.log("멀어짐");
+            closer = closer.filter((element) => element !== object.id);
+            // console.log(socket)
+            object.isUserCalling = false;
+            object.isUserJoin = false;
+            // console.log(player, object);
+            // socket.emit("disconnected");
           }
-        });
-        const playercheck = player ? player.isUserCalling : false;
-        if (playercheck && closer.length === 0) { // 나가는 사람 기준
-          const stream = document.querySelector("#streams");
-          while(stream.hasChildNodes()){ // 내가 가지고있는 다른 사람의 영상을 전부 삭제
-            stream.removeChild(stream.firstChild)
-          }
-          socket.emit("leave_Group", player.id); 
-          player.isUserCalling = false;
-          player.isUserJoin = false;
         }
+      });
+      const playercheck = player ? player.isUserCalling : false;
+      if (playercheck && closer.length === 0) {
+        // 나가는 사람 기준
+        const stream = document.querySelector("#streams");
+        while (stream.hasChildNodes()) {
+          // 내가 가지고있는 다른 사람의 영상을 전부 삭제
+          stream.removeChild(stream.firstChild);
+        }
+        socket.emit("leave_Group", player.id);
+        player.isUserCalling = false;
+        player.isUserJoin = false;
+      }
       //Draw Lower layer
       map.drawLowerImage(ctx, cameraPerson);
 
