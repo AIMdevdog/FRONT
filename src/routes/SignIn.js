@@ -1,11 +1,10 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import styled from "styled-components";
 import GoogleButton from "../components/GoogleLogin";
 import { sign } from "../config/api";
 import assets from "../config/assets";
-import { localGetItem } from "../utils/handleStorage";
+import { localGetItem, localSetItem } from "../utils/handleStorage";
 
 const SignInWrap = styled.div`
   /* width: 100%; */
@@ -141,9 +140,10 @@ const SignInInput = styled.div`
   }
 `;
 
-const SignInButton = styled.div`
+const SignButton = styled.div`
   display: flex;
-  margin-top: 12px;
+  margin-top: 24px;
+  justify-content: space-between;
 
   button {
     display: flex;
@@ -163,7 +163,7 @@ const SignInButton = styled.div`
     background-color: rgb(6, 214, 160);
     border: 2px solid transparent;
     padding: 0px 16px;
-    width: 100%;
+    width: 45%;
     height: 48px;
     border-radius: 16px;
     font-size: 15px;
@@ -171,41 +171,67 @@ const SignInButton = styled.div`
   }
 `;
 
+const GetErrorSpan = styled.span`
+  margin-top: 4px;
+  margin-left: 21px;
+  font-size: 12px;
+  color: red;
+`;
+
 const SignIn = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+
+  // 이메일 비밀번호가 잘못된 경우 체크
+  const [emailFlag, setEmailFlag] = useState(false);
+  const [passwordFlag, setpasswordFlag] = useState(false);
+
+
   const onChange = (event) => {
-    console.log(event.target.value);
     const {
       target: { name, value },
     } = event;
     if (name === "email") {
+      if(emailFlag){
+        setEmailFlag(false);
+      }
       setEmail(value);
     } else if (name === "password") {
+      if(passwordFlag){
+        setpasswordFlag(false);
+      }
       setPassword(value);
     }
   };
 
   const onSubmit = async (event) => {
     event.preventDefault();
-    // const session  = session.passport.user;
-    // try {
-    //   const result = await sign.setNickName("안녕", session);
-    //   console.log(result);
-    // } catch (e) {
-    //   console.log(e);
-    // }
-
-    // await axios
-    //   .post("http://localhost:3000/sign", {
-    //     email: email,
-    //     password: password,
-    //     nickname: nickname,
-    //     phone_num: phoneNum,
-    //   })
-    //   .then((res) => console.log(res));
+    console.log("submit");
+    try {
+      const {
+        data: { code, APIdata, msg }
+      } = await sign.getSign(email, password);
+      if(code === "성공"){
+        await localSetItem("session", APIdata?.accessToken, 20160);
+        navigate('/lobby');
+      }
+      else if(code === "존재하지 않는 이메일"){
+        setEmailFlag(true);
+        console.log(msg);
+      } else if (code === "잘못된 비밀번호"){
+        setpasswordFlag(true);
+        console.log(msg);
+      }
+    } catch(e){
+      console.log(e);
+    }
   };
+
+  const onClickSignUp = (event) => {
+    navigate("/signup");
+  }
 
   useEffect(() => {
     const session = localGetItem("session");
@@ -214,20 +240,6 @@ const SignIn = () => {
     }
   });
 
-  // const onClickSign = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     const result = await sign.sendSignData(email, password);
-  //     console.log(result);
-  //     if (result.data.code === 200) {
-  //       navigate("/lobby");
-  //     } else {
-  //       alert(result.data.message);
-  //     }
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // };
   return (
     <SignInWrap>
       <SignInContainer>
@@ -259,6 +271,7 @@ const SignIn = () => {
                 placeholder="Enter your email address"
               />
             </SignInInput>
+            {emailFlag? <GetErrorSpan> 가입되지 않은 이메일입니다.</GetErrorSpan>: null}
           </EmailSignInContainer>
           <EmailSignInContainer style={{ marginTop: 20 }}>
             <SignInLabel>
@@ -276,10 +289,12 @@ const SignIn = () => {
                 placeholder="Enter your password"
               />
             </SignInInput>
+            {passwordFlag? <GetErrorSpan> 잘못된 비밀번호입니다.</GetErrorSpan> : null}
           </EmailSignInContainer>
-          {/* <SignInButton onClick={onClickSign}>
-            <button>Sign in</button>
-          </SignInButton> */}
+          <SignButton>
+            <button onClick={onSubmit}> 로그인 </button>
+            <button onClick={onClickSignUp}> 회원가입 </button>
+          </SignButton>
         </form>
       </SignInContainer>
     </SignInWrap>
@@ -287,3 +302,4 @@ const SignIn = () => {
 };
 
 export default SignIn;
+

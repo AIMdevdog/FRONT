@@ -1,8 +1,12 @@
 import axios from "../api/axios-instance";
 
 export const sign = {
-  getSign: (accessToken, email) =>
+  getSign: (email, password) =>
+    axios.get("/user/signin", {email, password}),
+  getGoogleSign: (accessToken, email) =>
     axios.post("/users/auth/google", { accessToken, email }),
+  createUser: (email, password, nickname) =>
+    axios.post("/users/signup", {email, password, nickname})
 };
 
 export const user = {
@@ -17,3 +21,4 @@ export const room = {
   createRoom: (hostId, image, title, desc) =>
     axios.post("/room/create", { hostId, image, title, desc }),
 };
+
