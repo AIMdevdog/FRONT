@@ -19,7 +19,7 @@ const GoogleButton = ({ onSocial }) => {
 
       console.log(accessToken, email)
 
-      const result = await sign.getSign(accessToken, email);
+      const result = await sign.getGoogleSign(accessToken, email);
       const { data, status } = result;
       if (status === 200) {
         await localSetItem("session", data?.accessToken, 20160);

@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Home from "./routes/Home";
-import Signup from "./routes/SignUp";
+import SignUp from "./routes/SignUp";
 import SignIn from "./routes/SignIn";
 import Lobby from "./routes/Lobby";
 import Header from "./components/Header";
@@ -16,9 +16,9 @@ export const Router = () => {
       <Routes>
         {/* <Route path="/" element={<Home />} /> */}
         <Route path="/" element={<SignIn />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route path="/signup" element={<SignUp />} />
         <Route path="/lobby" element={<Lobby />} />
-        <Route path="/room" element={<Room />} />
+        <Route path="/room/:roodId" element={<Room />} />
         <Route path="/room1" element={<Room1 />} />
         <Route path="/slider" element={<SimpleSlider />} />
       </Routes>

@@ -186,7 +186,7 @@ const SignIn = () => {
 
   // 이메일 비밀번호가 잘못된 경우 체크
   const [emailFlag, setEmailFlag] = useState(false);
-  const [passwordFlag, setpasswordFlag] = useState(false);
+  const [passwordFlag, setPasswordFlag] = useState(false);
 
 
   const onChange = (event) => {
@@ -194,13 +194,13 @@ const SignIn = () => {
       target: { name, value },
     } = event;
     if (name === "email") {
-      if(emailFlag){
+      if (emailFlag) {
         setEmailFlag(false);
       }
       setEmail(value);
     } else if (name === "password") {
-      if(passwordFlag){
-        setpasswordFlag(false);
+      if (passwordFlag) {
+        setPasswordFlag(false);
       }
       setPassword(value);
     }
@@ -213,18 +213,20 @@ const SignIn = () => {
       const {
         data: { code, APIdata, msg }
       } = await sign.getSign(email, password);
-      if(code === "성공"){
+      if (code === 200) {
         await localSetItem("session", APIdata?.accessToken, 20160);
         navigate('/lobby');
       }
-      else if(code === "존재하지 않는 이메일"){
-        setEmailFlag(true);
-        console.log(msg);
-      } else if (code === "잘못된 비밀번호"){
-        setpasswordFlag(true);
-        console.log(msg);
+      else if (code === 401) {
+        if (msg === "id wrong") {
+          setEmailFlag(true);
+          console.log(msg);
+        } else{
+          setPasswordFlag(true);
+          console.log(msg);
+        }
       }
-    } catch(e){
+    } catch (e) {
       console.log(e);
     }
   };
@@ -271,7 +273,7 @@ const SignIn = () => {
                 placeholder="Enter your email address"
               />
             </SignInInput>
-            {emailFlag? <GetErrorSpan> 가입되지 않은 이메일입니다.</GetErrorSpan>: null}
+            {emailFlag ? <GetErrorSpan> 가입되지 않은 이메일입니다.</GetErrorSpan> : null}
           </EmailSignInContainer>
           <EmailSignInContainer style={{ marginTop: 20 }}>
             <SignInLabel>
@@ -283,13 +285,14 @@ const SignIn = () => {
               <input
                 name="password"
                 type="password"
+                minLength="6"
                 required
                 value={password}
                 onChange={onChange}
                 placeholder="Enter your password"
               />
             </SignInInput>
-            {passwordFlag? <GetErrorSpan> 잘못된 비밀번호입니다.</GetErrorSpan> : null}
+            {passwordFlag ? <GetErrorSpan> 잘못된 비밀번호입니다.</GetErrorSpan> : null}
           </EmailSignInContainer>
           <SignButton>
             <button onClick={onSubmit}> 로그인 </button>

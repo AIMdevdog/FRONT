@@ -2,7 +2,7 @@ import axios from "../api/axios-instance";
 
 export const sign = {
   getSign: (email, password) =>
-    axios.get("/user/signin", {email, password}),
+    axios.get("/user/login", {email, password}),
   getGoogleSign: (accessToken, email) =>
     axios.post("/users/auth/google", { accessToken, email }),
   createUser: (email, password, nickname) =>

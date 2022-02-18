@@ -168,13 +168,16 @@ const SignUp = () => {
         data: { code, msg }
       }
         = await sign.createUser(email, password, nickname);
-      if(code === "이메일이 존재 코드"){
-        showExistEmailSpan();
-        console.log(msg);
-      }else if (code === "닉네임이 존재 코드"){
-        showExistNicknameSpan();
-        console.log(msg);
-      } else if (code === "회원가입 성공 코드"){
+      if (code === 400) {
+        if (msg === "이메일 존재") {
+          showExistEmailSpan();
+          console.log(msg);
+        } else {
+          showExistNicknameSpan();
+          console.log(msg);
+        }
+      } else if (code === 200) {
+        alert("회원가입이 성공했습니다.")
         navigate('/')
       }
     } catch (e) {

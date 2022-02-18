@@ -60,12 +60,12 @@ const MyVideo = styled.video`
 const Room = () => {
   const location = useLocation();
   // const { state } = location;
-  const urlStr = window.location.href;
-  const url = new URL(urlStr);
-  const urlParams = url.searchParams;
-  const src = urlParams.get("src");
-  const [isState, setIsState] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  // const urlStr = window.location.href;
+  // const url = new URL(urlStr);
+  // const urlParams = url.searchParams;
+  // const src = urlParams.get("src");
+  // const [isState, setIsState] = useState(null);
+  // const [isLoading, setIsLoading] = useState(false);
 
   // useState(() => {
   //   setIsLoading(true);
@@ -80,7 +80,6 @@ const Room = () => {
   // }, []);
 
   const charSrc =
-    src ||
     location.state.isCurrentImg ||
     "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-sb7g6nQb3ZYxzNHryIbM.png";
   useEffect(() => {
@@ -89,7 +88,7 @@ const Room = () => {
       Room: {
         RoomSrc:
           "https://aim-image-storage.s3.ap-northeast-2.amazonaws.com/map2.png",
-        id: 123,
+        id: location.state.id,
         roomNum: 0,
         gameObjects: {
           player: new Person({
