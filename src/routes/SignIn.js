@@ -5,6 +5,10 @@ import GoogleButton from "../components/GoogleLogin";
 import { sign } from "../config/api";
 import assets from "../config/assets";
 import { localGetItem, localSetItem } from "../utils/handleStorage";
+import { Cookies } from "react-cookie";
+import LoadingComponent from "../components/Loading";
+
+const cookies = new Cookies();
 
 const SignInWrap = styled.div`
   /* width: 100%; */
@@ -180,14 +184,13 @@ const GetErrorSpan = styled.span`
 
 const SignIn = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
+  const [isEmail, setEmail] = useState("");
+  const [isPassowrd, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   // 이메일 비밀번호가 잘못된 경우 체크
   const [emailFlag, setEmailFlag] = useState(false);
   const [passwordFlag, setPasswordFlag] = useState(false);
-
 
   const onChange = (event) => {
     const {
@@ -208,32 +211,35 @@ const SignIn = () => {
 
   const onSubmit = async (event) => {
     event.preventDefault();
-    console.log("submit");
+    setIsLoading(true);
     try {
+      if (!isEmail || !isPassowrd) return alert("똑바로 입력해라!");
+      const requestResult = await sign.getSign(isEmail, isPassowrd);
       const {
-        data: { code, APIdata, msg }
-      } = await sign.getSign(email, password);
-      if (code === 200) {
-        await localSetItem("session", APIdata?.accessToken, 20160);
-        navigate('/lobby');
-      }
-      else if (code === 401) {
-        if (msg === "id wrong") {
-          setEmailFlag(true);
-          console.log(msg);
-        } else{
-          setPasswordFlag(true);
-          console.log(msg);
+        data: { msg, result },
+      } = requestResult;
+      if (!result) {
+        if (msg === "회원정보가 없습니다.") {
+          return setEmailFlag(true);
+        } else {
+          return setPasswordFlag(true);
         }
       }
+      const { access_token, refresh_token } = result;
+      console.log(result);
+      cookies.set("access-token", access_token, { maxAge: 3600 });
+      cookies.set("refresh-token", refresh_token, { maxAge: 259200 });
+      navigate("/lobby");
     } catch (e) {
       console.log(e);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const onClickSignUp = (event) => {
     navigate("/signup");
-  }
+  };
 
   useEffect(() => {
     const session = localGetItem("session");
@@ -243,66 +249,72 @@ const SignIn = () => {
   });
 
   return (
-    <SignInWrap>
-      <SignInContainer>
-        <SignInTitleSection>
-          <SignInTitle>Welcome to AiM!</SignInTitle>
-        </SignInTitleSection>
-        {/* <SignWithGoogleContainer onClick={onSubmit}>
+    <>
+      {isLoading && <LoadingComponent />}
+      <SignInWrap>
+        <SignInContainer>
+          <SignInTitleSection>
+            <SignInTitle>Welcome to AiM!</SignInTitle>
+          </SignInTitleSection>
+          {/* <SignWithGoogleContainer onClick={onSubmit}>
           Sign in with Google
         </SignWithGoogleContainer> */}
-        <GoogleButton />
-        <SignDivider>
-          <span>or</span>
-        </SignDivider>
-        {/* <form  onSubmit={onsubmit}> */}
-        <form>
-          <EmailSignInContainer>
-            <SignInLabel>
-              <label>
-                <span>Email</span>
-              </label>
-            </SignInLabel>
-            <SignInInput>
-              <input
-                name="email"
-                type="email"
-                required
-                value={email}
-                onChange={onChange}
-                placeholder="Enter your email address"
-              />
-            </SignInInput>
-            {emailFlag ? <GetErrorSpan> 가입되지 않은 이메일입니다.</GetErrorSpan> : null}
-          </EmailSignInContainer>
-          <EmailSignInContainer style={{ marginTop: 20 }}>
-            <SignInLabel>
-              <label>
-                <span>Password</span>
-              </label>
-            </SignInLabel>
-            <SignInInput>
-              <input
-                name="password"
-                type="password"
-                minLength="6"
-                required
-                value={password}
-                onChange={onChange}
-                placeholder="Enter your password"
-              />
-            </SignInInput>
-            {passwordFlag ? <GetErrorSpan> 잘못된 비밀번호입니다.</GetErrorSpan> : null}
-          </EmailSignInContainer>
-          <SignButton>
-            <button onClick={onSubmit}> 로그인 </button>
-            <button onClick={onClickSignUp}> 회원가입 </button>
-          </SignButton>
-        </form>
-      </SignInContainer>
-    </SignInWrap>
+          <GoogleButton />
+          <SignDivider>
+            <span>or</span>
+          </SignDivider>
+          {/* <form  onSubmit={onsubmit}> */}
+          <form>
+            <EmailSignInContainer>
+              <SignInLabel>
+                <label>
+                  <span>Email</span>
+                </label>
+              </SignInLabel>
+              <SignInInput>
+                <input
+                  name="email"
+                  type="email"
+                  required
+                  value={isEmail}
+                  onChange={onChange}
+                  placeholder="Enter your email address"
+                />
+              </SignInInput>
+              {emailFlag ? (
+                <GetErrorSpan> 가입되지 않은 이메일입니다.</GetErrorSpan>
+              ) : null}
+            </EmailSignInContainer>
+            <EmailSignInContainer style={{ marginTop: 20 }}>
+              <SignInLabel>
+                <label>
+                  <span>Password</span>
+                </label>
+              </SignInLabel>
+              <SignInInput>
+                <input
+                  name="password"
+                  type="password"
+                  minLength="6"
+                  required
+                  value={isPassowrd}
+                  onChange={onChange}
+                  placeholder="Enter your password"
+                />
+              </SignInInput>
+              {passwordFlag ? (
+                <GetErrorSpan> 잘못된 비밀번호입니다.</GetErrorSpan>
+              ) : null}
+            </EmailSignInContainer>
+            <SignButton>
+              <button onClick={onSubmit}> 로그인 </button>
+              <button onClick={onClickSignUp}> 회원가입 </button>
+            </SignButton>
+          </form>
+        </SignInContainer>
+      </SignInWrap>
+    </>
   );
 };
 
 export default SignIn;
-

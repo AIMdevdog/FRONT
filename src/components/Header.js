@@ -8,6 +8,10 @@ import LoadingComponent from "./Loading";
 import Slider from "react-slick";
 import React from "react";
 
+import { Cookies } from "react-cookie";
+
+const cookies = new Cookies();
+
 const HeaderContainer = styled.div`
   background-color: rgb(51, 58, 100);
   justify-content: space-between;
@@ -571,9 +575,11 @@ const ArrowWrap = styled.div`
   }
 `;
 
-const Header = ({isSaveUserData, setIsSaveUserData}) => {
+const Header = ({ isSaveUserData, setIsSaveUserData }) => {
   const navigate = useNavigate();
   const session = localGetItem("session");
+  const isLogin = cookies.get("refresh-token");
+
   const defaultImage =
     "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png";
   const [isRoomTitle, setIsRoomTitle] = useState("");
@@ -584,23 +590,39 @@ const Header = ({isSaveUserData, setIsSaveUserData}) => {
   const [isCreateRoomOpen, setIsCreateRoomOpen] = useState(false);
 
   //userSettingContainer에 사용되는 변수들
-  const [isOpen, setIsOpen] = useState(false);
+  const [isSettingOpen, setIsSettingOpen] = useState(false);
   const [isNickname, setIsNickname] = useState("");
   const [isRoomId, setIsRoomId] = useState(0);
   const [isCurrentImg, setCurrent] = useState(0);
   const roomImage =
     "https://aim-image-storage.s3.ap-northeast-2.amazonaws.com/map2.png";
   const charImgs = [
-      "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png",
-      "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-sb7g6nQb3ZYxzNHryIbM.png",
-      "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-vjTD4tj1AdR3182C7mHH.png",
-      "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-XJBZpqmKhGvW3haxYtJO-I7vkRzijl8vBGm5LRwQT-uBxqrmbWQ15ykHxtWAi5-VztAi3oJnxQHhHU1sWpH-WW1GTt4cFIfI7aG4zd1o.png",
-      "https://dynamic-assets.gather.town/sprite/avatar-pYI5t3fZnQhRlQnCPEE1-C0ykfrlDx7AkQsLyLcNS-XJBZpqmKhGvW3haxYtJO-I7vkRzijl8vBGm5LRwQT-SC1roOyG6AGYCzcBSZam-VV89xZCDRo6OfVKMiHDL.png",
-      "https://dynamic-assets.gather.town/sprite/avatar-pP91s8KE7enD7HAXD27i-dQCYs4n7O99ksXuBIe33-XJBZpqmKhGvW3haxYtJO-I7vkRzijl8vBGm5LRwQT-sVKwufLMwK1Arxlf97pz-lnwpCVixsUIqSixRPC8T.png",
-      "https://dynamic-assets.gather.town/sprite/avatar-C0ykfrlDx7AkQsLyLcNS-O4fcHqx7z1JBI5wTYaS6-yFpcQh7UcvdChVN8WvIW-Hj5gUXZlV0buPDZNyVjq-ajuL49i7C1GPb3SSzdGE-JB1jFMCsTzYIs8ZXSewh.png",
-      "https://dynamic-assets.gather.town/sprite/avatar-aeJhE2yHSYx7EfnQKpTW-ZMvgHzgMYMTUHLHlSmLS-8hCSfYIK6RvpToNgMJNB-xayLOInw3HISMHHNcXwg-yFpcQh7UcvdChVN8WvIW-SC1roOyG6AGYCzcBSZam-QD1dfiGx3GhblDjHCj3T-eeWeU121K33Guk3ms1Kn-5rg2xBZpHHxlFKNCLJvZ.png",
-    ];
+    "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png",
+    "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-sb7g6nQb3ZYxzNHryIbM.png",
+    "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-vjTD4tj1AdR3182C7mHH.png",
+    "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-XJBZpqmKhGvW3haxYtJO-I7vkRzijl8vBGm5LRwQT-uBxqrmbWQ15ykHxtWAi5-VztAi3oJnxQHhHU1sWpH-WW1GTt4cFIfI7aG4zd1o.png",
+    "https://dynamic-assets.gather.town/sprite/avatar-pYI5t3fZnQhRlQnCPEE1-C0ykfrlDx7AkQsLyLcNS-XJBZpqmKhGvW3haxYtJO-I7vkRzijl8vBGm5LRwQT-SC1roOyG6AGYCzcBSZam-VV89xZCDRo6OfVKMiHDL.png",
+    "https://dynamic-assets.gather.town/sprite/avatar-pP91s8KE7enD7HAXD27i-dQCYs4n7O99ksXuBIe33-XJBZpqmKhGvW3haxYtJO-I7vkRzijl8vBGm5LRwQT-sVKwufLMwK1Arxlf97pz-lnwpCVixsUIqSixRPC8T.png",
+    "https://dynamic-assets.gather.town/sprite/avatar-C0ykfrlDx7AkQsLyLcNS-O4fcHqx7z1JBI5wTYaS6-yFpcQh7UcvdChVN8WvIW-Hj5gUXZlV0buPDZNyVjq-ajuL49i7C1GPb3SSzdGE-JB1jFMCsTzYIs8ZXSewh.png",
+    "https://dynamic-assets.gather.town/sprite/avatar-aeJhE2yHSYx7EfnQKpTW-ZMvgHzgMYMTUHLHlSmLS-8hCSfYIK6RvpToNgMJNB-xayLOInw3HISMHHNcXwg-yFpcQh7UcvdChVN8WvIW-SC1roOyG6AGYCzcBSZam-QD1dfiGx3GhblDjHCj3T-eeWeU121K33Guk3ms1Kn-5rg2xBZpHHxlFKNCLJvZ.png",
+  ];
   const initIndex = charImgs.indexOf(isSaveUserData?.character);
+
+  useEffect(() => {
+    const {
+      location: { pathname },
+    } = window;
+
+    const isLogged = () => {
+      if (!isLogin) {
+        alert("로그인 세션이 만료되었습니다.");
+        navigate("/");
+      }
+    };
+
+    setIsPath(pathname);
+    isLogged();
+  }, [isPath]);
 
   const onClickLogo = () => {
     if (session) {
@@ -612,19 +634,14 @@ const Header = ({isSaveUserData, setIsSaveUserData}) => {
   const onCreateSpace = () => {
     setIsCreateRoomOpen(!isCreateRoomOpen);
   };
+
   const isLogOut = () => {
-    const result = removeItem("session");
-    console.log(result);
+    cookies.remove("refresh-token");
+    cookies.remove("access-token");
+    alert("로그아웃 되었습니다.");
     navigate("/");
   };
 
-  useEffect(() => {
-    const {
-      location: { pathname },
-    } = window;
-
-    setIsPath(pathname);
-  }, [isPath]);
   const onChange = (event) => {
     const {
       target: { name, value },
@@ -665,7 +682,8 @@ const Header = ({isSaveUserData, setIsSaveUserData}) => {
   const openSettingContainer = (item) => {
     setCurrent(charImgs[initIndex]);
     // setIsRoomId(item.id);
-    setIsOpen(!isOpen);
+    setIsSettingOpen(!isSettingOpen);
+    console.log(111);
     // setIsNickname("");
     // setCurrent(charImgs[0]);
   };
@@ -725,8 +743,6 @@ const Header = ({isSaveUserData, setIsSaveUserData}) => {
     },
   };
 
-
-
   const onChangeNickname = (event) => {
     const {
       target: { value },
@@ -739,17 +755,20 @@ const Header = ({isSaveUserData, setIsSaveUserData}) => {
     try {
       setIsLoading(true);
       if (!isNickname) return alert("nickname을 입력해주세요.");
+      const requestResult = await user.saveUserInfo(isNickname, isCurrentImg);
       const {
-        data: { code, msg },
-      } = await user.saveUserInfo(session, isNickname, isCurrentImg);
-      if (code === 200) {
-        alert(msg);
-        const result = await user.getUserInfo(session);
+        data: { msg },
+      } = requestResult;
+      if (msg) {
+        const requestUserData = await user.getUserInfo();
         const {
-          data: { data },
-        } = result;
-        setIsSaveUserData(data);
-        setIsOpen(!isOpen);
+          data: { result },
+        } = requestUserData;
+        if (result) {
+          alert(msg);
+          setIsSaveUserData(result);
+          setIsSettingOpen(!isSettingOpen);
+        }
       }
     } catch (e) {
       console.log(e);
@@ -757,7 +776,6 @@ const Header = ({isSaveUserData, setIsSaveUserData}) => {
       setIsLoading(false);
     }
   };
-
 
   return (
     <>
@@ -769,14 +787,18 @@ const Header = ({isSaveUserData, setIsSaveUserData}) => {
           </LogoSpan>
         </LeftSection>
         <RightSection>
-          <RightSectionUserProfile onClick={openSettingContainer}>
-            <UserProfile>
+          <RightSectionUserProfile>
+            <UserProfile onClick={openSettingContainer}>
               <button>
                 <UserProfileImage>
                   <div>
                     <div>
                       <img
-                        src={isSaveUserData?.character ? isSaveUserData?.character : defaultImage}
+                        src={
+                          isSaveUserData?.character
+                            ? isSaveUserData?.character
+                            : defaultImage
+                        }
                         alt="profile image"
                       />
                     </div>
@@ -851,90 +873,88 @@ const Header = ({isSaveUserData, setIsSaveUserData}) => {
           </ButtonContainer>
         </CreateRoomModalContainer>
       </ReactModal>
-      {isOpen && (
-    <UserInfoModalContainer>
-      <UserInfoModal>
-        <UserInfo>
-          <UserInfoTopSection>
-            {/* <div>
+      {isSettingOpen && (
+        <UserInfoModalContainer>
+          <UserInfoModal>
+            <UserInfo>
+              <UserInfoTopSection>
+                {/* <div>
             <span>Change your character</span>
           </div> */}
-            {/* <img
+                {/* <img
                 src="https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png"
                 alt="user-character"
                 /> */}
-            <div
-              style={{
-                marginTop: "15px",
-                width: "400px",
-                height: "240px",
-              }}
-            >
-              <ArrowWrap>
-                <Slider {...settings}>
-                  {charImgs.map((charSrc, index) => {
-                    return (
-                      <div key={index}>
-                        <img src={charSrc} alt="user-character" />
-                      </div>
-                    );
-                  })}
-                </Slider>
-              </ArrowWrap>
-            </div>
-          </UserInfoTopSection>
-          <UserNickname>
-            {/* <span>fred</span> */}
-            {isSaveUserData?.nickname ? (
-              <span>{isSaveUserData?.nickname}</span>
-            ) : (
-              <span>Anonymous</span>
-            )}
-          </UserNickname>
-          <UserInfoBottomSection>
-            <UserInfoBottomInputSection>
-              <div>
-                <span>Name your character</span>
-              </div>
-            </UserInfoBottomInputSection>
-            <UserInfoBottomInputSection>
-              <div>
-                <span>
-                  Pick a name for your character – don’t worry, you’ll
-                  be able to customize it after!
-                </span>
-              </div>
-            </UserInfoBottomInputSection>
-            <UserInfoBottomInputSection>
-              <div>
-                <div>
-                  <input
-                    type="text"
-                    maxLength="50"
-                    name="nickname"
-                    required
-                    value={isNickname}
-                    onChange={onChangeNickname}
-                    placeholder="Enter your nickname"
-                  />
+                <div
+                  style={{
+                    marginTop: "15px",
+                    width: "400px",
+                    height: "240px",
+                  }}
+                >
+                  <ArrowWrap>
+                    <Slider {...settings}>
+                      {charImgs.map((charSrc, index) => {
+                        return (
+                          <div key={index}>
+                            <img src={charSrc} alt="user-character" />
+                          </div>
+                        );
+                      })}
+                    </Slider>
+                  </ArrowWrap>
                 </div>
-              </div>
-            </UserInfoBottomInputSection>
-            <SetButtonContainer>
-              <div>
-                <BackButton onClick={openSettingContainer}>
-                  Back
-                </BackButton>
-              </div>
-              <div>
-                <FinishButton onClick={saveUserInfo}>Finish</FinishButton>
-              </div>
-            </SetButtonContainer>
-          </UserInfoBottomSection>
-        </UserInfo>
-      </UserInfoModal>
-    </UserInfoModalContainer>
-)}
+              </UserInfoTopSection>
+              <UserNickname>
+                {/* <span>fred</span> */}
+                {isSaveUserData?.nickname ? (
+                  <span>{isSaveUserData?.nickname}</span>
+                ) : (
+                  <span>Anonymous</span>
+                )}
+              </UserNickname>
+              <UserInfoBottomSection>
+                <UserInfoBottomInputSection>
+                  <div>
+                    <span>Name your character</span>
+                  </div>
+                </UserInfoBottomInputSection>
+                <UserInfoBottomInputSection>
+                  <div>
+                    <span>
+                      Pick a name for your character – don’t worry, you’ll be
+                      able to customize it after!
+                    </span>
+                  </div>
+                </UserInfoBottomInputSection>
+                <UserInfoBottomInputSection>
+                  <div>
+                    <div>
+                      <input
+                        type="text"
+                        maxLength="50"
+                        name="nickname"
+                        required
+                        value={isNickname}
+                        onChange={onChangeNickname}
+                        placeholder="Enter your nickname"
+                      />
+                    </div>
+                  </div>
+                </UserInfoBottomInputSection>
+                <SetButtonContainer>
+                  <div>
+                    <BackButton onClick={openSettingContainer}>Back</BackButton>
+                  </div>
+                  <div>
+                    <FinishButton onClick={saveUserInfo}>Finish</FinishButton>
+                  </div>
+                </SetButtonContainer>
+              </UserInfoBottomSection>
+            </UserInfo>
+          </UserInfoModal>
+        </UserInfoModalContainer>
+      )}
       {/* {isCreateRoomOpen && (
         
       )} */}

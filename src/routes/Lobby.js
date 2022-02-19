@@ -1,3 +1,4 @@
+import React from "react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import styled from "styled-components";
@@ -8,10 +9,12 @@ import { GiBroom } from "react-icons/gi";
 import Header from "../components/Header";
 import LoadingComponent from "../components/Loading";
 
-import React from "react";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import moment from "moment";
+import { Cookies } from "react-cookie";
+
+const cookies = new Cookies();
 
 const LobbyContainer = styled.div`
   display: flex;
@@ -44,7 +47,7 @@ const TabButton = styled.button`
 
   span {
     /* color: ${(props) =>
-    !props.room ? "rgb(84, 92, 143)" : "transparent"}; */
+      !props.room ? "rgb(84, 92, 143)" : "transparent"}; */
     color: rgb(255, 255, 255);
     font-family: "DM Sans", sans-serif;
     font-weight: 700;
@@ -222,8 +225,6 @@ const RoomItemDescription = styled.div`
   }
 `;
 
-
-
 const EmptyRoom = styled.div`
   width: 100%;
   height: 100%;
@@ -253,7 +254,6 @@ const Lobby = () => {
   const [isGetRoom, setIsGetRoom] = useState([]);
   const session = localGetItem("session");
 
-
   const [isSaveUserData, setIsSaveUserData] = useState(null);
   const [isChangeRoom, setIsChangeRoom] = useState(false);
   const [isMyRoom, setIsMyRoom] = useState([]);
@@ -261,7 +261,6 @@ const Lobby = () => {
 
   const EnterIcon =
     "https://icon-library.com/images/enter-icon/enter-icon-1.jpg";
-
 
   useEffect(() => {
     const getRoom = async () => {
@@ -280,32 +279,32 @@ const Lobby = () => {
     getRoom();
   }, []);
 
-  useEffect(() => {
-    const getUserInfo = async () => {
-      try {
-        const session = localGetItem("session");
-        if (!session) return navigate("/signin");
-      } catch (e) {
-        console.log(e);
-      }
-    };
-    getUserInfo();
-  }, []);
+  // 지워도 될듯
+  // useEffect(() => {
+  //   const getUserInfo = async () => {
+  //     try {
+  //       const session = cookies.get("access-token");
+  //       if (!session) return navigate("/");
+  //     } catch (e) {
+  //       console.log(e);
+  //     }
+  //   };
+  //   getUserInfo();
+  // }, []);
+
   useEffect(() => {
     const userDataUpdate = async () => {
       try {
         setIsLoading(true);
-        const result = await user.getUserInfo(session);
+        const requestResult = await user.getUserInfo();
         const {
-          data: { data },
-        } = result;
-
-        if (result?.data?.code === 400) {
-          removeItem("session");
+          data: { msg, result },
+        } = requestResult;
+        if (msg) {
+          alert(msg);
           navigate("/");
-        } else {
-          setIsSaveUserData(data);
         }
+        setIsSaveUserData(result);
       } catch (e) {
         console.log(e);
       } finally {
@@ -332,16 +331,20 @@ const Lobby = () => {
   const readyToGoIntoTheRoom = (item) => {
     navigate(`/room/${item.id}`, {
       state: {
-        isCurrentImg: isSaveUserData.character,
-        roodId: item.id
-      }
-    })
-  }
+        isCurrentImg: isSaveUserData.chracter,
+        roodId: item.id,
+        nickname: isSaveUserData.nickname,
+      },
+    });
+  };
   return (
     <>
       {isLoading && <LoadingComponent />}
       <LobbyContainer>
-        <Header isSaveUserData={isSaveUserData} setIsSaveUserData={setIsSaveUserData} />
+        <Header
+          isSaveUserData={isSaveUserData}
+          setIsSaveUserData={setIsSaveUserData}
+        />
         <LobbyHeader>
           <TabButton room={isChangeRoom} onClick={isChangeRoomType}>
             <span>All Space</span>
@@ -382,7 +385,8 @@ const Lobby = () => {
                       return (
                         <RoomItem
                           onClick={() => readyToGoIntoTheRoom(item)}
-                          key={item.id}>
+                          key={item.id}
+                        >
                           <RoomItemImageWrap background={item?.image}>
                             <div>
                               <div>

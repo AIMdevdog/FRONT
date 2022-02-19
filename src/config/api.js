@@ -1,19 +1,21 @@
 import axios from "../api/axios-instance";
 
+export const token = {
+  getRefreshToken: () => axios.get("users/refreshToken"),
+};
+
 export const sign = {
-  getSign: (email, password) =>
-    axios.get("/user/login", {email, password}),
+  getSign: (email, password) => axios.post("/users/login", { email, password }),
   getGoogleSign: (accessToken, email) =>
     axios.post("/users/auth/google", { accessToken, email }),
   createUser: (email, password, nickname) =>
-    axios.post("/users/signup", {email, password, nickname})
+    axios.post("/users/signup", { email, password, nickname }),
 };
 
 export const user = {
-  saveUserInfo: (accessToken, nickname, character) =>
-    axios.post("/users/update/profile", { accessToken, nickname, character }),
-  getUserInfo: (accessToken) =>
-    axios.post("/users/get/userinfo", { accessToken }),
+  saveUserInfo: (nickname, character) =>
+    axios.post("/users/update/profile", { nickname, character }),
+  getUserInfo: () => axios.get("/users/get/userinfo"),
 };
 
 export const room = {
@@ -21,4 +23,3 @@ export const room = {
   createRoom: (hostId, image, title, desc) =>
     axios.post("/room/create", { hostId, image, title, desc }),
 };
-
