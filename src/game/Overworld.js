@@ -6,6 +6,8 @@ import io from "socket.io-client";
 import _const from "../config/const.js";
 
 let myStream;
+let cameraOff = false;
+let muted = true;
 let pcObj = {
   // remoteSocketId: pc
 };
@@ -148,6 +150,48 @@ const Overworld = (data) => {
     }
   }
 
+  function handleMuteClick() {
+    myStream //
+      .getAudioTracks()
+      .forEach((track) => (track.enabled = !track.enabled));
+    if (muted) {
+      muteBtn.innerText = 'Unmute';
+    //   unMuteIcon.classList.remove(HIDDEN_CN);
+    //   muteIcon.classList.add(HIDDEN_CN);
+      muted = false;
+    } else {
+      muteBtn.innerText = 'Mute';
+    //   muteIcon.classList.remove(HIDDEN_CN);
+    //   unMuteIcon.classList.add(HIDDEN_CN);
+      muted = true;
+    }
+  }
+  
+  function handleCameraClick() {
+    myStream
+      .getVideoTracks()
+      .forEach((track) => (track.enabled = !track.enabled));
+    if (cameraOff) {
+      // cameraIcon.classList.remove(HIDDEN_CN);
+      // unCameraIcon.classList.add(HIDDEN_CN);
+      cameraBtn.innerText = 'camera on';
+      cameraOff = false;
+    } else {
+      cameraBtn.innerText = 'camera off';
+      cameraOff = true;
+    }
+  }
+  
+  const muteBtn = document.querySelector("#mute");
+  // const muteIcon = muteBtn.querySelector(".muteIcon");
+  // const unMuteIcon = muteBtn.querySelector(".unMuteIcon");
+  const cameraBtn = document.querySelector("#camera");
+  const cameraIcon = cameraBtn.querySelector("#camera_on");
+  const unCameraIcon = cameraBtn.querySelector("#camera_off");
+  muteBtn.addEventListener("click", handleMuteClick);
+  cameraBtn.addEventListener("click", handleCameraClick);
+
+
   async function getMedia() {
     const myFace = document.querySelector("#myFace");
 
@@ -156,6 +200,12 @@ const Overworld = (data) => {
       console.log("mystream", myStream);
       // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
       myFace.srcObject = myStream;
+      myFace.muted = true;
+
+      myStream // mute default
+      .getAudioTracks()
+      .forEach((track) => (track.enabled = false));
+
     } catch (err) {
       console.log(err);
     }

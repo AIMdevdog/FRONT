@@ -128,6 +128,8 @@ const Room = () => {
       <StreamsContainer id="streams"></StreamsContainer>
       <MyVideoBox>
         <MyVideo id="myFace" autoPlay="autoplay"></MyVideo>
+        <button id= "camera">camera on</button>
+        <button id= "mute">mute</button>
       </MyVideoBox>
     </>
   );
