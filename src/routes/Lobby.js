@@ -334,6 +334,7 @@ const Lobby = () => {
       state: {
         isCurrentImg: isSaveUserData.chracter,
         roodId: item.id,
+        nickname: isSaveUserData.nickname,
       },
     });
   };

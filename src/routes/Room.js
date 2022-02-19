@@ -85,6 +85,7 @@ const Room = () => {
   useEffect(() => {
     Overworld({
       config: document.querySelector(".game-container"),
+      nickname: location.state.nickname,
       Room: {
         RoomSrc:
           "https://aim-image-storage.s3.ap-northeast-2.amazonaws.com/map2.png",

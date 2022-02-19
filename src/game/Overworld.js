@@ -19,6 +19,7 @@ const charMap = {};
 
 const Overworld = (data) => {
   const config = data.config;
+  const nickname = data.nickname;
   const element = config;
   const canvas = element.querySelector(".game-canvas");
   const ctx = canvas.getContext("2d");
@@ -186,8 +187,8 @@ const Overworld = (data) => {
   // const muteIcon = muteBtn.querySelector(".muteIcon");
   // const unMuteIcon = muteBtn.querySelector(".unMuteIcon");
   const cameraBtn = document.querySelector("#camera");
-  const cameraIcon = cameraBtn.querySelector("#camera_on");
-  const unCameraIcon = cameraBtn.querySelector("#camera_off");
+  // const cameraIcon = cameraBtn.querySelector("#camera_on");
+  // const unCameraIcon = cameraBtn.querySelector("#camera_off");
   muteBtn.addEventListener("click", handleMuteClick);
   cameraBtn.addEventListener("click", handleCameraClick);
 
@@ -229,7 +230,7 @@ const Overworld = (data) => {
 
   const MYCHAT_CN = "myChat";
   const NOTICE_CN = "noticeChat";
-
+ 
   chatForm.addEventListener("submit", handleChatSubmit);
 
   function handleChatSubmit(event) {
@@ -238,7 +239,6 @@ const Overworld = (data) => {
     const message = chatInput.value;
     chatInput.value = "";
 
-    let nickname = "Anon";
     let groupName = 1;
 
     socket.emit("chat", `${nickname}: ${message}`, groupName);
