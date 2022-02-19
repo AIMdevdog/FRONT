@@ -57,6 +57,10 @@ const MyVideo = styled.video`
   -moz-transform: rotateY(180deg); /* Firefox */
 `;
 
+const CamBtn = styled.div`
+  display: none;
+`;
+
 const Room = () => {
   const location = useLocation();
   // const { state } = location;
@@ -81,7 +85,7 @@ const Room = () => {
 
   const charSrc =
     location.state.isCurrentImg ||
-    "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-sb7g6nQb3ZYxzNHryIbM.png";
+    "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png";
   useEffect(() => {
     Overworld({
       config: document.querySelector(".game-container"),
@@ -128,8 +132,10 @@ const Room = () => {
       <StreamsContainer id="streams"></StreamsContainer>
       <MyVideoBox>
         <MyVideo id="myFace" autoPlay="autoplay"></MyVideo>
-        <button id= "camera">camera on</button>
-        <button id= "mute">mute</button>
+        <CamBtn id="camBtn">
+          <button id="playerCamera">camera on</button>
+          <button id="playerMute">mute</button>
+        </CamBtn>
       </MyVideoBox>
     </>
   );

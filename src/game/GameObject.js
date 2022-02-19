@@ -13,6 +13,7 @@ export class GameObject {
       gameObject: this,
       src: config.src,
     });
+    this.nickname = "";
 
     this.behaviorLoop = config.behaviorLoop || [];
     this.behaviorLoopIndex = 0;
