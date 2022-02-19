@@ -4,16 +4,12 @@ import utils from "./utils.js";
 export class OverworldMap {
   constructor(config) {
     // const {config, src} = data;
-
     this.overworld = null;
     this.gameObjects = config.gameObjects;
     this.cutsceneSpace = config.cutsceneSpace || {};
     this.walls = config.walls || {};
-    // console.log(this.gameObjects.hero.src);
-    // this.gameObjects.hero.src = src;
-    // console.log(this.gameObjects.hero.src);
-    
     this.roomNum = config.roomNum;
+    this.roomId = config.roomId;
     this.lowerImage = new Image();
     this.lowerImage.src = config.RoomSrc;
 

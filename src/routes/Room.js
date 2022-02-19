@@ -86,9 +86,8 @@ const Room = () => {
     Overworld({
       config: document.querySelector(".game-container"),
       Room: {
-        RoomSrc:
-          "https://aim-image-storage.s3.ap-northeast-2.amazonaws.com/map2.png",
-        id: location.state.id,
+        RoomSrc: "https://aim-image-storage.s3.ap-northeast-2.amazonaws.com/map2.png",
+        roomId: location.pathname,
         roomNum: 0,
         gameObjects: {
           player: new Person({

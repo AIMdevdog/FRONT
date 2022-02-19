@@ -20,7 +20,6 @@ const Overworld = (data) => {
   const element = config;
   const canvas = element.querySelector(".game-canvas");
   const ctx = canvas.getContext("2d");
-  const socket = io(_const.HOST);
   const cameraConstraints = {
     audio: true,
     video: true,
@@ -31,6 +30,8 @@ const Overworld = (data) => {
   const otherMaps = data.otherMaps;
   const directionInput = new DirectionInput();
   directionInput.init();
+
+  const socket = io(_const.HOST);
   let closer = [];
 
   // data 안에 소켓id, nickname 있음
@@ -269,32 +270,25 @@ const Overworld = (data) => {
   socket.on("join_user", function (data) {
     //====================  비디오 추가 함수 =================//
     console.log("새로운 유저 접속");
-    // paintPeerFace(cameraConstraints)
 
-    // console.log(socket.id);
-    // console.log(map.gameObjects.player.sprite.image.src);
-    socket.emit("send_user_src", {
-      id: socket.id,
+    socket.emit("send_user_info", {
       src: map.gameObjects.player.sprite.image.src,
+      x: map.gameObjects.player.x,
+      y: map.gameObjects.player.y,
+      roomId: map.roomId,
     });
-    joinUser(data.id, data.x, data.y);
+
   });
 
-  socket.on("user_src", function (data) {
-    const User = charMap[data.id];
-    // console.log(User.sprite.image.src);
-    User.sprite.image.src = data.src;
-    // Object.values(charMap).forEach((object) => {
-    //   object.sprite.image.src = data.src;
+  socket.on("get_user_info", function (data) {
+    joinUser(data.id, data.x, data.y, data.src);
   });
 
-  // });
-  socket.on("leave_user", function () {
+  socket.on("leave_user", function (data) {
     leaveUser(data);
   });
 
   socket.on("update_state", function (data) {
-    // console.log(data);
     updateLocation(data);
   });
 
@@ -314,9 +308,8 @@ const Overworld = (data) => {
       //Establish the camera person
       const cameraPerson = charMap[socket.id] || map.gameObjects.player;
       const player = charMap[socket.id];
-      // console.log(player);
+      
       //Update all objects
-      // console.log(charMap);
       Object.values(charMap).forEach((object) => {
         if (object.id === socket.id) {
           // console.log(object.sprite.image.src);
@@ -413,6 +406,7 @@ const Overworld = (data) => {
     };
     step();
   };
+
   const updateLocation = (data) => {
     let char;
     for (let i = 0; i < characters.length; i++) {
@@ -426,17 +420,17 @@ const Overworld = (data) => {
     }
   };
 
-  const leaveUser = (id) => {
-    for (let i = 0; i < characters.length; ++i) {
-      if (characters[i].id === id) {
+  const leaveUser = (data) => {
+    for (let i = 0; i < characters.length; i++) {
+      if (characters[i].id === data.id) {
         characters.splice(i, 1);
         break;
       }
     }
-    delete charMap[id];
+    delete charMap[data.id];
   };
 
-  const joinUser = (id, x, y) => {
+  const joinUser = (id, x, y, src) => {
     let character = new Person({
       x: 0,
       y: 0,
@@ -445,6 +439,7 @@ const Overworld = (data) => {
     character.id = id;
     character.x = x;
     character.y = y;
+    character.sprite.image.src = src;
     character.sprite.xaxios = adjustValue.xaxios;
     character.sprite.yaxios = adjustValue.yaxios;
     character.sprite.yratio = adjustValue.yratio;
