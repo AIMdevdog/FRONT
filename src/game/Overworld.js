@@ -330,6 +330,7 @@ const Overworld = (data) => {
       const offer = await newPC.createOffer();
       await newPC.setLocalDescription(offer);
       socket.emit("offer", offer, remoteSocketId, "Anon");
+      console.log("iceCandidate 실패! 재연결 시도");
     }
   });
 
@@ -439,9 +440,9 @@ const Overworld = (data) => {
           stream.removeChild(stream.firstChild);
         }
 
-        for (let remoteSocketId in pcObj){
-          // console.log("-------- 커넥션 상태 --------", pcObj[remoteSocketId].iceConnectionState);
-        }
+        // for (let remoteSocketId in pcObj){
+        //   // console.log("-------- 커넥션 상태 --------", pcObj[remoteSocketId].iceConnectionState);
+        // }
         socket.emit("leave_Group", player.id);
         player.isUserCalling = false;
         player.isUserJoin = false;
