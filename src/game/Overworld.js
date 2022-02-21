@@ -40,11 +40,11 @@ const Overworld = (data) => {
   // data for문 돌면서 isUserCalling checking 혹은..
   // [PASS] 2명+3명 그룹 합쳐질 때 그룹 통화중이라는 것을 표시해둬야 함 / 변수 하나 더 추가 true, false 체크
 
-  function sortStreams() {
-    const streams = document.querySelector("#streams");
-    const streamArr = streams.querySelectorAll("div");
-    streamArr.forEach((stream) => (stream.className = `people${peopleInRoom}`));
-  }
+  // function sortStreams() {
+  //   const streams = document.querySelector("#streams");
+  //   const streamArr = streams.querySelectorAll("div");
+  //   streamArr.forEach((stream) => (stream.className = `people${peopleInRoom}`));
+  // }
 
   async function handleAddStream(event, remoteSocketId, remoteNickname) {
     const peerStream = event.stream;
