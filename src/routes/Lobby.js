@@ -329,10 +329,9 @@ const Lobby = () => {
     );
   };
   const readyToGoIntoTheRoom = (item) => {
-    console.log(item);
     navigate(`/room/${item.id}`, {
       state: {
-        isCurrentImg: isSaveUserData.chracter,
+        isCurrentImg: isSaveUserData.character,
         roodId: item.id,
         nickname: isSaveUserData.nickname,
       },

@@ -615,7 +615,7 @@ const Header = ({ isSaveUserData, setIsSaveUserData }) => {
 
     const isLogged = () => {
       if (!isLogin) {
-        alert("로그인 세션이 만료되었습니다.");
+        // alert("로그인 세션이 만료되었습니다.");
         navigate("/");
       }
     };

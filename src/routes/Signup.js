@@ -168,18 +168,14 @@ const SignUp = () => {
         data: { code, msg }
       }
         = await sign.createUser(email, password, nickname);
-      // if (code === 400) {
-      //   if (msg === "이메일 존재") {
-      //     showExistEmailSpan();
-      //     console.log(msg);
-      //   } else {
-      //     showExistNicknameSpan();
-      //     console.log(msg);
-      //   }
-      // } else if (code === 200) {
       if (msg === "회원가입이 완료되었습니다.") {
         alert("회원가입이 성공했습니다.")
         navigate('/')
+      } else if (msg === "중복된 이메일입니다.") {
+        showExistEmailSpan();
+      } else if (msg === "이미 존재하는 닉네임입니다.") {
+        showExistNicknameSpan();
+        console.log(msg);
       }
     } catch (e) {
       console.log(e);

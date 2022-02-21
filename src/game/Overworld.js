@@ -23,7 +23,6 @@ const Overworld = (data) => {
   const element = config;
   const canvas = element.querySelector(".game-canvas");
   const ctx = canvas.getContext("2d");
-  const socket = io(_const.HOST);
   const cameraConstraints = {
     audio: true,
     video: true,
@@ -34,6 +33,8 @@ const Overworld = (data) => {
   const otherMaps = data.otherMaps;
   const directionInput = new DirectionInput();
   directionInput.init();
+
+  const socket = io(_const.HOST);
   let closer = [];
 
   // data 안에 소켓id, nickname 있음
@@ -157,17 +158,17 @@ const Overworld = (data) => {
       .forEach((track) => (track.enabled = !track.enabled));
     if (muted) {
       muteBtn.innerText = 'Unmute';
-    //   unMuteIcon.classList.remove(HIDDEN_CN);
-    //   muteIcon.classList.add(HIDDEN_CN);
+      //   unMuteIcon.classList.remove(HIDDEN_CN);
+      //   muteIcon.classList.add(HIDDEN_CN);
       muted = false;
     } else {
       muteBtn.innerText = 'Mute';
-    //   muteIcon.classList.remove(HIDDEN_CN);
-    //   unMuteIcon.classList.add(HIDDEN_CN);
+      //   muteIcon.classList.remove(HIDDEN_CN);
+      //   unMuteIcon.classList.add(HIDDEN_CN);
       muted = true;
     }
   }
-  
+
   function handleCameraClick() {
     myStream
       .getVideoTracks()
@@ -182,11 +183,11 @@ const Overworld = (data) => {
       cameraOff = true;
     }
   }
-  
-  const muteBtn = document.querySelector("#mute");
+
+  const muteBtn = document.querySelector("#playerMute");
   // const muteIcon = muteBtn.querySelector(".muteIcon");
   // const unMuteIcon = muteBtn.querySelector(".unMuteIcon");
-  const cameraBtn = document.querySelector("#camera");
+  const cameraBtn = document.querySelector("#playerCamera");
   // const cameraIcon = cameraBtn.querySelector("#camera_on");
   // const unCameraIcon = cameraBtn.querySelector("#camera_off");
   muteBtn.addEventListener("click", handleMuteClick);
@@ -195,6 +196,8 @@ const Overworld = (data) => {
 
   async function getMedia() {
     const myFace = document.querySelector("#myFace");
+    const camBtn = document.querySelector("#camBtn");
+    camBtn.style.display = "block";
 
     try {
       myStream = await navigator.mediaDevices.getUserMedia(cameraConstraints);
@@ -204,8 +207,8 @@ const Overworld = (data) => {
       myFace.muted = true;
 
       myStream // mute default
-      .getAudioTracks()
-      .forEach((track) => (track.enabled = false));
+        .getAudioTracks()
+        .forEach((track) => (track.enabled = false));
 
     } catch (err) {
       console.log(err);
@@ -230,7 +233,7 @@ const Overworld = (data) => {
 
   const MYCHAT_CN = "myChat";
   const NOTICE_CN = "noticeChat";
- 
+
   chatForm.addEventListener("submit", handleChatSubmit);
 
   function handleChatSubmit(event) {
@@ -319,32 +322,26 @@ const Overworld = (data) => {
   socket.on("join_user", function (data) {
     //====================  비디오 추가 함수 =================//
     console.log("새로운 유저 접속");
-    // paintPeerFace(cameraConstraints)
 
-    // console.log(socket.id);
-    // console.log(map.gameObjects.player.sprite.image.src);
-    socket.emit("send_user_src", {
-      id: socket.id,
+    socket.emit("send_user_info", {
       src: map.gameObjects.player.sprite.image.src,
+      x: map.gameObjects.player.x,
+      y: map.gameObjects.player.y,
+      nickname: nickname,
+      roomId: map.roomId,
     });
-    joinUser(data.id, data.x, data.y);
+
   });
 
-  socket.on("user_src", function (data) {
-    const User = charMap[data.id];
-    // console.log(User.sprite.image.src);
-    User.sprite.image.src = data.src;
-    // Object.values(charMap).forEach((object) => {
-    //   object.sprite.image.src = data.src;
+  socket.on("get_user_info", function (data) {
+    joinUser(data.id, data.x, data.y, data.nickname, data.src);
   });
 
-  // });
-  socket.on("leave_user", function () {
+  socket.on("leave_user", function (data) {
     leaveUser(data);
   });
 
   socket.on("update_state", function (data) {
-    // console.log(data);
     updateLocation(data);
   });
 
@@ -364,9 +361,8 @@ const Overworld = (data) => {
       //Establish the camera person
       const cameraPerson = charMap[socket.id] || map.gameObjects.player;
       const player = charMap[socket.id];
-      // console.log(player);
+
       //Update all objects
-      // console.log(charMap);
       Object.values(charMap).forEach((object) => {
         if (object.id === socket.id) {
           // console.log(object.sprite.image.src);
@@ -442,6 +438,13 @@ const Overworld = (data) => {
         })
         .forEach((object) => {
           object.sprite.draw(ctx, cameraPerson);
+          ctx.fillStyle = "rgb(50, 50, 50)";
+          ctx.font = "24px bold Arial";
+          ctx.textAlign = 'center';
+          ctx.fillText(`${object.nickname}`,
+            object.x + 8 + utils.withGrid(ctx.canvas.clientWidth / 16 / 2) - cameraPerson.x,
+            object.y - 8 + utils.withGrid(ctx.canvas.clientHeight / 16 / 2) - cameraPerson.y
+          );
         });
 
       if (player) {
@@ -463,6 +466,7 @@ const Overworld = (data) => {
     };
     step();
   };
+
   const updateLocation = (data) => {
     let char;
     for (let i = 0; i < characters.length; i++) {
@@ -476,17 +480,17 @@ const Overworld = (data) => {
     }
   };
 
-  const leaveUser = (id) => {
-    for (let i = 0; i < characters.length; ++i) {
-      if (characters[i].id === id) {
+  const leaveUser = (data) => {
+    for (let i = 0; i < characters.length; i++) {
+      if (characters[i].id === data.id) {
         characters.splice(i, 1);
         break;
       }
     }
-    delete charMap[id];
+    delete charMap[data.id];
   };
 
-  const joinUser = (id, x, y) => {
+  const joinUser = (id, x, y, nickname, src) => {
     let character = new Person({
       x: 0,
       y: 0,
@@ -495,6 +499,8 @@ const Overworld = (data) => {
     character.id = id;
     character.x = x;
     character.y = y;
+    character.nickname = nickname;
+    character.sprite.image.src = src;
     character.sprite.xaxios = adjustValue.xaxios;
     character.sprite.yaxios = adjustValue.yaxios;
     character.sprite.yratio = adjustValue.yratio;
