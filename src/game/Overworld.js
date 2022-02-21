@@ -1,6 +1,7 @@
 import { OverworldMap } from "./OverworldMap.js";
 import { DirectionInput } from "./DirectionInput.js";
 import { Person } from "./Person.js";
+import { FaVideo } from "react-icons/fa";
 import utils from "./utils.js";
 import io from "socket.io-client";
 import _const from "../config/const.js";
@@ -27,6 +28,8 @@ const Overworld = (data) => {
     audio: true,
     video: true,
   };
+
+  const nicknameContainer = document.querySelector(".nickname");
 
   const map = new OverworldMap(data.Room);
   const adjustValue = data.adjust;
@@ -157,12 +160,12 @@ const Overworld = (data) => {
       .getAudioTracks()
       .forEach((track) => (track.enabled = !track.enabled));
     if (muted) {
-      muteBtn.innerText = 'Unmute';
+      muteBtn.innerText = "Unmute";
       //   unMuteIcon.classList.remove(HIDDEN_CN);
       //   muteIcon.classList.add(HIDDEN_CN);
       muted = false;
     } else {
-      muteBtn.innerText = 'Mute';
+      muteBtn.innerText = "Mute";
       //   muteIcon.classList.remove(HIDDEN_CN);
       //   unMuteIcon.classList.add(HIDDEN_CN);
       muted = true;
@@ -173,31 +176,23 @@ const Overworld = (data) => {
     myStream
       .getVideoTracks()
       .forEach((track) => (track.enabled = !track.enabled));
+
     if (cameraOff) {
-      // cameraIcon.classList.remove(HIDDEN_CN);
-      // unCameraIcon.classList.add(HIDDEN_CN);
-      cameraBtn.innerText = 'camera on';
       cameraOff = false;
     } else {
-      cameraBtn.innerText = 'camera off';
       cameraOff = true;
     }
   }
 
   const muteBtn = document.querySelector("#playerMute");
-  // const muteIcon = muteBtn.querySelector(".muteIcon");
-  // const unMuteIcon = muteBtn.querySelector(".unMuteIcon");
   const cameraBtn = document.querySelector("#playerCamera");
-  // const cameraIcon = cameraBtn.querySelector("#camera_on");
-  // const unCameraIcon = cameraBtn.querySelector("#camera_off");
-  muteBtn.addEventListener("click", handleMuteClick);
   cameraBtn.addEventListener("click", handleCameraClick);
-
+  muteBtn.addEventListener("click", handleMuteClick);
 
   async function getMedia() {
     const myFace = document.querySelector("#myFace");
     const camBtn = document.querySelector("#camBtn");
-    camBtn.style.display = "block";
+    camBtn.style.display = "flex";
 
     try {
       myStream = await navigator.mediaDevices.getUserMedia(cameraConstraints);
@@ -209,7 +204,6 @@ const Overworld = (data) => {
       myStream // mute default
         .getAudioTracks()
         .forEach((track) => (track.enabled = false));
-
     } catch (err) {
       console.log(err);
     }
@@ -319,6 +313,8 @@ const Overworld = (data) => {
     await pcObj[remoteSocketId].addIceCandidate(ice);
   });
 
+  let nicknameDiv;
+
   socket.on("join_user", function (data) {
     //====================  비디오 추가 함수 =================//
     console.log("새로운 유저 접속");
@@ -330,11 +326,32 @@ const Overworld = (data) => {
       nickname: nickname,
       roomId: map.roomId,
     });
-
+    // console.log(data);
   });
 
   socket.on("get_user_info", function (data) {
+    console.log(data);
     joinUser(data.id, data.x, data.y, data.nickname, data.src);
+
+    const cameraPerson = charMap[socket.id] || map.gameObjects.player;
+
+    console.log(cameraPerson);
+
+    nicknameDiv = document.createElement("div");
+    nicknameDiv.className = data.id;
+    nicknameDiv.innerHTML = nickname;
+
+    nicknameDiv.style.width = 100;
+    nicknameDiv.style.transform = "translateX(-40%)";
+    nicknameDiv.style.backgroundColor = "rgba(0, 0, 0, 0.6)";
+    nicknameDiv.style.padding = "6px";
+    nicknameDiv.style.borderRadius = "6px";
+    nicknameDiv.style.color = "white";
+    nicknameDiv.style.fontSize = "12px";
+    nicknameDiv.style.textAlign = "center";
+    nicknameDiv.style.position = "absolute";
+
+    nicknameContainer.appendChild(nicknameDiv);
   });
 
   socket.on("leave_user", function (data) {
@@ -431,6 +448,8 @@ const Overworld = (data) => {
       //Draw Lower layer
       map.drawLowerImage(ctx, cameraPerson);
 
+      // console.log(charNickname);
+
       //Draw Game Objects
       Object.values(charMap)
         .sort((a, b) => {
@@ -438,13 +457,38 @@ const Overworld = (data) => {
         })
         .forEach((object) => {
           object.sprite.draw(ctx, cameraPerson);
-          ctx.fillStyle = "rgb(50, 50, 50)";
-          ctx.font = "24px bold Arial";
-          ctx.textAlign = 'center';
-          ctx.fillText(`${object.nickname}`,
-            object.x + 8 + utils.withGrid(ctx.canvas.clientWidth / 16 / 2) - cameraPerson.x,
-            object.y - 8 + utils.withGrid(ctx.canvas.clientHeight / 16 / 2) - cameraPerson.y
+
+          const objectNicknameContainer = document.querySelector(
+            `.${object.id}`
           );
+
+          objectNicknameContainer.style.top =
+            object.y -
+            25 +
+            utils.withGrid(ctx.canvas.clientHeight / 16 / 2) -
+            // utils.withGrid(ctx.canvas.clientWidth / 16 / 2) -
+            cameraPerson.y +
+            "px";
+          objectNicknameContainer.style.left =
+            object.x +
+            utils.withGrid(ctx.canvas.clientWidth / 16 / 2) -
+            cameraPerson.x +
+            "px";
+
+          // ctx.fillStyle = "rgb(255, 255, 255)";
+          // ctx.font = "14px bold";
+          // ctx.textAlign = "center";
+          // ctx.fillText(
+          //   `${object.nickname}`,
+          // object.x +
+          //   8 +
+          //   utils.withGrid(ctx.canvas.clientWidth / 16 / 2) -
+          //   cameraPerson.x,
+          //   object.y -
+          //     8 +
+          //     utils.withGrid(ctx.canvas.clientHeight / 16 / 2) -
+          //     cameraPerson.y
+          // );
         });
 
       if (player) {
@@ -453,6 +497,7 @@ const Overworld = (data) => {
           x: player.x,
           y: player.y,
           direction: directionInput.direction,
+          nickname: player.nickname,
         };
         socket.emit("input", data);
       }

@@ -184,6 +184,7 @@ const GetErrorSpan = styled.span`
 
 const SignIn = () => {
   const navigate = useNavigate();
+  const isLogin = cookies.get("refresh-token");
   const [isEmail, setEmail] = useState("");
   const [isPassowrd, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -242,8 +243,7 @@ const SignIn = () => {
   };
 
   useEffect(() => {
-    const session = localGetItem("session");
-    if (session) {
+    if (isLogin) {
       navigate("/lobby");
     }
   });

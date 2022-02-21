@@ -279,19 +279,6 @@ const Lobby = () => {
     getRoom();
   }, []);
 
-  // 지워도 될듯
-  // useEffect(() => {
-  //   const getUserInfo = async () => {
-  //     try {
-  //       const session = cookies.get("access-token");
-  //       if (!session) return navigate("/");
-  //     } catch (e) {
-  //       console.log(e);
-  //     }
-  //   };
-  //   getUserInfo();
-  // }, []);
-
   useEffect(() => {
     const userDataUpdate = async () => {
       try {

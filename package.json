@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@mui/icons-material": "^5.4.2",
+    "@mui/material": "^5.4.2",
     "@react-three/drei": "^8.10.0",
     "@react-three/fiber": "^7.0.26",
     "@testing-library/jest-dom": "^5.16.2",
@@ -13,6 +15,7 @@
     "cors": "^2.8.5",
     "expired-storage": "^1.0.2",
     "express": "^4.17.2",
+    "material-icons": "^1.10.7",
     "moment": "^2.29.1",
     "nodemon": "^2.0.15",
     "react": "^17.0.2",

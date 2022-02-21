@@ -1,13 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router";
 import Overworld from "../game/Overworld";
 import { Person } from "../game/Person";
 import React from "react";
-import Aside from "../components/Mainside";
+import {
+  FaVideoSlash,
+  FaVideo,
+  FaVolumeUp,
+  FaVolumeMute,
+  FaVolumeOff,
+} from "react-icons/fa";
 import RoomSideBar from "../components/RoomSidebar";
-import Header from "../components/Header";
 
 import styled from "styled-components";
+import VideoButton from "../components/VideoButton";
 
 const StreamsContainer = styled.div`
   position: fixed;
@@ -46,6 +52,10 @@ const MyVideoBox = styled.div`
   bottom: 20px;
   width: 200px;
   z-index: 99;
+  border-radius: 10px;
+  &:hover {
+    cursor: pointer;
+  }
 `;
 
 const MyVideo = styled.video`
@@ -58,11 +68,53 @@ const MyVideo = styled.video`
 `;
 
 const CamBtn = styled.div`
-  display: none;
+  /* display: none;
+  position: relative;
+  justify-content: space-between;
+  padding: 0 20px; */
+  padding: 0 20px;
+  width: 100%;
+  position: absolute;
+  display: flex;
+  height: 98%;
+  right: 0;
+  top: 0;
+  background: black;
+  border-radius: 10px;
+  opacity: 0;
+  &:hover {
+    opacity: 0.8;
+  }
+
+  button {
+    position: absolute;
+    /* width: 40%;
+    bottom: 10px; */
+    border-radius: 50%;
+    /* border: 1px solid red; */
+    background-color: transparent;
+
+    &:hover {
+      cursor: pointer;
+      opacity: 0.5;
+    }
+  }
+
+  .voice-feature {
+    left: 50%;
+  }
+`;
+
+const CharacterNickname = styled.div`
+  span {
+    color: white;
+  }
 `;
 
 const Room = () => {
   const location = useLocation();
+  const [isVoice, isSetVoice] = useState(false);
+  const [isCamera, isSetCamera] = useState(false);
   // const { state } = location;
   // const urlStr = window.location.href;
   // const url = new URL(urlStr);
@@ -91,7 +143,9 @@ const Room = () => {
       config: document.querySelector(".game-container"),
       nickname: location.state.nickname,
       Room: {
-        RoomSrc: "https://aim-image-storage.s3.ap-northeast-2.amazonaws.com/map2.png",
+        RoomSrc:
+          "https://aim-image-storage.s3.ap-northeast-2.amazonaws.com/map2.png",
+        // "https://cdn.gather.town/storage.googleapis.com/gather-town.appspot.com/uploads/D2KjI21f5Kbh2IkF/3vfdF7s7Bjw3bJhuuecvDt",
         roomId: location.pathname,
         roomNum: 0,
         gameObjects: {
@@ -127,14 +181,16 @@ const Room = () => {
         <RoomSideBar />
         <div className="game-container" style={{ backgroundColor: "black" }}>
           <canvas className="game-canvas"></canvas>
+          <CharacterNickname className="nickname">
+            {/* <span className="nickname"></span> */}
+          </CharacterNickname>
         </div>
       </div>
       <StreamsContainer id="streams"></StreamsContainer>
       <MyVideoBox>
         <MyVideo id="myFace" autoPlay="autoplay"></MyVideo>
         <CamBtn id="camBtn">
-          <button id="playerCamera">camera on</button>
-          <button id="playerMute">mute</button>
+          <VideoButton />
         </CamBtn>
       </MyVideoBox>
     </>
