@@ -1,5 +1,5 @@
 import { Suspense, useEffect, useState } from "react";
-import { useLocation, useParams } from "react-router";
+import { useParams } from "react-router";
 import { connect } from "react-redux";
 import Overworld from "../game/Overworld";
 import { Person } from "../game/Person";
@@ -140,29 +140,26 @@ const Room1 = ({ userData }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [cameraPosition, setCameraPosition] = useState(0);
   const [yCameraPosition, setYCameraPosition] = useState(0);
-  // const downHandler = (e) => {
-  //   switch(e.key){
-  //     case "ArrowRight":
-  //       setCameraPosition(cameraPosition => cameraPosition - 0.05);
-  //       break;
-  //     case "ArrowLeft":
-  //       setCameraPosition(cameraPosition => cameraPosition + 0.05);    
-  //       break;
-  //   }
-
-  // }
+  const downHandler = (e) => {
+    console.log(e.key);
+    switch(e.key){
+      case "x" || "X" || "ㅌ":
+        window.location.replace(`/room/${roomId}`);
+        // navigator(`/room/${roomId}`);
+    }
+  }
   // const upHandler = () => {
 
   // }
-  // useEffect(() => {
-  //   window.addEventListener("keydown", downHandler);
-  //   window.addEventListener("keyup", upHandler);
-  //   // Remove event listeners on cleanup
-  //   return () => {
-  //     window.removeEventListener("keydown", downHandler);
-  //     window.removeEventListener("keyup", upHandler);
-  //   };
-  // }, []);
+  useEffect(() => {
+    window.addEventListener("keydown", downHandler);
+    // window.addEventListener("keyup", upHandler);
+    // Remove event listeners on cleanup
+    return () => {
+      window.removeEventListener("keydown", downHandler);
+      // window.removeEventListener("keyup", upHandler);
+    };
+  }, []);
   useEffect(() => {
     userData.then((data) => {
       Overworld({
@@ -219,12 +216,12 @@ const Room1 = ({ userData }) => {
       {isLoading && <LoadingComponent background={true} />}
       <ThreeCanvas>
         <Suspense fallback={null}>
-          <Gallery1 images={images} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition}/>
+          <Gallery1 images={images} roomId={roomId} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition}/>
         </Suspense>
       </ThreeCanvas>
       <div style={{ display: "flex" }}>
         <RoomSideBar />
-        <div className="game-container" style={{ backgroundColor: "#19191F" }}>
+        <div className="game-container" style={{ backgroundColor: "#191920" }}>
           <canvas className="game-canvas"></canvas>
         </div>
       </div>

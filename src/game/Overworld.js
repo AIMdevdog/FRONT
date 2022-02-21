@@ -374,7 +374,7 @@ const Overworld = (data) => {
         canvas.height = window.innerHeight;
       } else {
         canvas.width = window.innerWidth;
-        canvas.height = 200;
+        canvas.height = window.innerHeight - 750;
       }
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -415,8 +415,8 @@ const Overworld = (data) => {
           });
           if (
             !object.isUserCalling &&
-            Math.abs(player.x - object.x) < 64 &&
-            Math.abs(player.y - object.y) < 96
+            Math.abs(player?.x - object.x) < 64 &&
+            Math.abs(player?.y - object.y) < 96
           ) {
             //화상 통화 연결
             closer.push(object.id);
