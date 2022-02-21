@@ -7,15 +7,22 @@ import getUuid from 'uuid-by-string'
 
 const GOLDENRATIO = 1.61803398875
 
-export default function Gallery1({ images }) {
+export default function Gallery1({ images, cameraPosition, yCameraPosition }) {
+
+
   return (
-    <Canvas gl={{ alpha: false }} dpr={[1, 1.5]} camera={{ fov: 70, position: [0, 2, 15] }}>
-      <color attach="background" args={['#191920']} />
-      <fog attach="fog" args={['#191920', 0, 15]} />
-      <Environment preset="city" />
-      <group position={[0, -0.5, 0]}>
-        <Frames images={images} />
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
+    <div style={{height:"80%"}}>
+      <Canvas
+        // gl={{ alpha: false }}
+        // dpr={[1, 1.5]}
+        camera={{ position: [0, 2, 15] }}
+      >
+        <color attach="background" args={['#191920']} />
+        {/* <fog attach="fog" args={['#191920', 0, 15]} />
+      <Environment preset="city" /> */}
+        <group position={[cameraPosition, -1.5, yCameraPosition]}>
+          <Frames images={images} />
+          {/* <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
           <planeGeometry args={[50, 50]} />
           <MeshReflectorMaterial
             blur={[300, 100]}
@@ -29,9 +36,10 @@ export default function Gallery1({ images }) {
             color="#151515"
             metalness={0.5}
           />
-        </mesh>
-      </group>
-    </Canvas>
+        </mesh> */}
+        </group>
+      </Canvas>
+    </div>
   )
 }
 

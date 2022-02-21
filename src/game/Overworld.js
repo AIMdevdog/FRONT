@@ -34,6 +34,12 @@ const Overworld = (data) => {
   const otherMaps = data.otherMaps;
   const directionInput = new DirectionInput();
   directionInput.init();
+  let roomId;
+  if( map.roomNum === 0){
+    roomId = "room" + map.roomId
+  }else if( map.roomNum === 1){
+    roomId = "room1" + map.roomId
+  }
 
   const socket = io(_const.HOST);
   let closer = [];
@@ -343,7 +349,7 @@ const Overworld = (data) => {
       x: map.gameObjects.player.x,
       y: map.gameObjects.player.y,
       nickname: nickname,
-      roomId: "room" + map.roomId,
+      roomId,
     });
 
   });
@@ -368,7 +374,7 @@ const Overworld = (data) => {
         canvas.height = window.innerHeight;
       } else {
         canvas.width = window.innerWidth;
-        canvas.height = 100;
+        canvas.height = 200;
       }
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -376,6 +382,12 @@ const Overworld = (data) => {
       //Establish the camera person
       const cameraPerson = charMap[socket.id] || map.gameObjects.player;
       const player = charMap[socket.id];
+
+      if(data.setCameraPosition){
+        data.setYCameraPosition(-cameraPerson.y / 80 - 3.5);
+        data.setCameraPosition(-cameraPerson.x / 80 + 6);
+
+      }
 
       //Update all objects
       Object.values(charMap).forEach((object) => {
