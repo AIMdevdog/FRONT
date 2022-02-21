@@ -7,15 +7,20 @@ import getUuid from 'uuid-by-string'
 
 const GOLDENRATIO = 1.61803398875
 
-export default function Gallery1({ images }) {
+export default function Gallery1({ images, roomId, cameraPosition, yCameraPosition }) {
   return (
-    <Canvas gl={{ alpha: false }} dpr={[1, 1.5]} camera={{ fov: 70, position: [0, 2, 15] }}>
+    <Canvas
+      // gl={{ alpha: false }}
+      // dpr={[1, 1.5]}
+      style={{ height: "750px" }}
+      camera={{ position: [0, 2, 15] }}
+    >
       <color attach="background" args={['#191920']} />
-      <fog attach="fog" args={['#191920', 0, 15]} />
-      <Environment preset="city" />
-      <group position={[0, -0.5, 0]}>
-        <Frames images={images} />
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
+      {/* <fog attach="fog" args={['#191920', 0, 15]} />
+      <Environment preset="city" /> */}
+      <group position={[cameraPosition, -1.5, yCameraPosition]}>
+          <Frames images={images} roomId={roomId} />
+        {/* <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
           <planeGeometry args={[50, 50]} />
           <MeshReflectorMaterial
             blur={[300, 100]}
@@ -29,13 +34,13 @@ export default function Gallery1({ images }) {
             color="#151515"
             metalness={0.5}
           />
-        </mesh>
+        </mesh> */}
       </group>
     </Canvas>
   )
 }
 
-function Frames({ images, q = new THREE.Quaternion(), p = new THREE.Vector3() }) {
+function Frames({ images, roomId, q = new THREE.Quaternion(), p = new THREE.Vector3() }) {
   const ref = useRef()
   const clicked = useRef()
   const [, params] = useRoute('/item/:id')
@@ -58,8 +63,8 @@ function Frames({ images, q = new THREE.Quaternion(), p = new THREE.Vector3() })
   return (
     <group
       ref={ref}
-      onClick={(e) => (e.stopPropagation(), setLocation(clicked.current === e.object ? '/' : '/item/' + e.object.name))}
-      onPointerMissed={() => setLocation('/')}>
+      onClick={(e) => (e.stopPropagation(), setLocation(clicked.current === e.object ? `/room1/${roomId}` : '/item/' + e.object.name))}
+      onPointerMissed={() => setLocation(`/room1/${roomId}`)}>
       {images.map((props) => <Frame key={props.url} {...props} /> /* prettier-ignore */)}
     </group>
   )
@@ -73,10 +78,10 @@ function Frame({ url, c = new THREE.Color(), ...props }) {
   const name = getUuid(url)
   useCursor(hovered)
   useFrame((state) => {
-    image.current.material.zoom = 2 + Math.sin(rnd * 10000 + state.clock.elapsedTime / 3) / 2
-    image.current.scale.x = THREE.MathUtils.lerp(image.current.scale.x, 0.85 * (hovered ? 0.85 : 1), 0.1)
-    image.current.scale.y = THREE.MathUtils.lerp(image.current.scale.y, 0.9 * (hovered ? 0.905 : 1), 0.1)
-    frame.current.material.color.lerp(c.set(hovered ? 'orange' : 'white').convertSRGBToLinear(), 0.1)
+    // image.current.material.zoom = 2 + Math.sin(rnd * 10000 + state.clock.elapsedTime / 3) / 2
+    image.current.scale.x = THREE.MathUtils.lerp(image.current.scale.x, 0.85, 0.1)
+    image.current.scale.y = THREE.MathUtils.lerp(image.current.scale.y, 0.9, 0.1)
+    // frame.current.material.color.lerp(c.set(hovered ? 'orange' : 'white').convertSRGBToLinear(), 0.1)
   })
   return (
     <group {...props}>

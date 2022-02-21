@@ -1,5 +1,5 @@
 import { Suspense, useEffect, useState } from "react";
-import { useLocation, useParams } from "react-router";
+import { useParams } from "react-router";
 import { connect } from "react-redux";
 import Overworld from "../game/Overworld";
 import { Person } from "../game/Person";
@@ -14,45 +14,53 @@ const pexel = (id) =>
 const images = [
   // Front
   {
-    position: [0, 0, 1.5],
+    position: [0, 0, 2.75],
     rotation: [0, 0, 0],
     url: "https://www.comedywildlifephoto.com/images/wysiwyg/images/2020_winners/mark_fitzpatrick.jpg",
   },
   // Back
-  { position: [-0.8, 0, -0.6], rotation: [0, 0, 0], url: pexel(416430) },
-  { position: [0.8, 0, -0.6], rotation: [0, 0, 0], url: pexel(310452) },
+  {
+    position: [3, 0, 2.75],
+    rotation: [0, 0, 0],
+    url: pexel(416430)
+  },
+  {
+    position: [6, 0, 2.75],
+    rotation: [0, 0, 0],
+    url: pexel(310452)
+  },
   // Left
   {
-    position: [-1.75, 0, 0.25],
-    rotation: [0, Math.PI / 2.5, 0],
+    position: [-3, 0, 2.75],
+    rotation: [0, 0, 0],
     url: pexel(327482),
   },
   {
-    position: [-2.15, 0, 1.5],
-    rotation: [0, Math.PI / 2.5, 0],
+    position: [-6, 0, 2.75],
+    rotation: [0, 0, 0],
     url: pexel(325185),
   },
-  {
-    position: [-2, 0, 2.75],
-    rotation: [0, Math.PI / 2.5, 0],
-    url: pexel(358574),
-  },
-  // Right
-  {
-    position: [1.75, 0, 0.25],
-    rotation: [0, -Math.PI / 2.5, 0],
-    url: pexel(227675),
-  },
-  {
-    position: [2.15, 0, 1.5],
-    rotation: [0, -Math.PI / 2.5, 0],
-    url: pexel(911738),
-  },
-  {
-    position: [2, 0, 2.75],
-    rotation: [0, -Math.PI / 2.5, 0],
-    url: pexel(1738986),
-  },
+  // {
+  //   position: [-2, 0, 2.75],
+  //   rotation: [0, Math.PI / 2.5, 0],
+  //   url: pexel(358574),
+  // },
+  // // Right
+  // {
+  //   position: [1.75, 0, 0.25],
+  //   rotation: [0, -Math.PI / 2.5, 0],
+  //   url: pexel(227675),
+  // },
+  // {
+  //   position: [2.15, 0, 1.5],
+  //   rotation: [0, -Math.PI / 2.5, 0],
+  //   url: pexel(911738),
+  // },
+  // {
+  //   position: [2, 0, 2.75],
+  //   rotation: [0, -Math.PI / 2.5, 0],
+  //   url: pexel(1738986),
+  // },
 ];
 
 
@@ -126,15 +134,39 @@ const ThreeCanvas = styled.div`
   //  }
 `;
 
-const Room1 = ({userData}) => {
+const Room1 = ({ userData }) => {
   const params = useParams();
   const roomId = params.roomId;
   const [isLoading, setIsLoading] = useState(false);
+  const [cameraPosition, setCameraPosition] = useState(0);
+  const [yCameraPosition, setYCameraPosition] = useState(0);
+  const downHandler = (e) => {
+    console.log(e.key);
+    switch(e.key){
+      case "x" || "X" || "ㅌ":
+        window.location.replace(`/room/${roomId}`);
+        // navigator(`/room/${roomId}`);
+    }
+  }
+  // const upHandler = () => {
+
+  // }
   useEffect(() => {
-    userData.then((data)=>{
+    window.addEventListener("keydown", downHandler);
+    // window.addEventListener("keyup", upHandler);
+    // Remove event listeners on cleanup
+    return () => {
+      window.removeEventListener("keydown", downHandler);
+      // window.removeEventListener("keyup", upHandler);
+    };
+  }, []);
+  useEffect(() => {
+    userData.then((data) => {
       Overworld({
         config: document.querySelector(".game-container"),
         nickname: data.nickname,
+        setCameraPosition: setCameraPosition,
+        setYCameraPosition: setYCameraPosition,
         Room: {
           RoomSrc: null,
           id: 123,
@@ -144,8 +176,8 @@ const Room1 = ({userData}) => {
             player: new Person({
               id: null,
               isPlayerControlled: true,
-              x: 80,
-              y: 80,
+              x: 480,
+              y: 200,
               src: data.character,
             }),
           },
@@ -184,12 +216,12 @@ const Room1 = ({userData}) => {
       {isLoading && <LoadingComponent background={true} />}
       <ThreeCanvas>
         <Suspense fallback={null}>
-          <Gallery1 images={images} />
+          <Gallery1 images={images} roomId={roomId} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition}/>
         </Suspense>
       </ThreeCanvas>
       <div style={{ display: "flex" }}>
         <RoomSideBar />
-        <div className="game-container" style={{ backgroundColor: "black" }}>
+        <div className="game-container" style={{ backgroundColor: "#191920" }}>
           <canvas className="game-canvas"></canvas>
         </div>
       </div>

@@ -22,28 +22,14 @@ export class OverworldMap {
   }
 
   drawLowerImage(ctx, cameraPerson) {
-    if (this.roomNum === 0) {
-      ctx.drawImage(
+      this.isImageLoaded && ctx.drawImage(
         this.lowerImage,
         // utils.withGrid(10.5) - cameraPerson.x,
         // utils.withGrid(6) - cameraPerson.y
         utils.withGrid(ctx.canvas.clientWidth / 16 / 2) - cameraPerson.x,
         utils.withGrid(ctx.canvas.clientHeight / 16 / 2) - cameraPerson.y
       );
-    } else if(this.roomNum === 1){
-      // ctx.drawImage(
-      //   this.lowerImage,
-      //   // utils.withGrid(10.5) - cameraPerson.x,
-      //   // utils.withGrid(6) - cameraPerson.y
-      //   utils.withGrid(ctx.canvas.clientWidth / 16 / 2) - cameraPerson.x,
-      //   utils.withGrid(ctx.canvas.clientHeight / 16 / 2) - 300,
-      //   this.lowerImage.naturalWidth * (cameraPerson.y/400),
-      //   this.lowerImage.naturalHeight * 0.5 ,
-
-      // );
-    }
   }
-
   isSpaceTaken(currentX, currentY, direction) {
     const { x, y } = utils.nextPosition(currentX, currentY, direction);
     return this.walls[`${x},${y}`] || false;
