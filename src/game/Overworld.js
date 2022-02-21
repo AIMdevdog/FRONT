@@ -78,7 +78,7 @@ const Overworld = (data) => {
       video.srcObject = peerStream;
       div.appendChild(video);
       streams.appendChild(div);
-      await sortStreams();
+      // await sortStreams();
     } catch (err) {
       console.error(err);
     }
@@ -139,7 +139,7 @@ const Overworld = (data) => {
       pcObj[remoteSocketId] = myPeerConnection;
 
       ++peopleInRoom;
-      sortStreams();
+      // sortStreams();
       return myPeerConnection;
     } catch (e) {
       console.log(e);
