@@ -328,7 +328,7 @@ const Overworld = (data) => {
       x: map.gameObjects.player.x,
       y: map.gameObjects.player.y,
       nickname: nickname,
-      roomId: map.roomId,
+      roomId: "room" + map.roomId,
     });
 
   });
@@ -371,7 +371,7 @@ const Overworld = (data) => {
               console.log("warp!!!");
               // console.log(object.sprite.image.src);
               window.location.replace(
-                `${otherMaps[i].url}?src=${object.sprite.image.src}`
+                `${otherMaps[i].url}`
               );
             }
           }

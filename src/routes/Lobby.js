@@ -13,6 +13,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import moment from "moment";
 import { Cookies } from "react-cookie";
+import { connect } from "react-redux";
 
 const cookies = new Cookies();
 
@@ -47,7 +48,7 @@ const TabButton = styled.button`
 
   span {
     /* color: ${(props) =>
-      !props.room ? "rgb(84, 92, 143)" : "transparent"}; */
+    !props.room ? "rgb(84, 92, 143)" : "transparent"}; */
     color: rgb(255, 255, 255);
     font-family: "DM Sans", sans-serif;
     font-weight: 700;
@@ -245,9 +246,12 @@ const EmptyRoom = styled.div`
   }
 `;
 
-const Lobby = () => {
-  const location = useLocation();
-  const { state } = location;
+const Lobby = ({ userData }) => {
+  // console.log("---------");
+  // console.log(userData);
+  // console.log(userData.nickname);
+  // const location = useLocation();
+  // const { state } = location;
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [search, setSearch] = useState("");
@@ -293,26 +297,37 @@ const Lobby = () => {
   // }, []);
 
   useEffect(() => {
-    const userDataUpdate = async () => {
-      try {
-        setIsLoading(true);
-        const requestResult = await user.getUserInfo();
-        const {
-          data: { msg, result },
-        } = requestResult;
-        if (msg) {
-          alert(msg);
-          navigate("/");
-        }
-        setIsSaveUserData(result);
-      } catch (e) {
-        console.log(e);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    // const userDataUpdate = async () => {
+    //   try {
+    //     setIsLoading(true);
+    //     const requestResult = await user.getUserInfo();
+    //     const {
+    //       data: { msg, result },
+    //     } = requestResult;
+    //     // console.log("==========================\nresult:",result);
+    //     if (msg) {
+    //       alert(msg);
+    //       navigate("/");
+    //     }
+    //     setIsSaveUserData(result);
+    //   } catch (e) {
+    //     console.log(e);
+    //   } finally {
+    //     setIsLoading(false);
+    //   }
+    // };
 
-    userDataUpdate();
+    // userDataUpdate();
+    userData
+      .then((data) => {
+        setIsSaveUserData(data);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        alert("토큰이 만료됐습니다.");
+        navigate("/");
+      });
+
   }, []);
 
   const onSearchChange = (e) => {
@@ -331,9 +346,7 @@ const Lobby = () => {
   const readyToGoIntoTheRoom = (item) => {
     navigate(`/room/${item.id}`, {
       state: {
-        isCurrentImg: isSaveUserData.character,
-        roodId: item.id,
-        nickname: isSaveUserData.nickname,
+        roomId: item.id,
       },
     });
   };
@@ -457,4 +470,10 @@ const Lobby = () => {
   );
 };
 
-export default Lobby;
+function mapStateToProps(state) {
+  return {
+    userData: state,
+  }
+}
+
+export default connect(mapStateToProps)(Lobby);
