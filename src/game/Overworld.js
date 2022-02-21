@@ -9,7 +9,8 @@ let myStream;
 let cameraOff = false;
 let muted = true;
 let pcObj = {
-  // remoteSocketId: pc
+  // remoteSocketId: pc (peer connection)
+  // pcObj[remoteSocketId] = myPeerConnection 이다
 };
 
 let peopleInRoom = 1;
@@ -69,6 +70,8 @@ const Overworld = (data) => {
     const div = document.createElement("div");
     // div.classList.add("userVideoContainer");
     div.id = id;
+
+    // console.log("-------- 커넥션 상태 --------", pcObj[id].iceConnectionState);
 
     try {
       const video = document.createElement("video");
@@ -313,10 +316,21 @@ const Overworld = (data) => {
 
   socket.on("answer", async (answer, remoteSocketId) => {
     await pcObj[remoteSocketId].setRemoteDescription(answer);
+    
   });
 
   socket.on("ice", async (ice, remoteSocketId) => {
     await pcObj[remoteSocketId].addIceCandidate(ice);
+    const state = pcObj[remoteSocketId].iceConnectionState;
+    if (state === "failed" || state === "closed") {
+      const newPC = await createConnection(
+        remoteSocketId,
+        "Anon"
+      );
+      const offer = await newPC.createOffer();
+      await newPC.setLocalDescription(offer);
+      socket.emit("offer", offer, remoteSocketId, "Anon");
+    }
   });
 
   socket.on("join_user", function (data) {
@@ -423,6 +437,10 @@ const Overworld = (data) => {
         while (stream.hasChildNodes()) {
           // 내가 가지고있는 다른 사람의 영상을 전부 삭제
           stream.removeChild(stream.firstChild);
+        }
+
+        for (let remoteSocketId in pcObj){
+          // console.log("-------- 커넥션 상태 --------", pcObj[remoteSocketId].iceConnectionState);
         }
         socket.emit("leave_Group", player.id);
         player.isUserCalling = false;
