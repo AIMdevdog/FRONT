@@ -344,11 +344,12 @@ const Lobby = ({ userData }) => {
     );
   };
   const readyToGoIntoTheRoom = (item) => {
-    navigate(`/room/${item.id}`, {
-      state: {
-        roomId: item.id,
-      },
-    });
+    window.location.href = `/room/${item.id}`;
+    // navigate(`/room/${item.id}`, {
+    //   state: {
+    //     roomId: item.id,
+    //   },
+    // });
   };
   return (
     <>
