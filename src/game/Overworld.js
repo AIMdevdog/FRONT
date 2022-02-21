@@ -118,7 +118,7 @@ const Overworld = (data) => {
       });
       myPeerConnection.addEventListener("icecandidate", async (event) => {
         try {
-          await handleIce(event, remoteSocketId);
+          await handleIce(event, remoteSocketId, remoteNickname);
         } catch (e) {
           console.log(e);
         }
@@ -149,9 +149,9 @@ const Overworld = (data) => {
     }
   }
 
-  function handleIce(event, remoteSocketId) {
+  function handleIce(event, remoteSocketId, remoteNickname) {
     if (event.candidate) {
-      socket.emit("ice", event.candidate, remoteSocketId);
+      socket.emit("ice", event.candidate, remoteSocketId, remoteNickname);
     }
   }
 
@@ -319,17 +319,17 @@ const Overworld = (data) => {
     
   });
 
-  socket.on("ice", async (ice, remoteSocketId) => {
+  socket.on("ice", async (ice, remoteSocketId, remoteNickname) => {
     await pcObj[remoteSocketId].addIceCandidate(ice);
     const state = pcObj[remoteSocketId].iceConnectionState;
     if (state === "failed" || state === "closed") {
       const newPC = await createConnection(
         remoteSocketId,
-        "Anon"
+        remoteNickname
       );
       const offer = await newPC.createOffer();
       await newPC.setLocalDescription(offer);
-      socket.emit("offer", offer, remoteSocketId, "Anon");
+      socket.emit("offer", offer, remoteSocketId, remoteNickname);
       console.log("iceCandidate 실패! 재연결 시도");
     }
   });
