@@ -1,56 +1,120 @@
 import { Suspense, useEffect, useState } from "react";
+import { useParams } from "react-router";
+import { connect } from "react-redux";
 import Overworld from "../game/Overworld";
 import { Person } from "../game/Person";
-import { useParams } from "react-router-dom";
 import Gallery1 from "../components/Gallery1";
 import styled from "styled-components";
 import LoadingComponent from "../components/Loading";
+import RoomSideBar from "../components/RoomSidebar";
+import { user } from "../config/api";
 
 const pexel = (id) =>
   `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260`;
 const images = [
   // Front
   {
-    position: [0, 0, 1.5],
+    position: [0, 0, 2.75],
     rotation: [0, 0, 0],
     url: "https://www.comedywildlifephoto.com/images/wysiwyg/images/2020_winners/mark_fitzpatrick.jpg",
   },
   // Back
-  { position: [-0.8, 0, -0.6], rotation: [0, 0, 0], url: pexel(416430) },
-  { position: [0.8, 0, -0.6], rotation: [0, 0, 0], url: pexel(310452) },
+  {
+    position: [3, 0, 2.75],
+    rotation: [0, 0, 0],
+    url: pexel(416430)
+  },
+  {
+    position: [6, 0, 2.75],
+    rotation: [0, 0, 0],
+    url: pexel(310452)
+  },
   // Left
   {
-    position: [-1.75, 0, 0.25],
-    rotation: [0, Math.PI / 2.5, 0],
+    position: [-3, 0, 2.75],
+    rotation: [0, 0, 0],
     url: pexel(327482),
   },
   {
-    position: [-2.15, 0, 1.5],
-    rotation: [0, Math.PI / 2.5, 0],
+    position: [-6, 0, 2.75],
+    rotation: [0, 0, 0],
     url: pexel(325185),
   },
-  {
-    position: [-2, 0, 2.75],
-    rotation: [0, Math.PI / 2.5, 0],
-    url: pexel(358574),
-  },
-  // Right
-  {
-    position: [1.75, 0, 0.25],
-    rotation: [0, -Math.PI / 2.5, 0],
-    url: pexel(227675),
-  },
-  {
-    position: [2.15, 0, 1.5],
-    rotation: [0, -Math.PI / 2.5, 0],
-    url: pexel(911738),
-  },
-  {
-    position: [2, 0, 2.75],
-    rotation: [0, -Math.PI / 2.5, 0],
-    url: pexel(1738986),
-  },
+  // {
+  //   position: [-2, 0, 2.75],
+  //   rotation: [0, Math.PI / 2.5, 0],
+  //   url: pexel(358574),
+  // },
+  // // Right
+  // {
+  //   position: [1.75, 0, 0.25],
+  //   rotation: [0, -Math.PI / 2.5, 0],
+  //   url: pexel(227675),
+  // },
+  // {
+  //   position: [2.15, 0, 1.5],
+  //   rotation: [0, -Math.PI / 2.5, 0],
+  //   url: pexel(911738),
+  // },
+  // {
+  //   position: [2, 0, 2.75],
+  //   rotation: [0, -Math.PI / 2.5, 0],
+  //   url: pexel(1738986),
+  // },
 ];
+
+
+const StreamsContainer = styled.div`
+  position: fixed;
+  display: flex;
+  left: 0;
+  top: 60px;
+  width: 100%;
+  height: 100px;
+  justify-content: center;
+  align-items: center;
+
+  div {
+    width: 200px;
+    margin-right: 20px;
+
+    .userVideo {
+      width: 200px;
+      border-radius: 10px;
+      /*Mirror code starts*/
+      transform: rotateY(180deg);
+      -webkit-transform: rotateY(180deg); /* Safari and Chrome */
+      -moz-transform: rotateY(180deg); /* Firefox */
+
+      /*Mirror code ends*/
+      &:hover {
+        outline: 2px solid red;
+        cursor: pointer;
+      }
+    }
+  }
+`;
+
+const MyVideoBox = styled.div`
+  position: absolute;
+  right: 30px;
+  bottom: 20px;
+  width: 200px;
+  z-index: 99;
+`;
+
+const MyVideo = styled.video`
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg); /* Safari and Chrome */
+  -moz-transform: rotateY(180deg); /* Firefox */
+`;
+
+const CamBtn = styled.div`
+  display: none;
+`;
 
 const ThreeCanvas = styled.div`
   canvas {
@@ -70,48 +134,68 @@ const ThreeCanvas = styled.div`
   //  }
 `;
 
-const Room = (props) => {
-  console.log(window.location.href);
+const Room1 = ({ userData }) => {
+  const params = useParams();
+  const roomId = params.roomId;
   const [isLoading, setIsLoading] = useState(false);
-  const urlStr = window.location.href;
-  const url = new URL(urlStr);
-  const urlParams = url.searchParams;
-  const src = urlParams.get("src");
-  // console.log(src);
-  const charSrc =
-    src ||
-    "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png";
+  const [cameraPosition, setCameraPosition] = useState(0);
+  const [yCameraPosition, setYCameraPosition] = useState(0);
+  const downHandler = (e) => {
+    console.log(e.key);
+    switch(e.key){
+      case "x" || "X" || "ㅌ":
+        window.location.replace(`/room/${roomId}`);
+        // navigator(`/room/${roomId}`);
+    }
+  }
+  // const upHandler = () => {
+
+  // }
   useEffect(() => {
-    Overworld({
-      config: document.querySelector(".game-container"),
-      Room: {
-        RoomSrc: null,
-        id: 123,
-        roomNum: 1,
-        gameObjects: {
-          player: new Person({
-            id: null,
-            isPlayerControlled: true,
+    window.addEventListener("keydown", downHandler);
+    // window.addEventListener("keyup", upHandler);
+    // Remove event listeners on cleanup
+    return () => {
+      window.removeEventListener("keydown", downHandler);
+      // window.removeEventListener("keyup", upHandler);
+    };
+  }, []);
+  useEffect(() => {
+    userData.then((data) => {
+      Overworld({
+        config: document.querySelector(".game-container"),
+        nickname: data.nickname,
+        setCameraPosition: setCameraPosition,
+        setYCameraPosition: setYCameraPosition,
+        Room: {
+          RoomSrc: null,
+          id: 123,
+          roomNum: 1,
+          roomId: roomId,
+          gameObjects: {
+            player: new Person({
+              id: null,
+              isPlayerControlled: true,
+              x: 480,
+              y: 200,
+              src: data.character,
+            }),
+          },
+        },
+        adjust: {
+          xaxios: 0,
+          xratio: 1,
+          yaxios: 0,
+          yratio: 1,
+        },
+        otherMaps: [
+          {
             x: 80,
-            y: 80,
-            src: charSrc,
-          }),
-        },
-      },
-      adjust: {
-        xaxios: 0,
-        xratio: 1,
-        yaxios: 0,
-        yratio: 1,
-      },
-      otherMaps: [
-        {
-          x: 96,
-          y: 336,
-          // url: "http://localhost:3000/room",
-          url: "/room1",
-        },
-      ],
+            y: 96,
+            url: `http://localhost:3000/room/${roomId}`,
+          },
+        ],
+      });
     });
     // overworld.init();
   }, []);
@@ -128,65 +212,35 @@ const Room = (props) => {
   }, []);
 
   return (
-    <div style={{ height: "100vh", backgroundColor: "black" }}>
+    <div style={{ height: "90vh", backgroundColor: "black" }}>
       {isLoading && <LoadingComponent background={true} />}
       <ThreeCanvas>
         <Suspense fallback={null}>
-          <Gallery1 images={images} />
+          <Gallery1 images={images} roomId={roomId} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition}/>
         </Suspense>
       </ThreeCanvas>
-      <div className="game-container">
-        <canvas
-          className="game-canvas"
-          style={{
-            backgroundColor: "#131318",
-            // backgroundImage: "linear-gradient(red, yellow)",
-
-            position: "fixed",
-            bottom: 0,
-          }}
-        ></canvas>
+      <div style={{ display: "flex" }}>
+        <RoomSideBar />
+        <div className="game-container" style={{ backgroundColor: "#191920" }}>
+          <canvas className="game-canvas"></canvas>
+        </div>
       </div>
-
-      {/* <div
-        id="streams"
-        style={{
-          position: "fixed",
-          display: "flex",
-          left: 0,
-          bottom: 100,
-          width: 200,
-          height: 100,
-          backgroundColor: "white",
-        }}
-      ></div>
-      <div
-        style={{
-          position: "fixed",
-          right: 0,
-          bottom: 0,
-          width: 200,
-          height: 200,
-          backgroundColor: "white",
-        }}
-      >
-        <video
-          id="myFace"
-          autoplay="autoplay"
-          style={{ width: 200, height: 200 }}
-        ></video>
-      </div> */}
-
-      <div style={{ opacity: 0 }} id="chatRoom">
-        <ul id="chatBox">
-          <form id="chatForm">
-            <input type="text" placeholder="Write your chat" required />
-            <button>Send</button>
-          </form>
-        </ul>
-      </div>
+      <StreamsContainer id="streams"></StreamsContainer>
+      <MyVideoBox>
+        <MyVideo id="myFace" autoPlay="autoplay"></MyVideo>
+        <CamBtn id="camBtn">
+          <button id="playerCamera">camera on</button>
+          <button id="playerMute">mute</button>
+        </CamBtn>
+      </MyVideoBox>
     </div>
   );
 };
 
-export default Room;
+function mapStateProps(state) {
+  return {
+    userData: state,
+  }
+}
+
+export default connect(mapStateProps)(Room1);

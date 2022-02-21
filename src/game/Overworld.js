@@ -10,7 +10,8 @@ let myStream;
 let cameraOff = false;
 let muted = true;
 let pcObj = {
-  // remoteSocketId: pc
+  // remoteSocketId: pc (peer connection)
+  // pcObj[remoteSocketId] = myPeerConnection 이다
 };
 
 let peopleInRoom = 1;
@@ -36,6 +37,12 @@ const Overworld = (data) => {
   const otherMaps = data.otherMaps;
   const directionInput = new DirectionInput();
   directionInput.init();
+  let roomId;
+  if (map.roomNum === 0) {
+    roomId = "room" + map.roomId;
+  } else if (map.roomNum === 1) {
+    roomId = "room1" + map.roomId;
+  }
 
   const socket = io(_const.HOST);
   let closer = [];
@@ -44,11 +51,11 @@ const Overworld = (data) => {
   // data for문 돌면서 isUserCalling checking 혹은..
   // [PASS] 2명+3명 그룹 합쳐질 때 그룹 통화중이라는 것을 표시해둬야 함 / 변수 하나 더 추가 true, false 체크
 
-  function sortStreams() {
-    const streams = document.querySelector("#streams");
-    const streamArr = streams.querySelectorAll("div");
-    streamArr.forEach((stream) => (stream.className = `people${peopleInRoom}`));
-  }
+  // function sortStreams() {
+  //   const streams = document.querySelector("#streams");
+  //   const streamArr = streams.querySelectorAll("div");
+  //   streamArr.forEach((stream) => (stream.className = `people${peopleInRoom}`));
+  // }
 
   async function handleAddStream(event, remoteSocketId, remoteNickname) {
     const peerStream = event.stream;
@@ -73,6 +80,8 @@ const Overworld = (data) => {
     // div.classList.add("userVideoContainer");
     div.id = id;
 
+    // console.log("-------- 커넥션 상태 --------", pcObj[id].iceConnectionState);
+
     try {
       const video = document.createElement("video");
       video.className = "userVideo";
@@ -81,7 +90,7 @@ const Overworld = (data) => {
       video.srcObject = peerStream;
       div.appendChild(video);
       streams.appendChild(div);
-      await sortStreams();
+      // await sortStreams();
     } catch (err) {
       console.error(err);
     }
@@ -118,7 +127,7 @@ const Overworld = (data) => {
       });
       myPeerConnection.addEventListener("icecandidate", async (event) => {
         try {
-          await handleIce(event, remoteSocketId);
+          await handleIce(event, remoteSocketId, remoteNickname);
         } catch (e) {
           console.log(e);
         }
@@ -142,32 +151,69 @@ const Overworld = (data) => {
       pcObj[remoteSocketId] = myPeerConnection;
 
       ++peopleInRoom;
-      sortStreams();
+      // sortStreams();
       return myPeerConnection;
     } catch (e) {
       console.log(e);
     }
   }
 
-  function handleIce(event, remoteSocketId) {
+  function handleIce(event, remoteSocketId, remoteNickname) {
     if (event.candidate) {
-      socket.emit("ice", event.candidate, remoteSocketId);
+      socket.emit("ice", event.candidate, remoteSocketId, remoteNickname);
     }
   }
+
+  async function handleScreenSharing() {
+    try {
+      console.log("handleScreenSharing 실행");
+      await getMedia(true);
+      const peerConnectionObjArr = Object.values(pcObj);
+      if (peerConnectionObjArr.length > 0) {
+        const newVideoTrack = myStream.getVideoTracks()[0];
+        peerConnectionObjArr.forEach((peerConnection) => {
+          console.log("peerConnection", peerConnection);
+          const peerVideoSender = peerConnection
+            .getSenders()
+            .find((sender) => sender.track.kind === "video");
+          peerVideoSender.replaceTrack(newVideoTrack);
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async function closeScreenSharing() {
+    try {
+      console.log("closeScreenSharing 실행");
+      await getMedia(false);
+      const peerConnectionObjArr = Object.values(pcObj);
+      if (peerConnectionObjArr.length > 0) {
+        const newVideoTrack = myStream.getVideoTracks()[0];
+        peerConnectionObjArr.forEach((peerConnection) => {
+          console.log("peerConnection", peerConnection);
+          const peerVideoSender = peerConnection
+            .getSenders()
+            .find((sender) => sender.track.kind === "video");
+          peerVideoSender.replaceTrack(newVideoTrack);
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  const shareBtn = document.querySelector("#shareBtn");
+  const myFaceBtn = document.querySelector("#myFaceBtn");
+  shareBtn.addEventListener("click", handleScreenSharing);
+  myFaceBtn.addEventListener("click", closeScreenSharing);
 
   function handleMuteClick() {
     myStream //
       .getAudioTracks()
       .forEach((track) => (track.enabled = !track.enabled));
     if (muted) {
-      muteBtn.innerText = "Unmute";
-      //   unMuteIcon.classList.remove(HIDDEN_CN);
-      //   muteIcon.classList.add(HIDDEN_CN);
       muted = false;
     } else {
-      muteBtn.innerText = "Mute";
-      //   muteIcon.classList.remove(HIDDEN_CN);
-      //   unMuteIcon.classList.add(HIDDEN_CN);
       muted = true;
     }
   }
@@ -184,17 +230,24 @@ const Overworld = (data) => {
     }
   }
 
-  const muteBtn = document.querySelector("#playerMute");
   const cameraBtn = document.querySelector("#playerCamera");
+  const muteBtn = document.querySelector("#playerMute");
+
   cameraBtn.addEventListener("click", handleCameraClick);
   muteBtn.addEventListener("click", handleMuteClick);
 
-  async function getMedia() {
+  var displayMediaOptions = {
+    video: {
+      cursor: "always",
+    },
+    audio: false,
+  };
+
+  async function getMedia(sharing) {
     const myFace = document.querySelector("#myFace");
     const camBtn = document.querySelector("#camBtn");
-    camBtn.style.display = "flex";
-
-    try {
+    camBtn.style.display = "block";
+    if (!sharing) {
       myStream = await navigator.mediaDevices.getUserMedia(cameraConstraints);
       console.log("mystream", myStream);
       // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
@@ -204,8 +257,18 @@ const Overworld = (data) => {
       myStream // mute default
         .getAudioTracks()
         .forEach((track) => (track.enabled = false));
-    } catch (err) {
-      console.log(err);
+    } else {
+      myStream = await navigator.mediaDevices.getDisplayMedia(
+        displayMediaOptions
+      );
+      console.log("mystream", myStream);
+      // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
+      myFace.srcObject = myStream;
+      myFace.muted = true;
+
+      myStream // mute default
+        .getAudioTracks()
+        .forEach((track) => (track.enabled = false));
     }
   }
 
@@ -214,7 +277,7 @@ const Overworld = (data) => {
     // call.classList.remove(HIDDEN_CN); // HTML 관련 코드
     console.log("initCall 함수");
     try {
-      await getMedia(); // Room.js에 들어있음
+      await getMedia(false); // Room.js에 들어있음
     } catch (err) {
       console.log(err);
     }
@@ -309,8 +372,16 @@ const Overworld = (data) => {
     await pcObj[remoteSocketId].setRemoteDescription(answer);
   });
 
-  socket.on("ice", async (ice, remoteSocketId) => {
+  socket.on("ice", async (ice, remoteSocketId, remoteNickname) => {
     await pcObj[remoteSocketId].addIceCandidate(ice);
+    const state = pcObj[remoteSocketId].iceConnectionState;
+    if (state === "failed" || state === "closed") {
+      const newPC = await createConnection(remoteSocketId, remoteNickname);
+      const offer = await newPC.createOffer();
+      await newPC.setLocalDescription(offer);
+      socket.emit("offer", offer, remoteSocketId, remoteNickname);
+      console.log("iceCandidate 실패! 재연결 시도");
+    }
   });
 
   let nicknameDiv;
@@ -324,7 +395,7 @@ const Overworld = (data) => {
       x: map.gameObjects.player.x,
       y: map.gameObjects.player.y,
       nickname: nickname,
-      roomId: map.roomId,
+      roomId,
     });
     // console.log(data);
   });
@@ -370,7 +441,7 @@ const Overworld = (data) => {
         canvas.height = window.innerHeight;
       } else {
         canvas.width = window.innerWidth;
-        canvas.height = 100;
+        canvas.height = window.innerHeight - 750;
       }
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -378,6 +449,11 @@ const Overworld = (data) => {
       //Establish the camera person
       const cameraPerson = charMap[socket.id] || map.gameObjects.player;
       const player = charMap[socket.id];
+
+      if (data.setCameraPosition) {
+        data.setYCameraPosition(-cameraPerson.y / 80 - 3.5);
+        data.setCameraPosition(-cameraPerson.x / 80 + 6);
+      }
 
       //Update all objects
       Object.values(charMap).forEach((object) => {
@@ -387,9 +463,7 @@ const Overworld = (data) => {
             if (object.x === otherMaps[i].x && object.y === otherMaps[i].y) {
               console.log("warp!!!");
               // console.log(object.sprite.image.src);
-              window.location.replace(
-                `${otherMaps[i].url}?src=${object.sprite.image.src}`
-              );
+              window.location.replace(`${otherMaps[i].url}`);
             }
           }
           object.update({
@@ -405,8 +479,8 @@ const Overworld = (data) => {
           });
           if (
             !object.isUserCalling &&
-            Math.abs(player.x - object.x) < 64 &&
-            Math.abs(player.y - object.y) < 96
+            Math.abs(player?.x - object.x) < 64 &&
+            Math.abs(player?.y - object.y) < 96
           ) {
             //화상 통화 연결
             closer.push(object.id);
@@ -441,6 +515,10 @@ const Overworld = (data) => {
           // 내가 가지고있는 다른 사람의 영상을 전부 삭제
           stream.removeChild(stream.firstChild);
         }
+
+        // for (let remoteSocketId in pcObj){
+        //   // console.log("-------- 커넥션 상태 --------", pcObj[remoteSocketId].iceConnectionState);
+        // }
         socket.emit("leave_Group", player.id);
         player.isUserCalling = false;
         player.isUserJoin = false;

@@ -586,13 +586,11 @@ const Header = ({ isSaveUserData, setIsSaveUserData }) => {
   const [isRoomDesc, setIsRoomDesc] = useState("");
   const [isPath, setIsPath] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [name, setName] = useState("");
   const [isCreateRoomOpen, setIsCreateRoomOpen] = useState(false);
 
   //userSettingContainer에 사용되는 변수들
   const [isSettingOpen, setIsSettingOpen] = useState(false);
   const [isNickname, setIsNickname] = useState("");
-  const [isRoomId, setIsRoomId] = useState(0);
   const [isCurrentImg, setCurrent] = useState(0);
   const roomImage =
     "https://aim-image-storage.s3.ap-northeast-2.amazonaws.com/map2.png";
