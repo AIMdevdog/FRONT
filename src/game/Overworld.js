@@ -155,6 +155,48 @@ const Overworld = (data) => {
     }
   }
 
+  async function handleScreenSharing() {
+    try {
+      console.log("handleScreenSharing 실행")
+      await getMedia(true);
+      const peerConnectionObjArr = Object.values(pcObj);
+      if (peerConnectionObjArr.length > 0) {
+        const newVideoTrack = myStream.getVideoTracks()[0];
+        peerConnectionObjArr.forEach((peerConnection) => {
+          console.log('peerConnection', peerConnection);
+          const peerVideoSender = peerConnection
+            .getSenders()
+            .find((sender) => sender.track.kind === "video");
+          peerVideoSender.replaceTrack(newVideoTrack);
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  } 
+  async function closeScreenSharing() {
+    try {
+      console.log("closeScreenSharing 실행")
+      await getMedia(false);
+      const peerConnectionObjArr = Object.values(pcObj);
+      if (peerConnectionObjArr.length > 0) {
+        const newVideoTrack = myStream.getVideoTracks()[0];
+        peerConnectionObjArr.forEach((peerConnection) => {
+          console.log('peerConnection', peerConnection);
+          const peerVideoSender = peerConnection
+            .getSenders()
+            .find((sender) => sender.track.kind === "video");
+          peerVideoSender.replaceTrack(newVideoTrack);
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  } 
+  const shareBtn = document.querySelector("#shareBtn");
+  const myFaceBtn = document.querySelector("#myFaceBtn");
+  shareBtn.addEventListener("click", handleScreenSharing);
+  myFaceBtn.addEventListener("click", closeScreenSharing);
   function handleMuteClick() {
     myStream //
       .getAudioTracks()
@@ -195,14 +237,19 @@ const Overworld = (data) => {
   // const unCameraIcon = cameraBtn.querySelector("#camera_off");
   muteBtn.addEventListener("click", handleMuteClick);
   cameraBtn.addEventListener("click", handleCameraClick);
+  
+  var displayMediaOptions = {
+    video: {
+      cursor: "always"
+    },
+    audio: false
+  };
 
-
-  async function getMedia() {
+  async function getMedia(sharing) {
     const myFace = document.querySelector("#myFace");
     const camBtn = document.querySelector("#camBtn");
     camBtn.style.display = "block";
-
-    try {
+    if (!sharing) {
       myStream = await navigator.mediaDevices.getUserMedia(cameraConstraints);
       console.log("mystream", myStream);
       // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
@@ -212,10 +259,19 @@ const Overworld = (data) => {
       myStream // mute default
         .getAudioTracks()
         .forEach((track) => (track.enabled = false));
+          
+    } else {
+      myStream = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
+      console.log("mystream", myStream);
+      // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
+      myFace.srcObject = myStream;
+      myFace.muted = true;
 
-    } catch (err) {
-      console.log(err);
+      myStream // mute default
+        .getAudioTracks()
+        .forEach((track) => (track.enabled = false));
     }
+
   }
 
   async function initCall() {
@@ -223,7 +279,7 @@ const Overworld = (data) => {
     // call.classList.remove(HIDDEN_CN); // HTML 관련 코드
     console.log("initCall 함수");
     try {
-      await getMedia(); // Room.js에 들어있음
+      await getMedia(false); // Room.js에 들어있음
     } catch (err) {
       console.log(err);
     }

@@ -62,6 +62,11 @@ const CamBtn = styled.div`
   display: none;
 `;
 
+const screenSharing = styled.div`
+  display: block;
+`;
+
+
 const Room = ({ userData }) => {
   const params = useParams();
   const roomId = params.roomId;
@@ -117,6 +122,10 @@ const Room = ({ userData }) => {
           <button id="playerCamera">camera on</button>
           <button id="playerMute">mute</button>
         </CamBtn>
+        <screenSharing id="screenSharing">
+          <button id="shareBtn">Share</button>
+          <button id="myFaceBtn">myFace</button>
+        </screenSharing>
       </MyVideoBox>
     </>
   );
