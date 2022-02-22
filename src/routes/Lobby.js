@@ -303,17 +303,23 @@ const Lobby = ({ userData }) => {
     //     setIsLoading(false);
     //   }
     // };
-
     // userDataUpdate();
-    userData
-      .then((data) => {
-        setIsSaveUserData(data);
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        // alert("토큰이 만료됐습니다.");
-        navigate("/");
-      });
+    // const getUser = async () => {
+    //   try {
+    //     await userData
+    //       .then((data) => {
+    //         setIsSaveUserData(data);
+    //         setIsLoading(false);
+    //       })
+    //       .catch((err) => {
+    //         // alert("토큰이 만료됐습니다.");
+    //         navigate("/");
+    //       });
+    //   } catch (e) {
+    //     console.log(e);
+    //   }
+    // };
+    // getUser();
   }, []);
 
   const onSearchChange = (e) => {

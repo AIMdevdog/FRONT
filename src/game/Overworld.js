@@ -552,21 +552,6 @@ const Overworld = (data) => {
             utils.withGrid(ctx.canvas.clientWidth / 16 / 2) -
             cameraPerson.x +
             "px";
-
-          // ctx.fillStyle = "rgb(255, 255, 255)";
-          // ctx.font = "14px bold";
-          // ctx.textAlign = "center";
-          // ctx.fillText(
-          //   `${object.nickname}`,
-          // object.x +
-          //   8 +
-          //   utils.withGrid(ctx.canvas.clientWidth / 16 / 2) -
-          //   cameraPerson.x,
-          //   object.y -
-          //     8 +
-          //     utils.withGrid(ctx.canvas.clientHeight / 16 / 2) -
-          //     cameraPerson.y
-          // );
         });
 
       if (player) {
