@@ -60,6 +60,8 @@ const MyVideo = styled.video`
 
 const CamBtn = styled.div`
   display: none;
+  position: relative;
+  bottom: 25px;
 `;
 
 const Room = ({ userData }) => {
@@ -93,7 +95,7 @@ const Room = ({ userData }) => {
           {
             x: 16,
             y: 448,
-            url: `http://localhost:3000/room1/${roomId}`,
+            url: `http://localhost:3000/room3/${roomId}`,
             // url: "/room1",
           },
         ],

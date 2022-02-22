@@ -13,6 +13,7 @@ export class Person extends GameObject {
     };
     this.isUserCalling = false;
     this.isUserJoin = false;
+    this.angle = 1;
   }
 
   update(state) {
@@ -60,10 +61,127 @@ export class Person extends GameObject {
 
   updateSprite() {
     if (this.movingProgressRemaining > 0) {
-      this.sprite.setAnimation("walk-" + this.direction);
+      if (this.angle === 1) {
+        this.sprite.setAnimation("walk-" + this.direction);
+      } else if (this.angle === 2) {
+        switch (this.direction) {
+          case "up":
+            this.sprite.setAnimation("walk-" + "left");
+            // this.direction = "right"
+            break;
+          case "down":
+            this.sprite.setAnimation("walk-" + "right");
+            // this.direction = "left"
+            break;
+          case "right":
+            this.sprite.setAnimation("walk-" + "up");
+            // this.direction = "down"
+            break;
+          case "left":
+            this.sprite.setAnimation("walk-" + "down");
+            // this.direction = "up"
+            break;
+        }
+      } else if (this.angle === 3) {
+        switch (this.direction) {
+          case "up":
+            this.sprite.setAnimation("walk-" + "down");
+            // this.direction = "right"
+            break;
+          case "down":
+            this.sprite.setAnimation("walk-" + "up");
+            // this.direction = "left"
+            break;
+          case "right":
+            this.sprite.setAnimation("walk-" + "left");
+            // this.direction = "down"
+            break;
+          case "left":
+            this.sprite.setAnimation("walk-" + "right");
+            // this.direction = "up"
+            break;
+        }
+      } else if (this.angle === 4) {
+        switch (this.direction) {
+          case "up":
+            this.sprite.setAnimation("walk-" + "right");
+            // this.direction = "right"
+            break;
+          case "down":
+            this.sprite.setAnimation("walk-" + "left");
+            // this.direction = "left"
+            break;
+          case "right":
+            this.sprite.setAnimation("walk-" + "down");
+            // this.direction = "down"
+            break;
+          case "left":
+            this.sprite.setAnimation("walk-" + "up");
+            // this.direction = "up"
+            break;
+        }
+      }
       return;
     }
-
-    this.sprite.setAnimation("idle-" + this.direction);
+    if (this.angle === 1) {
+      this.sprite.setAnimation("idle-" + this.direction);
+    } else if(this.angle === 2) {
+      switch (this.direction) {
+        case "up":
+          this.sprite.setAnimation("idle-" + "left");
+          // this.direction = "right"
+          break;
+        case "down":
+          this.sprite.setAnimation("idle-" + "right");
+          // this.direction = "left"
+          break;
+        case "right":
+          this.sprite.setAnimation("idle-" + "up");
+          // this.direction = "down"
+          break;
+        case "left":
+          this.sprite.setAnimation("idle-" + "down");
+          // this.direction = "up"
+          break;
+      }
+    } else if(this.angle === 3) {
+      switch (this.direction) {
+        case "up":
+          this.sprite.setAnimation("idle-" + "down");
+          // this.direction = "right"
+          break;
+        case "down":
+          this.sprite.setAnimation("idle-" + "up");
+          // this.direction = "left"
+          break;
+        case "right":
+          this.sprite.setAnimation("idle-" + "left");
+          // this.direction = "down"
+          break;
+        case "left":
+          this.sprite.setAnimation("idle-" + "right");
+          // this.direction = "up"
+          break;
+      }
+    } else if(this.angle === 4) {
+      switch (this.direction) {
+        case "up":
+          this.sprite.setAnimation("idle-" + "right");
+          // this.direction = "right"
+          break;
+        case "down":
+          this.sprite.setAnimation("idle-" + "left");
+          // this.direction = "left"
+          break;
+        case "right":
+          this.sprite.setAnimation("idle-" + "down");
+          // this.direction = "down"
+          break;
+        case "left":
+          this.sprite.setAnimation("idle-" + "up");
+          // this.direction = "up"
+          break;
+      }
+    }
   }
 }

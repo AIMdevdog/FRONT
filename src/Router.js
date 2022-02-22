@@ -3,15 +3,14 @@ import Home from "./routes/Home";
 import SignUp from "./routes/Signup";
 import SignIn from "./routes/SignIn";
 import Lobby from "./routes/Lobby";
-import Header from "./components/Header";
 import Room from "./routes/Room";
 import Room1 from "./routes/Room1";
 import SimpleSlider from "./components/CharacterSlider";
 import React from "react";
-import { useLocation } from "react-router";
+import Room2 from "./routes/Room2";
+import Room3 from "./routes/Room3";
 
 export const Router = () => {
-  // const location = useLocation();
   return (
     <BrowserRouter>
       <Routes>
@@ -21,6 +20,8 @@ export const Router = () => {
         <Route path="/lobby" element={<Lobby />} />
         <Route path="/room/:roomId" element={<Room />} />
         <Route path="/room1/:roomId" element={<Room1 />} />
+        <Route path="/room2/:roomId" element={<Room2 />} />
+        <Route path="/room3/:roomId" element={<Room3 />} />
         <Route path="/slider" element={<SimpleSlider />} />
       </Routes>
     </BrowserRouter>

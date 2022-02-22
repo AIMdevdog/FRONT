@@ -1,9 +1,9 @@
 import { Suspense, useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { connect } from "react-redux";
-import Overworld from "../game/Overworld";
+import Overworld3 from "../game/Overworld3";
 import { Person } from "../game/Person";
-import Gallery1 from "../components/Gallery1";
+import Gallery3 from "../components/Gallery3";
 import styled from "styled-components";
 import LoadingComponent from "../components/Loading";
 import RoomSideBar from "../components/RoomSidebar";
@@ -11,56 +11,85 @@ import { user } from "../config/api";
 
 const pexel = (id) =>
   `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260`;
+const GOLDENRATIO = 1.61803398875;
+
 const images = [
-  // Front
+  // left
   {
-    position: [0, 0, 2.75],
-    rotation: [0, 0, 0],
+    position: [-3.5 * GOLDENRATIO + 1, 0, 5 * GOLDENRATIO],
+    rotation: [0, Math.PI / 2, 0],
     url: "https://www.comedywildlifephoto.com/images/wysiwyg/images/2020_winners/mark_fitzpatrick.jpg",
   },
-  // Back
   {
-    position: [3, 0, 2.75],
-    rotation: [0, 0, 0],
+    position: [-3.5 * GOLDENRATIO + 1, 0, 0],
+    rotation: [0, Math.PI / 2, 0],
     url: pexel(416430)
   },
   {
-    position: [6, 0, 2.75],
-    rotation: [0, 0, 0],
+    position: [-3.5 * GOLDENRATIO + 1, 0, -5 * GOLDENRATIO],
+    rotation: [0, Math.PI / 2, 0],
     url: pexel(310452)
   },
-  // Left
   {
-    position: [-3, 0, 2.75],
-    rotation: [0, 0, 0],
+    position: [-3.5 * GOLDENRATIO + 1, 0, -10 * GOLDENRATIO],
+    rotation: [0, Math.PI / 2, 0],
+    url: pexel(911738),
+  },
+  {
+    position: [-3.5 * GOLDENRATIO + 1, 0, -15 * GOLDENRATIO],
+    rotation: [0, Math.PI / 2, 0],
+    url: "https://www.comedywildlifephoto.com/images/wysiwyg/00000048/jan-piecha_chinese-whispers.jpg",
+  },
+  // Right
+  {
+    position: [3.5 * GOLDENRATIO, 0, 5 * GOLDENRATIO],
+    rotation: [0, -Math.PI / 2, 0],
     url: pexel(327482),
   },
   {
-    position: [-6, 0, 2.75],
-    rotation: [0, 0, 0],
+    position: [3.5 * GOLDENRATIO, 0, 0],
+    rotation: [0, -Math.PI / 2, 0],
     url: pexel(325185),
   },
-  // {
-  //   position: [-2, 0, 2.75],
-  //   rotation: [0, Math.PI / 2.5, 0],
-  //   url: pexel(358574),
-  // },
-  // // Right
-  // {
-  //   position: [1.75, 0, 0.25],
-  //   rotation: [0, -Math.PI / 2.5, 0],
-  //   url: pexel(227675),
-  // },
-  // {
-  //   position: [2.15, 0, 1.5],
-  //   rotation: [0, -Math.PI / 2.5, 0],
-  //   url: pexel(911738),
-  // },
-  // {
-  //   position: [2, 0, 2.75],
-  //   rotation: [0, -Math.PI / 2.5, 0],
-  //   url: pexel(1738986),
-  // },
+  {
+    position: [3.5 * GOLDENRATIO, 0, -5 * GOLDENRATIO],
+    rotation: [0, -Math.PI / 2, 0],
+    url: pexel(358574),
+  },
+  // BACK left
+  {
+    position: [-1.6, 0, -15 * GOLDENRATIO - 3.0],
+    rotation: [0, 0, 0],
+    url: pexel(227675),
+  },
+  {
+    position: [5 * GOLDENRATIO- 1.6, 0, -15 * GOLDENRATIO - 3.0],
+    rotation: [0, 0, 0],
+    url: pexel(1738986),
+  },
+  {
+    position: [10 * GOLDENRATIO - 1.6, 0, -15 * GOLDENRATIO - 3.0],
+    rotation: [0, 0, 0],
+    url: "https://www.comedywildlifephoto.com/images/wysiwyg/images/2020_winners/ayala-fishaimer_tough-negotiations_00003485.jpg",
+  },
+  //BACK right
+  {
+    position: [2.6 + 5 * GOLDENRATIO, 0, -8 * GOLDENRATIO - 0.2],
+    rotation: [0, Math.PI, 0],
+    url: "https://www.comedywildlifephoto.com/images/wysiwyg/00000048/john-speirs_i-guess-summers-over.jpg",
+  },
+  {
+    position: [2.6 + 10 * GOLDENRATIO, 0, -8 * GOLDENRATIO - 0.2],
+    rotation: [0, Math.PI, 0],
+    url: "https://www.comedywildlifephoto.com/images/wysiwyg/00000048/david-eppley_majestic-and-graceful-bald-eagle.jpg",
+  },
+  //ceil
+  {
+    position: [0, 4.2, -5],
+    rotation: [-Math.PI / 2, 0, 0],
+    url: "https://www.comedywildlifephoto.com/images/wysiwyg/00000048/vicki-jauron_joy-of-a-mud-bath.jpg",
+    ceil: "ceil",
+  },
 ];
 
 
@@ -134,17 +163,17 @@ const ThreeCanvas = styled.div`
   //  }
 `;
 
-const Room1 = ({ userData }) => {
+const Room3 = ({ userData }) => {
   const params = useParams();
   const roomId = params.roomId;
   const [isLoading, setIsLoading] = useState(false);
   const [cameraPosition, setCameraPosition] = useState(0);
   const [yCameraPosition, setYCameraPosition] = useState(0);
   const downHandler = (e) => {
-    switch(e.key){
+    switch (e.key) {
       case "x" || "X" || "ㅌ":
         window.location.replace(`/room/${roomId}`);
-        // navigator(`/room/${roomId}`);
+      // navigator(`/room/${roomId}`);
     }
   }
   // const upHandler = () => {
@@ -161,7 +190,7 @@ const Room1 = ({ userData }) => {
   }, []);
   useEffect(() => {
     userData.then((data) => {
-      Overworld({
+      Overworld3({
         config: document.querySelector(".game-container"),
         mainContainer: document.querySelector(".mainContainer"),
         nickname: data.nickname,
@@ -170,7 +199,7 @@ const Room1 = ({ userData }) => {
         Room: {
           RoomSrc: null,
           id: 123,
-          roomNum: 1,
+          roomNum: 3,
           roomId: roomId,
           gameObjects: {
             player: new Person({
@@ -197,7 +226,6 @@ const Room1 = ({ userData }) => {
         ],
       });
     });
-    // overworld.init();
   }, []);
 
   useEffect(() => {
@@ -210,18 +238,26 @@ const Room1 = ({ userData }) => {
     }, 3000);
     loadingFn();
   }, []);
-
   return (
-    <div className="mainContainer" style={{ height: "90vh", backgroundColor: "black" }}>
+    <div className="mainContainer" style={{ display: "flex", backgroundColor: "#191920" }}>
       {isLoading && <LoadingComponent background={true} />}
-      <ThreeCanvas>
+      <ThreeCanvas className="gallery">
         <Suspense fallback={null}>
-          <Gallery1 images={images} roomId={roomId} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition}/>
+          <Gallery3 images={images} roomId={roomId} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
         </Suspense>
       </ThreeCanvas>
-      <div style={{ display: "flex" }}>
-        <RoomSideBar />
-        <div className="game-container" style={{ backgroundColor: "#191920" }}>
+      <RoomSideBar />
+      <div style={{
+        display: "flex", justifyContent: "center",
+        position: "fixed",
+        bottom: "10%",
+        left: "50%",
+        transform: "translateX(-50%)",
+        alignItems: "center",
+        backgroundColor: "rgb(19,19,20, 0)"
+      }}>
+
+        <div className="game-container" style={{ backgroundColor: "rgb(19,19,20, 0)" }}>
           <canvas className="game-canvas"></canvas>
         </div>
       </div>
@@ -243,4 +279,4 @@ function mapStateProps(state) {
   }
 }
 
-export default connect(mapStateProps)(Room1);
+export default connect(mapStateProps)(Room3);

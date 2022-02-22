@@ -1,3 +1,4 @@
+import { context } from "@react-three/fiber";
 import { FaThemeisle } from "react-icons/fa";
 import utils from "./utils.js";
 export class Sprite {
@@ -65,6 +66,8 @@ export class Sprite {
     this.yaxios = 0;
     this.yratio = 1;
 
+    this.isRotated = false;
+
 
   }
 
@@ -109,7 +112,7 @@ export class Sprite {
     this.isShadowLoaded && ctx.drawImage(this.shadow, x, y);
 
     const [frameX, frameY] = this.frame;
-    this.isLoaded &&
+    this.isLoaded && !this.isRotated &&
       // ctx.drawImage(this.image, frameX * 32, frameY * 32, 32, 32, x, y, 32, 32);
       ctx.drawImage(this.image, frameX * 32, frameY * 64, 32, 64, x, y, 32, 64);
 

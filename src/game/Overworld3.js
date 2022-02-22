@@ -18,7 +18,7 @@ let peopleInRoom = 1;
 const characters = [];
 const charMap = {};
 
-const Overworld = (data) => {
+const Overworld3 = (data) => {
   const config = data.config;
   const nickname = data.nickname;
   const element = config;
@@ -30,34 +30,121 @@ const Overworld = (data) => {
   };
 
   const map = new OverworldMap(data.Room);
-  if (map.roomNum === 1) {
-    config.style.display = "relative";
-    // config.style.right = "100px";
-  }
   const adjustValue = data.adjust;
   const otherMaps = data.otherMaps;
   const directionInput = new DirectionInput();
   directionInput.init();
-  let roomId;
-  if (map.roomNum === 0) {
-    roomId = "room" + map.roomId
-  } else if (map.roomNum === 1) {
-    roomId = "room1" + map.roomId
-  }
-  let rotated = false;
+  let roomId = "room" + map.roomId
+  let prevAngle = 1;
+  let rotationAngle = 1;
+
 
   const socket = io(_const.HOST);
   let closer = [];
 
-  // data 안에 소켓id, nickname 있음
-  // data for문 돌면서 isUserCalling checking 혹은..
-  // [PASS] 2명+3명 그룹 합쳐질 때 그룹 통화중이라는 것을 표시해둬야 함 / 변수 하나 더 추가 true, false 체크
 
-  // function sortStreams() {
-  //   const streams = document.querySelector("#streams");
-  //   const streamArr = streams.querySelectorAll("div");
-  //   streamArr.forEach((stream) => (stream.className = `people${peopleInRoom}`));
-  // }
+
+
+  const cameraRotate = (e) => {
+    switch (e.key) {
+      case "e" || "E" || "ㄷ":
+        rotationAngle += 1;
+        if (rotationAngle > 4) {
+          rotationAngle = 1;
+        }
+        characterRotate(rotationAngle);
+        break;
+      case "q" || "Q" || "ㅂ":
+        rotationAngle -= 1;
+        if (rotationAngle < 1) {
+          rotationAngle = 4;
+        }
+        characterRotate(rotationAngle);
+        break;
+    }
+  };
+
+  const characterRotate = (angle) => {
+    const player = charMap[socket.id];
+    switch (angle) {
+      case 1:
+        player.angle = 1;
+        directionInput.heldDirections = [];
+        directionInput.map = {
+          ArrowUp: "up",
+          ArrowDown: "down",
+          ArrowLeft: "left",
+          ArrowRight: "right",
+        };
+        if(prevAngle === 4){
+          player.x -= 320;
+          player.y += 384;
+        }else if(prevAngle === 2){
+          player.x += 192;
+          player.y += 384;
+        }
+        prevAngle = angle;
+        break;
+      case 2:
+        player.angle = 2;
+        directionInput.heldDirections = [];
+        directionInput.map = {
+          ArrowUp: "right",
+          ArrowDown: "left",
+          ArrowLeft: "up",
+          ArrowRight: "down",
+        };
+        if(prevAngle === 1){
+          player.x -= 192;
+          player.y -= 384;
+        }else if(prevAngle === 3){
+          player.x -= 266;
+          player.y += 384;
+        }
+        prevAngle = angle;
+        break;
+      case 3:
+        player.angle = 3;
+        directionInput.heldDirections = [];
+        directionInput.map = {
+          ArrowUp: "down",
+          ArrowDown: "up",
+          ArrowLeft: "right",
+          ArrowRight: "left",
+        };
+        if(prevAngle === 2){
+          player.x += 266;
+          player.y -= 384;
+        }else if(prevAngle === 4){
+          player.x -= 246;
+          player.y -= 384;
+        }
+        prevAngle = angle;
+        break;
+      case 4:
+        player.angle = 4;
+        directionInput.heldDirections = [];
+        directionInput.map = {
+          ArrowUp: "left",
+          ArrowDown: "right",
+          ArrowLeft: "down",
+          ArrowRight: "up",
+        };
+        if(prevAngle === 3){
+          player.x += 246;
+          player.y += 384;
+        }else if(prevAngle === 1){
+          player.x += 320;
+          player.y -= 384;
+        }
+        prevAngle = angle;
+        break;
+    }
+  }
+
+
+  document.addEventListener("keydown", cameraRotate);
+
 
   async function handleAddStream(event, remoteSocketId, remoteNickname) {
     const peerStream = event.stream;
@@ -199,11 +286,7 @@ const Overworld = (data) => {
   }
 
   const muteBtn = document.querySelector("#playerMute");
-  // const muteIcon = muteBtn.querySelector(".muteIcon");
-  // const unMuteIcon = muteBtn.querySelector(".unMuteIcon");
   const cameraBtn = document.querySelector("#playerCamera");
-  // const cameraIcon = cameraBtn.querySelector("#camera_on");
-  // const unCameraIcon = cameraBtn.querySelector("#camera_off");
   muteBtn.addEventListener("click", handleMuteClick);
   cameraBtn.addEventListener("click", handleCameraClick);
 
@@ -374,17 +457,9 @@ const Overworld = (data) => {
   const startGameLoop = () => {
     const step = () => {
       //Clear off the canvas
-      if (map.roomNum === 0) {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-      }else if( map.roomNum === 1){
-        canvas.width = window.innerWidth;
-        canvas.height = 200;
-      } else {
-        canvas.width = 70;
-        canvas.height = 80;
-        data.mainContainer.style.height = window.innerHeight + "px";
-      }
+      canvas.width = 70;
+      canvas.height = 80;
+      data.mainContainer.style.height = window.innerHeight + "px";
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -486,23 +561,6 @@ const Overworld = (data) => {
             object.y - 8 + utils.withGrid(ctx.canvas.clientHeight / 16 / 2) - cameraPerson.y
           );
         });
-
-      // console.log(player?.y);
-      // if (map.roomNum === 3 && rotated && player?.y < -696) {
-      //   player.isRotated = true;
-      //   directionInput.heldDirections = [];
-      //   directionInput.map = { 
-      //     ArrowUp: "right",
-      //     // KeyW: "up",
-      //     ArrowDown: "left",
-      //     // KeyS: "down",
-      //     ArrowLeft: "up",
-      //     // KeyA: "left",
-      //     ArrowRight: "down",
-      //     // KeyD: "right",
-      //   };
-      //   rotated = true; 
-      // }
       if (player) {
         const data = {
           id: socket.id,
@@ -512,6 +570,7 @@ const Overworld = (data) => {
         };
         socket.emit("input", data);
       }
+      // console.log("[x,y]: [", player?.x, player?.y, "]");
 
       //Draw Upper layer
       // this.map.drawUpperImage(this.ctx, cameraPerson);
@@ -560,6 +619,12 @@ const Overworld = (data) => {
     character.sprite.xaxios = adjustValue.xaxios;
     character.sprite.yaxios = adjustValue.yaxios;
     character.sprite.yratio = adjustValue.yratio;
+    character.directionUpdate = {
+      up: ["y", -4],
+      down: ["y", 4],
+      left: ["x", -4],
+      right: ["x", 4],
+    };
     characters.push(character);
     charMap[id] = character;
     return character;
@@ -587,4 +652,4 @@ const Overworld = (data) => {
   startGameLoop();
 };
 
-export default Overworld;
+export default Overworld3;

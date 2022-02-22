@@ -3,7 +3,7 @@ import { useParams } from "react-router";
 import { connect } from "react-redux";
 import Overworld from "../game/Overworld";
 import { Person } from "../game/Person";
-import Gallery1 from "../components/Gallery1";
+import Gallery2 from "../components/Gallery2";
 import styled from "styled-components";
 import LoadingComponent from "../components/Loading";
 import RoomSideBar from "../components/RoomSidebar";
@@ -14,14 +14,15 @@ const pexel = (id) =>
 const images = [
   // Front
   {
-    position: [0, 0, 2.75],
+    position: [0, 0, 2.5],
     rotation: [0, 0, 0],
     url: "https://www.comedywildlifephoto.com/images/wysiwyg/images/2020_winners/mark_fitzpatrick.jpg",
+    center: "center",
   },
   // Back
   {
-    position: [3, 0, 2.75],
-    rotation: [0, 0, 0],
+    position: [2.5, 0.1, 3.25],
+    rotation: [0, -Math.PI / 4, 0],
     url: pexel(416430)
   },
   {
@@ -31,8 +32,8 @@ const images = [
   },
   // Left
   {
-    position: [-3, 0, 2.75],
-    rotation: [0, 0, 0],
+    position: [-2.5, 0.1, 3.25],
+    rotation: [0, Math.PI / 4, 0],
     url: pexel(327482),
   },
   {
@@ -134,17 +135,17 @@ const ThreeCanvas = styled.div`
   //  }
 `;
 
-const Room1 = ({ userData }) => {
+const Room2 = ({ userData }) => {
   const params = useParams();
   const roomId = params.roomId;
   const [isLoading, setIsLoading] = useState(false);
   const [cameraPosition, setCameraPosition] = useState(0);
   const [yCameraPosition, setYCameraPosition] = useState(0);
   const downHandler = (e) => {
-    switch(e.key){
+    switch (e.key) {
       case "x" || "X" || "ㅌ":
         window.location.replace(`/room/${roomId}`);
-        // navigator(`/room/${roomId}`);
+      // navigator(`/room/${roomId}`);
     }
   }
   // const upHandler = () => {
@@ -170,7 +171,7 @@ const Room1 = ({ userData }) => {
         Room: {
           RoomSrc: null,
           id: 123,
-          roomNum: 1,
+          roomNum: 2,
           roomId: roomId,
           gameObjects: {
             player: new Person({
@@ -212,16 +213,24 @@ const Room1 = ({ userData }) => {
   }, []);
 
   return (
-    <div className="mainContainer" style={{ height: "90vh", backgroundColor: "black" }}>
+    <div className="mainContainer" style={{backgroundColor: "#191920" }}>
       {isLoading && <LoadingComponent background={true} />}
       <ThreeCanvas>
         <Suspense fallback={null}>
-          <Gallery1 images={images} roomId={roomId} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition}/>
+          <Gallery2 images={images} roomId={roomId} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
         </Suspense>
       </ThreeCanvas>
-      <div style={{ display: "flex" }}>
-        <RoomSideBar />
-        <div className="game-container" style={{ backgroundColor: "#191920" }}>
+      <RoomSideBar />
+      <div style={{
+        display: "flex", justifyContent: "center",
+        position: "fixed",
+        bottom: "10%",
+        left: "50%",
+        transform: "translateX(-50%)",
+        alignItems: "center",
+        backgroundColor: "rgb(19,19,20, 0)"
+      }}>
+        <div className="game-container" style={{ backgroundColor: "rgb(19,19,20, 0)"}}>
           <canvas className="game-canvas"></canvas>
         </div>
       </div>
@@ -243,4 +252,4 @@ function mapStateProps(state) {
   }
 }
 
-export default connect(mapStateProps)(Room1);
+export default connect(mapStateProps)(Room2);
