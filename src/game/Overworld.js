@@ -374,14 +374,14 @@ const Overworld = (data) => {
 
   socket.on("ice", async (ice, remoteSocketId, remoteNickname) => {
     await pcObj[remoteSocketId].addIceCandidate(ice);
-    const state = pcObj[remoteSocketId].iceConnectionState;
-    if (state === "failed" || state === "closed") {
-      const newPC = await createConnection(remoteSocketId, remoteNickname);
-      const offer = await newPC.createOffer();
-      await newPC.setLocalDescription(offer);
-      socket.emit("offer", offer, remoteSocketId, remoteNickname);
-      console.log("iceCandidate 실패! 재연결 시도");
-    }
+    // const state = pcObj[remoteSocketId].iceConnectionState;
+    // if (state === "failed" || state === "closed") {
+    //   const newPC = await createConnection(remoteSocketId, remoteNickname);
+    //   const offer = await newPC.createOffer();
+    //   await newPC.setLocalDescription(offer);
+    //   socket.emit("offer", offer, remoteSocketId, remoteNickname);
+    //   console.log("iceCandidate 실패! 재연결 시도");
+    // }
   });
 
   let nicknameDiv;
