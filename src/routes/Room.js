@@ -1,14 +1,20 @@
-import { useEffect} from "react";
+import { useEffect } from "react";
 import { useLocation, useParams } from "react-router";
 import Overworld from "../game/Overworld";
 import { Person } from "../game/Person";
 import React from "react";
-import Aside from "../components/Mainside";
+import {
+  FaVideoSlash,
+  FaVideo,
+  FaVolumeUp,
+  FaVolumeMute,
+  FaVolumeOff,
+} from "react-icons/fa";
 import RoomSideBar from "../components/RoomSidebar";
-import Header from "../components/Header";
-
 import styled from "styled-components";
+import VideoButton from "../components/VideoButton";
 import { connect } from "react-redux";
+import ScreenBottomBar from "../components/ScreenBottomBar";
 
 const StreamsContainer = styled.div`
   position: fixed;
@@ -47,6 +53,10 @@ const MyVideoBox = styled.div`
   bottom: 20px;
   width: 200px;
   z-index: 99;
+  border-radius: 10px;
+  &:hover {
+    cursor: pointer;
+  }
 `;
 
 const MyVideo = styled.video`
@@ -59,9 +69,47 @@ const MyVideo = styled.video`
 `;
 
 const CamBtn = styled.div`
-  display: none;
+  /* display: none;
   position: relative;
-  bottom: 25px;
+  justify-content: space-between;
+  padding: 0 20px; */
+  padding: 0 20px;
+  width: 100%;
+  position: absolute;
+  display: flex;
+  height: 98%;
+  right: 0;
+  top: 0;
+  background: black;
+  border-radius: 10px;
+  opacity: 0;
+  &:hover {
+    opacity: 0.8;
+  }
+
+  button {
+    position: absolute;
+    /* width: 40%;
+    bottom: 10px; */
+    border-radius: 50%;
+    /* border: 1px solid red; */
+    background-color: transparent;
+
+    &:hover {
+      cursor: pointer;
+      opacity: 0.5;
+    }
+  }
+
+  .voice-feature {
+    left: 50%;
+  }
+`;
+
+const CharacterNickname = styled.div`
+  span {
+    color: white;
+  }
 `;
 
 const Room = ({ userData }) => {
@@ -73,7 +121,8 @@ const Room = ({ userData }) => {
         config: document.querySelector(".game-container"),
         nickname: data.nickname || "ANON",
         Room: {
-          RoomSrc: "https://aim-image-storage.s3.ap-northeast-2.amazonaws.com/map2.png",
+          RoomSrc:
+            "https://aim-image-storage.s3.ap-northeast-2.amazonaws.com/map2.png",
           roomId,
           roomNum: 0,
           gameObjects: {
@@ -82,7 +131,9 @@ const Room = ({ userData }) => {
               isPlayerControlled: true,
               x: 80,
               y: 80,
-              src: data.character || "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png",
+              src:
+                data.character ||
+                "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png",
             }),
           },
         },
@@ -102,7 +153,7 @@ const Room = ({ userData }) => {
       });
       // overworld.init();
     });
-  })
+  });
 
   return (
     <>
@@ -110,16 +161,19 @@ const Room = ({ userData }) => {
         <RoomSideBar />
         <div className="game-container" style={{ backgroundColor: "black" }}>
           <canvas className="game-canvas"></canvas>
+          <CharacterNickname className="nickname">
+            {/* <span className="nickname"></span> */}
+          </CharacterNickname>
         </div>
       </div>
       <StreamsContainer id="streams"></StreamsContainer>
       <MyVideoBox>
         <MyVideo id="myFace" autoPlay="autoplay"></MyVideo>
         <CamBtn id="camBtn">
-          <button id="playerCamera">camera on</button>
-          <button id="playerMute">mute</button>
+          <VideoButton />
         </CamBtn>
       </MyVideoBox>
+      <ScreenBottomBar />
     </>
   );
 };
@@ -127,7 +181,7 @@ const Room = ({ userData }) => {
 function mapStateProps(state) {
   return {
     userData: state,
-  }
+  };
 }
 
 export default connect(mapStateProps)(Room);

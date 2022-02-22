@@ -622,6 +622,25 @@ const Header = ({ isSaveUserData, setIsSaveUserData }) => {
     isLogged();
   }, [isPath]);
 
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const requestUserData = await user.getUserInfo();
+        const {
+          data: { result },
+        } = requestUserData;
+        if (result) {
+          // alert(msg);
+          setIsSaveUserData(result);
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    getUser();
+  }, []);
+
   const onClickLogo = () => {
     if (session) {
       navigate("/lobby");

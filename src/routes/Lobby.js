@@ -48,7 +48,7 @@ const TabButton = styled.button`
 
   span {
     /* color: ${(props) =>
-    !props.room ? "rgb(84, 92, 143)" : "transparent"}; */
+      !props.room ? "rgb(84, 92, 143)" : "transparent"}; */
     color: rgb(255, 255, 255);
     font-family: "DM Sans", sans-serif;
     font-weight: 700;
@@ -283,19 +283,6 @@ const Lobby = ({ userData }) => {
     getRoom();
   }, []);
 
-  // 지워도 될듯
-  // useEffect(() => {
-  //   const getUserInfo = async () => {
-  //     try {
-  //       const session = cookies.get("access-token");
-  //       if (!session) return navigate("/");
-  //     } catch (e) {
-  //       console.log(e);
-  //     }
-  //   };
-  //   getUserInfo();
-  // }, []);
-
   useEffect(() => {
     // const userDataUpdate = async () => {
     //   try {
@@ -316,18 +303,23 @@ const Lobby = ({ userData }) => {
     //     setIsLoading(false);
     //   }
     // };
-
     // userDataUpdate();
-    userData
-      .then((data) => {
-        setIsSaveUserData(data);
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        alert("토큰이 만료됐습니다.");
-        navigate("/");
-      });
-
+    // const getUser = async () => {
+    //   try {
+    //     await userData
+    //       .then((data) => {
+    //         setIsSaveUserData(data);
+    //         setIsLoading(false);
+    //       })
+    //       .catch((err) => {
+    //         // alert("토큰이 만료됐습니다.");
+    //         navigate("/");
+    //       });
+    //   } catch (e) {
+    //     console.log(e);
+    //   }
+    // };
+    // getUser();
   }, []);
 
   const onSearchChange = (e) => {
@@ -474,7 +466,7 @@ const Lobby = ({ userData }) => {
 function mapStateToProps(state) {
   return {
     userData: state,
-  }
+  };
 }
 
 export default connect(mapStateToProps)(Lobby);

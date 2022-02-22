@@ -12,6 +12,13 @@ const instance = axios.create({
 
 const cookies = new Cookies();
 
+instance.defaults.headers.common["Content-Type"] =
+  "application/x-www-form-urlencoded";
+instance.defaults.headers.common["Access-Control-Allow-Origin"] =
+  "http://localhost:8000";
+instance.defaults.headers.common["Access-Control-Allow-Headers"] = "*";
+instance.defaults.headers.common["Access-Control-Allow-Credentials"] = true;
+
 instance.interceptors.request.use(
   async (response) => {
     // response.headers.Authorization = "Bearer " + token;

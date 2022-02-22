@@ -1,6 +1,7 @@
 import { OverworldMap } from "./OverworldMap.js";
 import { DirectionInput } from "./DirectionInput.js";
 import { Person } from "./Person.js";
+import { FaVideo } from "react-icons/fa";
 import utils from "./utils.js";
 import io from "socket.io-client";
 import _const from "../config/const.js";
@@ -29,6 +30,8 @@ const Overworld = (data) => {
     video: true,
   };
 
+  const nicknameContainer = document.querySelector(".nickname");
+
   const map = new OverworldMap(data.Room);
   if (map.roomNum === 1) {
     config.style.display = "relative";
@@ -40,9 +43,9 @@ const Overworld = (data) => {
   directionInput.init();
   let roomId;
   if (map.roomNum === 0) {
-    roomId = "room" + map.roomId
+    roomId = "room" + map.roomId;
   } else if (map.roomNum === 1) {
-    roomId = "room1" + map.roomId
+    roomId = "room1" + map.roomId;
   }
   let rotated = false;
 
@@ -166,19 +169,56 @@ const Overworld = (data) => {
     }
   }
 
+  async function handleScreenSharing() {
+    try {
+      console.log("handleScreenSharing 실행");
+      await getMedia(true);
+      const peerConnectionObjArr = Object.values(pcObj);
+      if (peerConnectionObjArr.length > 0) {
+        const newVideoTrack = myStream.getVideoTracks()[0];
+        peerConnectionObjArr.forEach((peerConnection) => {
+          console.log("peerConnection", peerConnection);
+          const peerVideoSender = peerConnection
+            .getSenders()
+            .find((sender) => sender.track.kind === "video");
+          peerVideoSender.replaceTrack(newVideoTrack);
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async function closeScreenSharing() {
+    try {
+      console.log("closeScreenSharing 실행");
+      await getMedia(false);
+      const peerConnectionObjArr = Object.values(pcObj);
+      if (peerConnectionObjArr.length > 0) {
+        const newVideoTrack = myStream.getVideoTracks()[0];
+        peerConnectionObjArr.forEach((peerConnection) => {
+          console.log("peerConnection", peerConnection);
+          const peerVideoSender = peerConnection
+            .getSenders()
+            .find((sender) => sender.track.kind === "video");
+          peerVideoSender.replaceTrack(newVideoTrack);
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  const shareBtn = document.querySelector("#shareBtn");
+  const myFaceBtn = document.querySelector("#myFaceBtn");
+  shareBtn.addEventListener("click", handleScreenSharing);
+  myFaceBtn.addEventListener("click", closeScreenSharing);
+
   function handleMuteClick() {
     myStream //
       .getAudioTracks()
       .forEach((track) => (track.enabled = !track.enabled));
     if (muted) {
-      muteBtn.innerText = 'Unmute';
-      //   unMuteIcon.classList.remove(HIDDEN_CN);
-      //   muteIcon.classList.add(HIDDEN_CN);
       muted = false;
     } else {
-      muteBtn.innerText = 'Mute';
-      //   muteIcon.classList.remove(HIDDEN_CN);
-      //   unMuteIcon.classList.add(HIDDEN_CN);
       muted = true;
     }
   }
@@ -187,33 +227,32 @@ const Overworld = (data) => {
     myStream
       .getVideoTracks()
       .forEach((track) => (track.enabled = !track.enabled));
+
     if (cameraOff) {
-      // cameraIcon.classList.remove(HIDDEN_CN);
-      // unCameraIcon.classList.add(HIDDEN_CN);
-      cameraBtn.innerText = 'camera on';
       cameraOff = false;
     } else {
-      cameraBtn.innerText = 'camera off';
       cameraOff = true;
     }
   }
 
-  const muteBtn = document.querySelector("#playerMute");
-  // const muteIcon = muteBtn.querySelector(".muteIcon");
-  // const unMuteIcon = muteBtn.querySelector(".unMuteIcon");
   const cameraBtn = document.querySelector("#playerCamera");
-  // const cameraIcon = cameraBtn.querySelector("#camera_on");
-  // const unCameraIcon = cameraBtn.querySelector("#camera_off");
-  muteBtn.addEventListener("click", handleMuteClick);
+  const muteBtn = document.querySelector("#playerMute");
+
   cameraBtn.addEventListener("click", handleCameraClick);
+  muteBtn.addEventListener("click", handleMuteClick);
 
+  var displayMediaOptions = {
+    video: {
+      cursor: "always",
+    },
+    audio: false,
+  };
 
-  async function getMedia() {
+  async function getMedia(sharing) {
     const myFace = document.querySelector("#myFace");
     const camBtn = document.querySelector("#camBtn");
     camBtn.style.display = "block";
-
-    try {
+    if (!sharing) {
       myStream = await navigator.mediaDevices.getUserMedia(cameraConstraints);
       console.log("mystream", myStream);
       // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
@@ -223,9 +262,18 @@ const Overworld = (data) => {
       myStream // mute default
         .getAudioTracks()
         .forEach((track) => (track.enabled = false));
+    } else {
+      myStream = await navigator.mediaDevices.getDisplayMedia(
+        displayMediaOptions
+      );
+      console.log("mystream", myStream);
+      // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
+      myFace.srcObject = myStream;
+      myFace.muted = true;
 
-    } catch (err) {
-      console.log(err);
+      myStream // mute default
+        .getAudioTracks()
+        .forEach((track) => (track.enabled = false));
     }
   }
 
@@ -234,7 +282,7 @@ const Overworld = (data) => {
     // call.classList.remove(HIDDEN_CN); // HTML 관련 코드
     console.log("initCall 함수");
     try {
-      await getMedia(); // Room.js에 들어있음
+      await getMedia(false); // Room.js에 들어있음
     } catch (err) {
       console.log(err);
     }
@@ -327,23 +375,21 @@ const Overworld = (data) => {
 
   socket.on("answer", async (answer, remoteSocketId) => {
     await pcObj[remoteSocketId].setRemoteDescription(answer);
-
   });
 
   socket.on("ice", async (ice, remoteSocketId, remoteNickname) => {
     await pcObj[remoteSocketId].addIceCandidate(ice);
-    const state = pcObj[remoteSocketId].iceConnectionState;
-    if (state === "failed" || state === "closed") {
-      const newPC = await createConnection(
-        remoteSocketId,
-        remoteNickname
-      );
-      const offer = await newPC.createOffer();
-      await newPC.setLocalDescription(offer);
-      socket.emit("offer", offer, remoteSocketId, remoteNickname);
-      console.log("iceCandidate 실패! 재연결 시도");
-    }
+    // const state = pcObj[remoteSocketId].iceConnectionState;
+    // if (state === "failed" || state === "closed") {
+    //   const newPC = await createConnection(remoteSocketId, remoteNickname);
+    //   const offer = await newPC.createOffer();
+    //   await newPC.setLocalDescription(offer);
+    //   socket.emit("offer", offer, remoteSocketId, remoteNickname);
+    //   console.log("iceCandidate 실패! 재연결 시도");
+    // }
   });
+
+  let nicknameDiv;
 
   socket.on("join_user", function (data) {
     //====================  비디오 추가 함수 =================//
@@ -356,11 +402,32 @@ const Overworld = (data) => {
       nickname: nickname,
       roomId,
     });
-
+    // console.log(data);
   });
 
   socket.on("get_user_info", function (data) {
+    console.log(data);
     joinUser(data.id, data.x, data.y, data.nickname, data.src);
+
+    const cameraPerson = charMap[socket.id] || map.gameObjects.player;
+
+    console.log(cameraPerson);
+
+    nicknameDiv = document.createElement("div");
+    nicknameDiv.className = data.id;
+    nicknameDiv.innerHTML = nickname;
+
+    nicknameDiv.style.width = 100;
+    nicknameDiv.style.transform = "translateX(-40%)";
+    nicknameDiv.style.backgroundColor = "rgba(0, 0, 0, 0.6)";
+    nicknameDiv.style.padding = "6px";
+    nicknameDiv.style.borderRadius = "6px";
+    nicknameDiv.style.color = "white";
+    nicknameDiv.style.fontSize = "12px";
+    nicknameDiv.style.textAlign = "center";
+    nicknameDiv.style.position = "absolute";
+
+    nicknameContainer.appendChild(nicknameDiv);
   });
 
   socket.on("leave_user", function (data) {
@@ -377,7 +444,7 @@ const Overworld = (data) => {
       if (map.roomNum === 0) {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-      }else if( map.roomNum === 1){
+      } else if (map.roomNum === 1) {
         canvas.width = window.innerWidth;
         canvas.height = 200;
       } else {
@@ -395,7 +462,6 @@ const Overworld = (data) => {
       if (data.setCameraPosition) {
         data.setYCameraPosition(-cameraPerson.y / 80 - 3.5);
         data.setCameraPosition(-cameraPerson.x / 80 + 6);
-
       }
 
       //Update all objects
@@ -406,9 +472,7 @@ const Overworld = (data) => {
             if (object.x === otherMaps[i].x && object.y === otherMaps[i].y) {
               console.log("warp!!!");
               // console.log(object.sprite.image.src);
-              window.location.replace(
-                `${otherMaps[i].url}`
-              );
+              window.location.replace(`${otherMaps[i].url}`);
             }
           }
           object.update({
@@ -471,6 +535,8 @@ const Overworld = (data) => {
       //Draw Lower layer
       map.drawLowerImage(ctx, cameraPerson);
 
+      // console.log(charNickname);
+
       //Draw Game Objects
       Object.values(charMap)
         .sort((a, b) => {
@@ -478,13 +544,23 @@ const Overworld = (data) => {
         })
         .forEach((object) => {
           object.sprite.draw(ctx, cameraPerson);
-          ctx.fillStyle = "rgb(50, 50, 50)";
-          ctx.font = "24px bold Arial";
-          ctx.textAlign = 'center';
-          ctx.fillText(`${object.nickname}`,
-            object.x + 8 + utils.withGrid(ctx.canvas.clientWidth / 16 / 2) - cameraPerson.x,
-            object.y - 8 + utils.withGrid(ctx.canvas.clientHeight / 16 / 2) - cameraPerson.y
+
+          const objectNicknameContainer = document.querySelector(
+            `.${object.id}`
           );
+
+          objectNicknameContainer.style.top =
+            object.y -
+            25 +
+            utils.withGrid(ctx.canvas.clientHeight / 16 / 2) -
+            // utils.withGrid(ctx.canvas.clientWidth / 16 / 2) -
+            cameraPerson.y +
+            "px";
+          objectNicknameContainer.style.left =
+            object.x +
+            utils.withGrid(ctx.canvas.clientWidth / 16 / 2) -
+            cameraPerson.x +
+            "px";
         });
 
       // console.log(player?.y);
@@ -509,6 +585,7 @@ const Overworld = (data) => {
           x: player.x,
           y: player.y,
           direction: directionInput.direction,
+          nickname: player.nickname,
         };
         socket.emit("input", data);
       }

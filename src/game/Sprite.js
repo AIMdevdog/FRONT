@@ -10,6 +10,10 @@ export class Sprite {
       this.isLoaded = true;
     };
 
+    // console.log(config);
+    // console.log(config.nickname);
+    // console.log(config.gameObject && config.gameObject.Person);
+
     //Shadow
     this.shadow = new Image();
     this.useShadow = true; //config.useShadow || false
@@ -65,10 +69,6 @@ export class Sprite {
     this.xratio = 1;
     this.yaxios = 0;
     this.yratio = 1;
-
-    this.isRotated = false;
-
-
   }
 
   get frame() {
@@ -101,15 +101,33 @@ export class Sprite {
 
   draw(ctx, cameraPerson) {
     const x =
-      this.gameObject.x - 8 + this.xaxios +
+      this.gameObject.x -
+      8 +
+      this.xaxios +
       utils.withGrid(ctx.canvas.clientWidth / 16 / 2) -
       cameraPerson.x;
     const y =
-      this.gameObject.y - 18 + this.yaxios +
+      this.gameObject.y -
+      18 +
+      this.yaxios +
       utils.withGrid(ctx.canvas.clientHeight / 16 / 2) -
-      cameraPerson.y*this.yratio;
+      cameraPerson.y * this.yratio;
 
     this.isShadowLoaded && ctx.drawImage(this.shadow, x, y);
+
+    // this.nickname = "asd" + this.gameObject.id;
+
+    // const div = document.querySelector(".nickname");
+    // const span = document.createElement("span");
+    // div.style.color = "white";
+    // div.style.textAlign = "center";
+    // div.style.position = "absolute";
+    // div.style.bottom = y + "px";
+    // div.style.right = x + "px";
+
+    // div.innerHTML = this.nickname;
+
+    // // div.appendChild(span);
 
     const [frameX, frameY] = this.frame;
     this.isLoaded && !this.isRotated &&
