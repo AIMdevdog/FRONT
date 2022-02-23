@@ -212,13 +212,18 @@ const RoomItemImageWrap = styled.div`
 const RoomItemDescription = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-end;
   margin-top: 16px;
 
+  div {
+    display: flex;
+    flex-direction: column;
+  }
   span {
     font-family: "DM Sans", sans-serif;
     color: white;
     font-size: 14px;
+    line-height: 24px;
 
     &:nth-child(2) {
       color: grey;
@@ -261,6 +266,7 @@ const Lobby = ({ userData }) => {
   const [isSaveUserData, setIsSaveUserData] = useState(null);
   const [isChangeRoom, setIsChangeRoom] = useState(false);
   const [isMyRoom, setIsMyRoom] = useState([]);
+  const [isSearchRoom, setSearchRoom] = useState([]);
   // console.log("lobby", isSaveUserData, setIsSaveUserData);
 
   const EnterIcon =
@@ -283,51 +289,29 @@ const Lobby = ({ userData }) => {
     getRoom();
   }, []);
 
-  useEffect(() => {
-    // const userDataUpdate = async () => {
-    //   try {
-    //     setIsLoading(true);
-    //     const requestResult = await user.getUserInfo();
-    //     const {
-    //       data: { msg, result },
-    //     } = requestResult;
-    //     // console.log("==========================\nresult:",result);
-    //     if (msg) {
-    //       alert(msg);
-    //       navigate("/");
-    //     }
-    //     setIsSaveUserData(result);
-    //   } catch (e) {
-    //     console.log(e);
-    //   } finally {
-    //     setIsLoading(false);
-    //   }
-    // };
-    // userDataUpdate();
-    // const getUser = async () => {
-    //   try {
-    //     await userData
-    //       .then((data) => {
-    //         setIsSaveUserData(data);
-    //         setIsLoading(false);
-    //       })
-    //       .catch((err) => {
-    //         // alert("토큰이 만료됐습니다.");
-    //         navigate("/");
-    //       });
-    //   } catch (e) {
-    //     console.log(e);
-    //   }
-    // };
-    // getUser();
-  }, []);
-
   const onSearchChange = (e) => {
     const {
       target: { value },
     } = e;
     setSearch(value);
   };
+
+  useEffect(() => {
+    const setSearchResult = () => {
+      if (search) {
+        const searchResult = isGetRoom.filter((room) =>
+          room.title.includes(search)
+        );
+        setSearchRoom(searchResult);
+      } else {
+        setSearchRoom([]);
+      }
+    };
+
+    setSearchResult();
+  }, [search]);
+
+  console.log(isGetRoom, "isgetroom");
 
   const isChangeRoomType = () => {
     setIsChangeRoom((prev) => !prev);
@@ -337,11 +321,6 @@ const Lobby = ({ userData }) => {
   };
   const readyToGoIntoTheRoom = (item) => {
     window.location.href = `/room/${item.id}`;
-    // navigate(`/room/${item.id}`, {
-    //   state: {
-    //     roomId: item.id,
-    //   },
-    // });
   };
   return (
     <>
@@ -353,10 +332,10 @@ const Lobby = ({ userData }) => {
         />
         <LobbyHeader>
           <TabButton room={isChangeRoom} onClick={isChangeRoomType}>
-            <span>All Space</span>
+            <span>모든 전시공간</span>
           </TabButton>
           <CreateSpace room={isChangeRoom} onClick={isChangeRoomType}>
-            <span>Created Space</span>
+            <span>내 전시공간</span>
           </CreateSpace>
           <SearchInput>
             <div>
@@ -373,21 +352,21 @@ const Lobby = ({ userData }) => {
           </SearchInput>
         </LobbyHeader>
         <RoomContainer>
-          {isChangeRoom ? (
+          {search ? (
             <>
-              {isMyRoom?.length === 0 ? (
+              {isSearchRoom?.length === 0 ? (
                 <EmptyRoom>
                   <GiBroom color="white" size="40" />
                   <div>
-                    <span>전시관이 없습니다.</span>
+                    <span>검색하신 전시관이 없습니다.</span>
                     <br />
-                    <span>작가라면 전시공간을 만들어보세요!</span>
+                    <span>정확한 전시관 이름을 입력해주세요.</span>
                   </div>
                 </EmptyRoom>
               ) : (
                 <>
                   <RoomItems>
-                    {isMyRoom?.map((item) => {
+                    {isSearchRoom?.map((item) => {
                       return (
                         <RoomItem
                           onClick={() => readyToGoIntoTheRoom(item)}
@@ -403,7 +382,10 @@ const Lobby = ({ userData }) => {
                             </div>
                           </RoomItemImageWrap>
                           <RoomItemDescription>
-                            <span>{item?.title}</span>
+                            <div>
+                              <span>{item?.title}</span>
+                              <span>{item?.description}</span>
+                            </div>
                             <span>{moment(item?.createdAt).fromNow()}</span>
                           </RoomItemDescription>
                           <div className="hover-action"></div>
@@ -416,48 +398,101 @@ const Lobby = ({ userData }) => {
             </>
           ) : (
             <>
-              {isGetRoom?.length === 0 ? (
-                <EmptyRoom>
-                  <GiBroom color="white" size="40" />
-                  <div>
-                    <span>전시관이 없습니다.</span>
-                    <br />
-                    <span>작가라면 전시공간을 만들어보세요!</span>
-                  </div>
-                </EmptyRoom>
+              {isChangeRoom ? (
+                <>
+                  {isMyRoom?.length === 0 ? (
+                    <EmptyRoom>
+                      <GiBroom color="white" size="40" />
+                      <div>
+                        <span>전시관이 없습니다.</span>
+                        <br />
+                        <span>작가라면 전시공간을 만들어보세요!</span>
+                      </div>
+                    </EmptyRoom>
+                  ) : (
+                    <>
+                      <RoomItems>
+                        {isMyRoom?.map((item) => {
+                          return (
+                            <RoomItem
+                              onClick={() => readyToGoIntoTheRoom(item)}
+                              key={item.id}
+                            >
+                              <RoomItemImageWrap background={item?.image}>
+                                <div>
+                                  <div>
+                                    <p>
+                                      <img src={EnterIcon} alt="" />
+                                    </p>
+                                  </div>
+                                </div>
+                              </RoomItemImageWrap>
+                              <RoomItemDescription>
+                                <div>
+                                  <span>{item?.title}</span>
+                                  <span>{item?.description}</span>
+                                </div>
+                                <span>{moment(item?.createdAt).fromNow()}</span>
+                              </RoomItemDescription>
+                              <div className="hover-action"></div>
+                            </RoomItem>
+                          );
+                        })}
+                      </RoomItems>
+                    </>
+                  )}
+                </>
               ) : (
                 <>
-                  <RoomItems>
-                    {isGetRoom?.map((item) => {
-                      return (
-                        <RoomItem
-                          onClick={() => readyToGoIntoTheRoom(item)}
-                          key={item.id}
-                        >
-                          <RoomItemImageWrap background={item?.image}>
-                            <div>
-                              <div>
-                                <p>
-                                  <img src={EnterIcon} alt="" />
-                                </p>
-                              </div>
-                            </div>
-                          </RoomItemImageWrap>
-                          <RoomItemDescription>
-                            <span>{item?.title}</span>
-                            <span>{moment(item?.createdAt).fromNow()}</span>
-                          </RoomItemDescription>
-                        </RoomItem>
-                      );
-                    })}
-                  </RoomItems>
+                  {isGetRoom?.length === 0 ? (
+                    <EmptyRoom>
+                      <GiBroom color="white" size="40" />
+                      <div>
+                        <span>전시관이 없습니다.</span>
+                        <br />
+                        <span>작가라면 전시공간을 만들어보세요!</span>
+                      </div>
+                    </EmptyRoom>
+                  ) : (
+                    <>
+                      <RoomItems>
+                        {isGetRoom?.map((item) => {
+                          return (
+                            <RoomItem
+                              onClick={() => readyToGoIntoTheRoom(item)}
+                              key={item.id}
+                            >
+                              <RoomItemImageWrap background={item?.image}>
+                                <div>
+                                  <div>
+                                    <p>
+                                      <img src={EnterIcon} alt="" />
+                                    </p>
+                                  </div>
+                                </div>
+                              </RoomItemImageWrap>
+                              <RoomItemDescription>
+                                <div>
+                                  <span>{item?.title}</span>
+                                  <span>{item?.description}</span>
+                                </div>
+                                <span>{moment(item?.createdAt).fromNow()}</span>
+                              </RoomItemDescription>
+                            </RoomItem>
+                          );
+                        })}
+                      </RoomItems>
+                    </>
+                  )}
                 </>
               )}
             </>
           )}
-
-          {/* <RoomItemComponent data={DummyData} userData={state} /> */}
         </RoomContainer>
+        {/* <RoomContainer> */}
+
+        {/* <RoomItemComponent data={DummyData} userData={state} /> */}
+        {/* </RoomContainer> */}
       </LobbyContainer>
     </>
   );

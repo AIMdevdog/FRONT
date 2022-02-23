@@ -676,12 +676,7 @@ const Header = ({ isSaveUserData, setIsSaveUserData }) => {
       if (!isRoomTitle || !isRoomDesc)
         return alert("방 제목과 설명을 정확히 입력해주세요.");
       setIsCreateRoomOpen(false);
-      const result = await room.createRoom(
-        isSaveUserData?.id,
-        roomImage,
-        isRoomTitle,
-        isRoomDesc
-      );
+      const result = await room.createRoom(21, isRoomTitle, isRoomDesc);
       const { status } = result;
       if (status === 200) {
         alert("방 생성이 완료되었습니다.");
@@ -830,8 +825,8 @@ const Header = ({ isSaveUserData, setIsSaveUserData }) => {
                 </UserProfileNickname>
               </button>
             </UserProfile>
-            <LogoutButton onClick={isLogOut}>Logout</LogoutButton>
-            <CreateButton onClick={onCreateSpace}>Create Space</CreateButton>
+            <LogoutButton onClick={isLogOut}>로그아웃</LogoutButton>
+            <CreateButton onClick={onCreateSpace}>전시공간 만들기</CreateButton>
           </RightSectionUserProfile>
         </RightSection>
       </HeaderContainer>

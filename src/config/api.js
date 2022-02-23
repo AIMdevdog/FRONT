@@ -19,7 +19,7 @@ export const user = {
 };
 
 export const room = {
-  getRoom: () => axios.get("/room"),
-  createRoom: (hostId, image, title, desc) =>
-    axios.post("/room/create", { hostId, image, title, desc }),
+  getRoom: () => axios.get("/userRoom"),
+  createRoom: (mapId, title, description) =>
+    axios.post("/room/create", { mapId, title, description }),
 };
