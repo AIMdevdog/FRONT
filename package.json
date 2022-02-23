@@ -12,6 +12,7 @@
     "@testing-library/user-event": "^13.5.0",
     "@trendyol-js/react-carousel": "^2.0.1",
     "axios": "^0.25.0",
+    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "expired-storage": "^1.0.2",
     "express": "^4.17.2",
