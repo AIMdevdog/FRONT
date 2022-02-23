@@ -22,4 +22,5 @@ export const room = {
   getRoom: () => axios.get("/userRoom"),
   createRoom: (mapId, title, description) =>
     axios.post("/room/create", { mapId, title, description }),
+  deleteRoom: (roomId) => axios.post("/userRoom/delete", { roomId }),
 };

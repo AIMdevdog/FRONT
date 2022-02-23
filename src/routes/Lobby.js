@@ -4,8 +4,11 @@ import { useLocation, useNavigate } from "react-router";
 import styled from "styled-components";
 // import RoomItemComponent from "../components/RoomItem";
 import { user, room } from "../config/api";
-import { localGetItem, removeItem } from "../utils/handleStorage";
+
+// icons
 import { GiBroom } from "react-icons/gi";
+import { BsThreeDotsVertical } from "react-icons/bs";
+
 import Header from "../components/Header";
 import LoadingComponent from "../components/Loading";
 
@@ -14,6 +17,7 @@ import "slick-carousel/slick/slick-theme.css";
 import moment from "moment";
 import { Cookies } from "react-cookie";
 import { connect } from "react-redux";
+import ReactModal from "react-modal";
 
 const cookies = new Cookies();
 
@@ -218,15 +222,21 @@ const RoomItemDescription = styled.div`
   div {
     display: flex;
     flex-direction: column;
+
+    svg {
+      cursor: pointer;
+    }
   }
   span {
     font-family: "DM Sans", sans-serif;
     color: white;
     font-size: 14px;
-    line-height: 24px;
+    display: inline-block;
+    /* line-height: 24px; */
 
     &:nth-child(2) {
       color: grey;
+      padding-top: 10px;
     }
   }
 `;
@@ -251,23 +261,86 @@ const EmptyRoom = styled.div`
   }
 `;
 
+const CreateRoomModalContainer = styled.div`
+  display: flex;
+  background-color: rgb(40, 45, 78);
+  flex-direction: column;
+  padding: 32px;
+  border-radius: 32px;
+  z-index: 7;
+  position: relative;
+`;
+
+const ModalButton = styled.div`
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+
+  button {
+    width: 100%;
+    border: none;
+    background-color: transparent;
+    color: white;
+    font-weight: bold;
+    margin-top: 20px;
+    height: 40px;
+    border-radius: 10px;
+
+    &:nth-child(1) {
+      background-color: rgb(6, 214, 160);
+      color: rgb(40, 45, 78);
+    }
+  }
+`;
+
+const RoomText = styled.div`
+  display: flex;
+  width: 100%;
+  align-items: center;
+  margin-bottom: 16px;
+
+  span {
+    color: rgb(255, 255, 255);
+    font-family: "DM Sans", sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 26px;
+  }
+`;
+
+const customStyles = {
+  content: {
+    top: "50%",
+    left: "50%",
+    right: "auto",
+    bottom: "auto",
+    marginRight: "-50%",
+    transform: "translate(-50%, -50%)",
+    padding: 0,
+    borderRadius: 32,
+    border: "none",
+    background: "transparent",
+    boxShadow: "rgba(0, 0, 0, 0.08) 0px 1px 12px",
+  },
+  overlay: {
+    background: "rgba(0, 0, 0, 0.6)",
+  },
+};
+
 const Lobby = ({ userData }) => {
-  // console.log("---------");
-  // console.log(userData);
-  // console.log(userData.nickname);
-  // const location = useLocation();
-  // const { state } = location;
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [isGetRoom, setIsGetRoom] = useState([]);
-  const session = localGetItem("session");
 
   const [isSaveUserData, setIsSaveUserData] = useState(null);
   const [isChangeRoom, setIsChangeRoom] = useState(false);
   const [isMyRoom, setIsMyRoom] = useState([]);
   const [isSearchRoom, setSearchRoom] = useState([]);
-  // console.log("lobby", isSaveUserData, setIsSaveUserData);
+
+  const [isRoomEdit, setIsRoomEdit] = useState(false);
+  const [isRoomId, setIsRoomId] = useState(null);
 
   const EnterIcon =
     "https://icon-library.com/images/enter-icon/enter-icon-1.jpg";
@@ -311,14 +384,37 @@ const Lobby = ({ userData }) => {
     setSearchResult();
   }, [search]);
 
-  console.log(isGetRoom, "isgetroom");
-
   const isChangeRoomType = () => {
     setIsChangeRoom((prev) => !prev);
     setIsMyRoom(
       isGetRoom.filter((room) => room?.hostId === isSaveUserData?.id)
     );
   };
+
+  const isRoomControl = (roomId) => {
+    setIsRoomEdit(!isRoomEdit);
+    setIsRoomId(roomId);
+  };
+
+  const isDeleteRoomConfirm = async () => {
+    try {
+      setIsLoading(true);
+      const result = await room.deleteRoom(isRoomId);
+      const {
+        data: { code, msg },
+      } = result;
+      if (code) {
+        alert(msg);
+        window.location.reload();
+      }
+      isRoomControl();
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const readyToGoIntoTheRoom = (item) => {
     window.location.href = `/room/${item.id}`;
   };
@@ -368,11 +464,11 @@ const Lobby = ({ userData }) => {
                   <RoomItems>
                     {isSearchRoom?.map((item) => {
                       return (
-                        <RoomItem
-                          onClick={() => readyToGoIntoTheRoom(item)}
-                          key={item.id}
-                        >
-                          <RoomItemImageWrap background={item?.image}>
+                        <RoomItem key={item.id}>
+                          <RoomItemImageWrap
+                            background={item?.image}
+                            onClick={() => readyToGoIntoTheRoom(item)}
+                          >
                             <div>
                               <div>
                                 <p>
@@ -414,11 +510,11 @@ const Lobby = ({ userData }) => {
                       <RoomItems>
                         {isMyRoom?.map((item) => {
                           return (
-                            <RoomItem
-                              onClick={() => readyToGoIntoTheRoom(item)}
-                              key={item.id}
-                            >
-                              <RoomItemImageWrap background={item?.image}>
+                            <RoomItem key={item.id}>
+                              <RoomItemImageWrap
+                                background={item?.image}
+                                onClick={() => readyToGoIntoTheRoom(item)}
+                              >
                                 <div>
                                   <div>
                                     <p>
@@ -432,7 +528,15 @@ const Lobby = ({ userData }) => {
                                   <span>{item?.title}</span>
                                   <span>{item?.description}</span>
                                 </div>
-                                <span>{moment(item?.createdAt).fromNow()}</span>
+                                <div style={{ alignItems: "flex-end" }}>
+                                  <BsThreeDotsVertical
+                                    onClick={() => isRoomControl(item?.id)}
+                                    color="white"
+                                  />
+                                  <span>
+                                    {moment(item?.createdAt).fromNow()}
+                                  </span>
+                                </div>
                               </RoomItemDescription>
                               <div className="hover-action"></div>
                             </RoomItem>
@@ -458,11 +562,11 @@ const Lobby = ({ userData }) => {
                       <RoomItems>
                         {isGetRoom?.map((item) => {
                           return (
-                            <RoomItem
-                              onClick={() => readyToGoIntoTheRoom(item)}
-                              key={item.id}
-                            >
-                              <RoomItemImageWrap background={item?.image}>
+                            <RoomItem key={item.id}>
+                              <RoomItemImageWrap
+                                background={item?.image}
+                                onClick={() => readyToGoIntoTheRoom(item)}
+                              >
                                 <div>
                                   <div>
                                     <p>
@@ -489,11 +593,23 @@ const Lobby = ({ userData }) => {
             </>
           )}
         </RoomContainer>
-        {/* <RoomContainer> */}
-
-        {/* <RoomItemComponent data={DummyData} userData={state} /> */}
-        {/* </RoomContainer> */}
       </LobbyContainer>
+      <ReactModal
+        ariaHideApp={false}
+        style={customStyles}
+        isOpen={isRoomEdit}
+        onRequestClose={isRoomControl}
+      >
+        <CreateRoomModalContainer>
+          <RoomText>
+            <span>방을 삭제하시겠습니까?</span>
+          </RoomText>
+          <ModalButton>
+            <button onClick={isDeleteRoomConfirm}>삭제</button>
+            <button onClick={isRoomControl}>취소</button>
+          </ModalButton>
+        </CreateRoomModalContainer>
+      </ReactModal>
     </>
   );
 };

@@ -831,6 +831,7 @@ const Header = ({ isSaveUserData, setIsSaveUserData }) => {
         </RightSection>
       </HeaderContainer>
       <ReactModal
+        ariaHideApp={false}
         style={customStyles}
         isOpen={isCreateRoomOpen}
         onRequestClose={onCreateSpace}
