@@ -6,6 +6,7 @@ import assets from "../config/assets";
 import { FaLongArrowAltRight } from "react-icons/fa";
 import LoadingComponent from "../components/Loading";
 import { isValidEmailFormat, isValidPassword } from "../utils/validation";
+import bcrypt from "bcryptjs";
 
 const SignInWrap = styled.div`
   /* width: 100%; */
@@ -173,6 +174,9 @@ const SignUp = () => {
   // signup disabled
   const [isButtonDisabled, setButtonDisabled] = useState(false);
 
+  // hash password
+  const salt = bcrypt.genSaltSync(10);
+
   useEffect(() => {
     const isEmailValidation = () => {
       if (isValidEmailFormat(email)) {
@@ -235,10 +239,11 @@ const SignUp = () => {
     event.preventDefault();
     isSetLoading(true);
     try {
-      // const passwordHash =
+      const hashedPassword = bcrypt.hashSync(password, salt);
+
       const {
         data: { code, msg },
-      } = await sign.createUser(email, password, confPassword, nickname);
+      } = await sign.createUser(email, hashedPassword, nickname);
       if (msg === "회원가입이 완료되었습니다.") {
         alert("회원가입이 성공했습니다.");
         navigate("/");

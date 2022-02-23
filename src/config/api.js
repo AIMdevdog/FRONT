@@ -8,8 +8,8 @@ export const sign = {
   getSign: (email, password) => axios.post("/users/login", { email, password }),
   getGoogleSign: (accessToken, email) =>
     axios.post("/users/auth/google", { accessToken, email }),
-  createUser: (email, password, confPassword, nickname) =>
-    axios.post("/users/signup", { email, password, confPassword, nickname }),
+  createUser: (email, password, nickname) =>
+    axios.post("/users/signup", { email, password, nickname }),
 };
 
 export const user = {
