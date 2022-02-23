@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { useLocation, useParams } from "react-router";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router";
 import Overworld from "../game/Overworld";
 import { Person } from "../game/Person";
 import React from "react";
@@ -114,7 +114,11 @@ const CharacterNickname = styled.div`
 
 const Room = ({ userData }) => {
   const params = useParams();
+  const navigator = useNavigate();
+  const location = useLocation();
   const roomId = params.roomId;
+  const url = "http://localhost:3000/lobby"
+
   useEffect(() => {
     userData.then((data) => {
       Overworld({
@@ -151,14 +155,14 @@ const Room = ({ userData }) => {
           },
         ],
       });
-      // overworld.init();
     });
-  });
-
+    return () => {
+      console.log("room leave!!")
+    };
+  }, []);
   return (
     <>
-      <div style={{ display: "flex" }}>
-        <RoomSideBar />
+      <div className="roomContainer" style={{ display: "flex" }}>
         <div className="game-container" style={{ backgroundColor: "black" }}>
           <canvas className="game-canvas"></canvas>
           <CharacterNickname className="nickname">
@@ -166,6 +170,7 @@ const Room = ({ userData }) => {
           </CharacterNickname>
         </div>
       </div>
+      <RoomSideBar url={url}/>
       <StreamsContainer id="streams"></StreamsContainer>
       <MyVideoBox>
         <MyVideo id="myFace" autoPlay="autoplay"></MyVideo>
@@ -179,6 +184,7 @@ const Room = ({ userData }) => {
 };
 
 function mapStateProps(state) {
+  console.log(state);
   return {
     userData: state,
   };

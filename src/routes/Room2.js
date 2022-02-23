@@ -8,6 +8,8 @@ import styled from "styled-components";
 import LoadingComponent from "../components/Loading";
 import RoomSideBar from "../components/RoomSidebar";
 import { user } from "../config/api";
+import VideoButton from "../components/VideoButton";
+import ScreenBottomBar from "../components/ScreenBottomBar";
 
 const pexel = (id) =>
   `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260`;
@@ -21,26 +23,26 @@ const images = [
   },
   // Back
   {
-    position: [2.5, 0.1, 3.25],
+    position: [6, 0.1, 3.25],
     rotation: [0, -Math.PI / 4, 0],
     url: pexel(416430)
   },
-  {
-    position: [6, 0, 2.75],
-    rotation: [0, 0, 0],
-    url: pexel(310452)
-  },
+  // {
+  //   position: [6, 0, 2.75],
+  //   rotation: [0, 0, 0],
+  //   url: pexel(310452)
+  // },
   // Left
   {
-    position: [-2.5, 0.1, 3.25],
+    position: [-6, 0.1, 3.25],
     rotation: [0, Math.PI / 4, 0],
     url: pexel(327482),
   },
-  {
-    position: [-6, 0, 2.75],
-    rotation: [0, 0, 0],
-    url: pexel(325185),
-  },
+  // {
+  //   position: [-6, 0, 2.75],
+  //   rotation: [0, 0, 0],
+  //   url: pexel(325185),
+  // },
   // {
   //   position: [-2, 0, 2.75],
   //   rotation: [0, Math.PI / 2.5, 0],
@@ -115,6 +117,12 @@ const MyVideo = styled.video`
 
 const CamBtn = styled.div`
   display: none;
+`;
+
+const CharacterNickname = styled.div`
+  span {
+    color: white;
+  }
 `;
 
 const ThreeCanvas = styled.div`
@@ -232,16 +240,18 @@ const Room2 = ({ userData }) => {
       }}>
         <div className="game-container" style={{ backgroundColor: "rgb(19,19,20, 0)"}}>
           <canvas className="game-canvas"></canvas>
+          <CharacterNickname className="nickname">
+          </CharacterNickname>
         </div>
       </div>
       <StreamsContainer id="streams"></StreamsContainer>
       <MyVideoBox>
         <MyVideo id="myFace" autoPlay="autoplay"></MyVideo>
         <CamBtn id="camBtn">
-          <button id="playerCamera">camera on</button>
-          <button id="playerMute">mute</button>
+          <VideoButton />
         </CamBtn>
       </MyVideoBox>
+      <ScreenBottomBar />
     </div>
   );
 };

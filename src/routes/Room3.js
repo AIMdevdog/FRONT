@@ -21,8 +21,8 @@ const images = [
     url: "https://www.comedywildlifephoto.com/images/wysiwyg/images/2020_winners/mark_fitzpatrick.jpg",
   },
   {
-    position: [-3.5 * GOLDENRATIO + 1, 0, 0],
-    rotation: [0, Math.PI / 2, 0],
+    position: [-4.735 * GOLDENRATIO + 1, 0, 0],
+    rotation: [0,- Math.PI / 2, 0],
     url: pexel(416430)
   },
   {
@@ -169,6 +169,7 @@ const Room3 = ({ userData }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [cameraPosition, setCameraPosition] = useState(0);
   const [yCameraPosition, setYCameraPosition] = useState(0);
+  const url = `http://localhost:3000/room/${roomId}`
   const downHandler = (e) => {
     switch (e.key) {
       case "x" || "X" || "ㅌ":
@@ -246,7 +247,7 @@ const Room3 = ({ userData }) => {
           <Gallery3 images={images} roomId={roomId} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
         </Suspense>
       </ThreeCanvas>
-      <RoomSideBar />
+      <RoomSideBar url={url}/>
       <div style={{
         display: "flex", justifyContent: "center",
         position: "fixed",

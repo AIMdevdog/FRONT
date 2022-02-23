@@ -72,7 +72,9 @@ function Frames({ images, roomId, yCameraPosition, q = new THREE.Quaternion(), p
   // console.log(yCameraPosition);
   const cameraRotate = (e) => {
     switch (e.key) {
-      case "e" || "E" || "ㄷ":
+      case "e":
+      case "E":
+      case "ㄷ":
         setCameraAngle(prev => {
           prev = prev + 1;
           if (prev > 4) {
@@ -82,7 +84,9 @@ function Frames({ images, roomId, yCameraPosition, q = new THREE.Quaternion(), p
         });
         break;
 
-      case "q" || "Q" || "ㅂ":
+      case "q":
+      case "Q":
+      case "ㅂ":
         setCameraAngle(prev => {
           prev = prev - 1;
           if (prev < 1) {
@@ -149,8 +153,9 @@ function Frames({ images, roomId, yCameraPosition, q = new THREE.Quaternion(), p
   return (
     <group
       ref={ref}
-      onClick={(e) => (e.stopPropagation(), setLocation(clicked.current === e.object ? `/room3/${roomId}` : '/item/' + e.object.name))}
-      onPointerMissed={() => setLocation(`/room3/${roomId}`)}>
+      // onClick={(e) => (e.stopPropagation(), setLocation(clicked.current === e.object ? `/room3/${roomId}` : '/item/' + e.object.name))}
+      // onPointerMissed={() => setLocation(`/room3/${roomId}`)}
+      >
       {images.map((props) => <Frame yCameraPosition={yCameraPosition} key={props.url} {...props} /> /* prettier-ignore */)}
     </group>
   )
@@ -178,8 +183,8 @@ function Frame({ yCameraPosition, url, c = new THREE.Color(), ...props }) {
     <group {...props}>
       <mesh
         name={name}
-        onPointerOver={(e) => (e.stopPropagation(), hover(true))}
-        onPointerOut={() => hover(false)}
+        // onPointerOver={(e) => (e.stopPropagation(), hover(true))}
+        // onPointerOut={() => hover(false)}
         scale={[xScale, yScale, 0.05]}
         position={[0, GOLDENRATIO / 2, -1]}>
         <boxGeometry />

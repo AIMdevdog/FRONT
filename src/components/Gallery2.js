@@ -63,8 +63,8 @@ function Frames({ images, roomId, q = new THREE.Quaternion(), p = new THREE.Vect
   return (
     <group
       ref={ref}
-      onClick={(e) => (e.stopPropagation(), setLocation(clicked.current === e.object ? `/room1/${roomId}` : '/item/' + e.object.name))}
-      onPointerMissed={() => setLocation(`/room1/${roomId}`)}>
+      onClick={(e) => (e.stopPropagation(), setLocation(clicked.current === e.object ? `/room2/${roomId}` : '/item/' + e.object.name))}
+      onPointerMissed={() => setLocation(`/room2/${roomId}`)}>
       {images.map((props) => <Frame key={props.url} {...props} /> /* prettier-ignore */)}
     </group>
   )
@@ -75,14 +75,14 @@ function Frame({ url, c = new THREE.Color(), ...props }) {
   const image = useRef();
   const frame = useRef();
   const name = getUuid(url);
-  let xScale = 2;
-  let yScale = GOLDENRATIO;
+  let xScale = 2 *GOLDENRATIO;
+  let yScale = 2;
   useCursor(hovered)
   // console.log(props);
   if(props.center){
     // console.log("center!!!!!!!!!!!!!!!");
-    xScale = 4;
-    yScale *= 1.05;
+    xScale *= 2;
+    // yScale *= 1.05;
   }
   useFrame((state) => {
     // image.current.material.zoom = 2 + Math.sin(rnd * 10000 + state.clock.elapsedTime / 3) / 2

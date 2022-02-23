@@ -34,7 +34,7 @@ const Overworld3 = (data) => {
   const otherMaps = data.otherMaps;
   const directionInput = new DirectionInput();
   directionInput.init();
-  let roomId = "room" + map.roomId
+  let roomId = "room3" + map.roomId
   let prevAngle = 1;
   let rotationAngle = 1;
 
@@ -47,14 +47,14 @@ const Overworld3 = (data) => {
 
   const cameraRotate = (e) => {
     switch (e.key) {
-      case "e" || "E" || "ㄷ":
+      case "e": case "E": case "ㄷ":
         rotationAngle += 1;
         if (rotationAngle > 4) {
           rotationAngle = 1;
         }
         characterRotate(rotationAngle);
         break;
-      case "q" || "Q" || "ㅂ":
+      case "q": case "Q": case "ㅂ":
         rotationAngle -= 1;
         if (rotationAngle < 1) {
           rotationAngle = 4;
@@ -76,10 +76,10 @@ const Overworld3 = (data) => {
           ArrowLeft: "left",
           ArrowRight: "right",
         };
-        if(prevAngle === 4){
+        if (prevAngle === 4) {
           player.x -= 320;
           player.y += 384;
-        }else if(prevAngle === 2){
+        } else if (prevAngle === 2) {
           player.x += 192;
           player.y += 384;
         }
@@ -94,10 +94,10 @@ const Overworld3 = (data) => {
           ArrowLeft: "up",
           ArrowRight: "down",
         };
-        if(prevAngle === 1){
+        if (prevAngle === 1) {
           player.x -= 192;
           player.y -= 384;
-        }else if(prevAngle === 3){
+        } else if (prevAngle === 3) {
           player.x -= 266;
           player.y += 384;
         }
@@ -112,10 +112,10 @@ const Overworld3 = (data) => {
           ArrowLeft: "right",
           ArrowRight: "left",
         };
-        if(prevAngle === 2){
+        if (prevAngle === 2) {
           player.x += 266;
           player.y -= 384;
-        }else if(prevAngle === 4){
+        } else if (prevAngle === 4) {
           player.x -= 246;
           player.y -= 384;
         }
@@ -130,10 +130,10 @@ const Overworld3 = (data) => {
           ArrowLeft: "down",
           ArrowRight: "up",
         };
-        if(prevAngle === 3){
+        if (prevAngle === 3) {
           player.x += 246;
           player.y += 384;
-        }else if(prevAngle === 1){
+        } else if (prevAngle === 1) {
           player.x += 320;
           player.y -= 384;
         }

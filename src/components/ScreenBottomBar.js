@@ -10,10 +10,11 @@ import {
 const ScreenContainer = styled.div`
   display: block;
   position: absolute;
-  left: 0;
+  left: 50%;
   bottom: 20px;
-  width: 100%;
+  width: 20%;
   display: flex;
+  transform: translateX(-50%);
   justify-content: center;
   align-items: center;
 

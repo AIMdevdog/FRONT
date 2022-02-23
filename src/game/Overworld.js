@@ -406,16 +406,11 @@ const Overworld = (data) => {
   });
 
   socket.on("get_user_info", function (data) {
-    console.log(data);
     joinUser(data.id, data.x, data.y, data.nickname, data.src);
-
-    const cameraPerson = charMap[socket.id] || map.gameObjects.player;
-
-    console.log(cameraPerson);
 
     nicknameDiv = document.createElement("div");
     nicknameDiv.className = data.id;
-    nicknameDiv.innerHTML = nickname;
+    nicknameDiv.innerHTML = data.nickname;
 
     nicknameDiv.style.width = 100;
     nicknameDiv.style.transform = "translateX(-40%)";
@@ -471,8 +466,7 @@ const Overworld = (data) => {
           for (let i = 0; i < otherMaps.length; i++) {
             if (object.x === otherMaps[i].x && object.y === otherMaps[i].y) {
               console.log("warp!!!");
-              // console.log(object.sprite.image.src);
-              window.location.replace(`${otherMaps[i].url}`);
+              window.location.href = `${otherMaps[i].url}`;
             }
           }
           object.update({
@@ -585,7 +579,6 @@ const Overworld = (data) => {
           x: player.x,
           y: player.y,
           direction: directionInput.direction,
-          nickname: player.nickname,
         };
         socket.emit("input", data);
       }
@@ -621,6 +614,12 @@ const Overworld = (data) => {
       }
     }
     delete charMap[data.id];
+    const userNicknameContainer = document.querySelector(`.${data.id}`);
+    const parentDiv = userNicknameContainer.parentNode;
+    parentDiv.removeChild(userNicknameContainer);
+
+
+
   };
 
   const joinUser = (id, x, y, nickname, src) => {

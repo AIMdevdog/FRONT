@@ -268,7 +268,7 @@ const SignIn = () => {
             <EmailSignInContainer>
               <SignInLabel>
                 <label>
-                  <span>Email</span>
+                  <span>이메일</span>
                 </label>
               </SignInLabel>
               <SignInInput>
@@ -278,7 +278,7 @@ const SignIn = () => {
                   required
                   value={isEmail}
                   onChange={onChange}
-                  placeholder="Enter your email address"
+                  placeholder="이메일을 입력하세요."
                 />
               </SignInInput>
               {emailFlag ? (
@@ -288,7 +288,7 @@ const SignIn = () => {
             <EmailSignInContainer style={{ marginTop: 20 }}>
               <SignInLabel>
                 <label>
-                  <span>Password</span>
+                  <span>비밀번호</span>
                 </label>
               </SignInLabel>
               <SignInInput>
@@ -299,7 +299,7 @@ const SignIn = () => {
                   required
                   value={isPassowrd}
                   onChange={onChange}
-                  placeholder="Enter your password"
+                  placeholder="비밀번호를 입력하세요."
                 />
               </SignInInput>
               {passwordFlag ? (

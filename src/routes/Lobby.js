@@ -1,10 +1,9 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import styled from "styled-components";
-// import RoomItemComponent from "../components/RoomItem";
-import { user, room } from "../config/api";
-import { localGetItem, removeItem } from "../utils/handleStorage";
+import { room } from "../config/api";
+import { localGetItem } from "../utils/handleStorage";
 import { GiBroom } from "react-icons/gi";
 import Header from "../components/Header";
 import LoadingComponent from "../components/Loading";
@@ -12,10 +11,8 @@ import LoadingComponent from "../components/Loading";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import moment from "moment";
-import { Cookies } from "react-cookie";
 import { connect } from "react-redux";
-
-const cookies = new Cookies();
+import _const from "../config/const";
 
 const LobbyContainer = styled.div`
   display: flex;
@@ -48,7 +45,7 @@ const TabButton = styled.button`
 
   span {
     /* color: ${(props) =>
-      !props.room ? "rgb(84, 92, 143)" : "transparent"}; */
+    !props.room ? "rgb(84, 92, 143)" : "transparent"}; */
     color: rgb(255, 255, 255);
     font-family: "DM Sans", sans-serif;
     font-weight: 700;
@@ -247,24 +244,21 @@ const EmptyRoom = styled.div`
 `;
 
 const Lobby = ({ userData }) => {
-  // console.log("---------");
-  // console.log(userData);
-  // console.log(userData.nickname);
-  // const location = useLocation();
-  // const { state } = location;
-  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [isGetRoom, setIsGetRoom] = useState([]);
   const session = localGetItem("session");
-
+  const navigate = useNavigate();
   const [isSaveUserData, setIsSaveUserData] = useState(null);
   const [isChangeRoom, setIsChangeRoom] = useState(false);
   const [isMyRoom, setIsMyRoom] = useState([]);
-  // console.log("lobby", isSaveUserData, setIsSaveUserData);
 
   const EnterIcon =
     "https://icon-library.com/images/enter-icon/enter-icon-1.jpg";
+
+  userData.then((data) => {
+    setIsSaveUserData(data);
+  })
 
   useEffect(() => {
     const getRoom = async () => {
@@ -282,46 +276,6 @@ const Lobby = ({ userData }) => {
 
     getRoom();
   }, []);
-
-  useEffect(() => {
-    // const userDataUpdate = async () => {
-    //   try {
-    //     setIsLoading(true);
-    //     const requestResult = await user.getUserInfo();
-    //     const {
-    //       data: { msg, result },
-    //     } = requestResult;
-    //     // console.log("==========================\nresult:",result);
-    //     if (msg) {
-    //       alert(msg);
-    //       navigate("/");
-    //     }
-    //     setIsSaveUserData(result);
-    //   } catch (e) {
-    //     console.log(e);
-    //   } finally {
-    //     setIsLoading(false);
-    //   }
-    // };
-    // userDataUpdate();
-    // const getUser = async () => {
-    //   try {
-    //     await userData
-    //       .then((data) => {
-    //         setIsSaveUserData(data);
-    //         setIsLoading(false);
-    //       })
-    //       .catch((err) => {
-    //         // alert("토큰이 만료됐습니다.");
-    //         navigate("/");
-    //       });
-    //   } catch (e) {
-    //     console.log(e);
-    //   }
-    // };
-    // getUser();
-  }, []);
-
   const onSearchChange = (e) => {
     const {
       target: { value },

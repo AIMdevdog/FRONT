@@ -622,25 +622,6 @@ const Header = ({ isSaveUserData, setIsSaveUserData }) => {
     isLogged();
   }, [isPath]);
 
-  useEffect(() => {
-    const getUser = async () => {
-      try {
-        const requestUserData = await user.getUserInfo();
-        const {
-          data: { result },
-        } = requestUserData;
-        if (result) {
-          // alert(msg);
-          setIsSaveUserData(result);
-        }
-      } catch (e) {
-        console.log(e);
-      }
-    };
-
-    getUser();
-  }, []);
-
   const onClickLogo = () => {
     if (session) {
       navigate("/lobby");
@@ -895,13 +876,6 @@ const Header = ({ isSaveUserData, setIsSaveUserData }) => {
           <UserInfoModal>
             <UserInfo>
               <UserInfoTopSection>
-                {/* <div>
-            <span>Change your character</span>
-          </div> */}
-                {/* <img
-                src="https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png"
-                alt="user-character"
-                /> */}
                 <div
                   style={{
                     marginTop: "15px",
