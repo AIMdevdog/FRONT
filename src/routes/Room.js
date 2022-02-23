@@ -184,7 +184,6 @@ const Room = ({ userData }) => {
 };
 
 function mapStateProps(state) {
-  console.log(state);
   return {
     userData: state,
   };
