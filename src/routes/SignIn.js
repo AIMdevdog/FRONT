@@ -4,9 +4,10 @@ import styled from "styled-components";
 import GoogleButton from "../components/GoogleLogin";
 import { sign } from "../config/api";
 import assets from "../config/assets";
+import { FaLongArrowAltRight } from "react-icons/fa";
 import { localGetItem, localSetItem } from "../utils/handleStorage";
-import { Cookies } from "react-cookie";
 import LoadingComponent from "../components/Loading";
+import { Cookies } from "react-cookie";
 
 const cookies = new Cookies();
 
@@ -28,7 +29,7 @@ const SignInContainer = styled.div`
   background-color: white;
   width: 500px;
   border-radius: 32px;
-  padding: 56px;
+  padding: 56px 56px 46px 56px;
   box-shadow: rgb(0 0 0 / 55%) 0px 10px 25px;
 `;
 
@@ -97,7 +98,7 @@ const EmailSignInContainer = styled.div`
 
 const SignInLabel = styled.div`
   display: flex;
-  margin-bottom: 4px;
+  margin-bottom: 10px;
 
   input {
     border: none;
@@ -161,16 +162,29 @@ const SignButton = styled.div`
     font-family: inherit;
     font-weight: 700;
     transition: background-color 200ms ease 0s, border-color 200ms ease 0s;
-    cursor: pointer;
     opacity: 1;
     overflow: hidden;
     background-color: rgb(6, 214, 160);
     border: 2px solid transparent;
     padding: 0px 16px;
-    width: 45%;
+    width: 100%;
     height: 48px;
     border-radius: 16px;
     font-size: 15px;
+    /* color: rgb(40, 45, 78) !important; */
+    color: white !important;
+  }
+`;
+
+const SignUpButton = styled.div`
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+  margin-top: 10px;
+
+  button {
+    background-color: transparent;
+    border: none;
     color: rgb(40, 45, 78) !important;
   }
 `;
@@ -227,7 +241,6 @@ const SignIn = () => {
         }
       }
       const { access_token, refresh_token } = result;
-      console.log(result);
       cookies.set("access-token", access_token, { maxAge: 3600 });
       cookies.set("refresh-token", refresh_token, { maxAge: 259200 });
       navigate("/lobby");
@@ -268,7 +281,7 @@ const SignIn = () => {
             <EmailSignInContainer>
               <SignInLabel>
                 <label>
-                  <span>Email</span>
+                  <span>이메일</span>
                 </label>
               </SignInLabel>
               <SignInInput>
@@ -288,7 +301,7 @@ const SignIn = () => {
             <EmailSignInContainer style={{ marginTop: 20 }}>
               <SignInLabel>
                 <label>
-                  <span>Password</span>
+                  <span>비밀번호</span>
                 </label>
               </SignInLabel>
               <SignInInput>
@@ -308,8 +321,11 @@ const SignIn = () => {
             </EmailSignInContainer>
             <SignButton>
               <button onClick={onSubmit}> 로그인 </button>
-              <button onClick={onClickSignUp}> 회원가입 </button>
             </SignButton>
+            <SignUpButton>
+              <button onClick={onClickSignUp}> 회원가입 </button>
+              <FaLongArrowAltRight color="rgb(40, 45, 78)" />
+            </SignUpButton>
           </form>
         </SignInContainer>
       </SignInWrap>
