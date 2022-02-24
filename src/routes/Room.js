@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router";
+import { useParams } from "react-router";
 import Overworld from "../game/Overworld";
 import { Person } from "../game/Person";
 import React from "react";
@@ -112,17 +112,27 @@ const CharacterNickname = styled.div`
   }
 `;
 
+const Draw = styled.div`
+  position: fixed;
+  width: 500px;
+  height 500px;
+  background-color: red;
+  left: 30%;
+  top: 30%;
+`;
+
 const Room = ({ userData }) => {
   const params = useParams();
-  const navigator = useNavigate();
-  const location = useLocation();
   const roomId = params.roomId;
-  const url = "http://localhost:3000/lobby"
+  const url = "http://localhost:3000/lobby";
+
+  const [openDraw, setOpenDraw] = useState(false);
 
   useEffect(() => {
     userData.then((data) => {
       Overworld({
         config: document.querySelector(".game-container"),
+        setOpenDraw,
         nickname: data.nickname || "ANON",
         Room: {
           RoomSrc:
@@ -179,6 +189,7 @@ const Room = ({ userData }) => {
         </CamBtn>
       </MyVideoBox>
       <ScreenBottomBar />
+      {openDraw ? <Draw> test</Draw>: null}
     </>
   );
 };

@@ -620,10 +620,10 @@ const Overworld3 = (data) => {
     character.sprite.yaxios = adjustValue.yaxios;
     character.sprite.yratio = adjustValue.yratio;
     character.directionUpdate = {
-      up: ["y", -4],
-      down: ["y", 4],
-      left: ["x", -4],
-      right: ["x", 4],
+      up: ["y", -6],
+      down: ["y", 6],
+      left: ["x", -6],
+      right: ["x", 6],
     };
     characters.push(character);
     charMap[id] = character;

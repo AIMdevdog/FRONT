@@ -1,7 +1,6 @@
 import { OverworldMap } from "./OverworldMap.js";
 import { DirectionInput } from "./DirectionInput.js";
 import { Person } from "./Person.js";
-import { FaVideo } from "react-icons/fa";
 import utils from "./utils.js";
 import io from "socket.io-client";
 import _const from "../config/const.js";
@@ -47,20 +46,21 @@ const Overworld = (data) => {
   } else if (map.roomNum === 1) {
     roomId = "room1" + map.roomId;
   }
-  let rotated = false;
-
   const socket = io(_const.HOST);
   let closer = [];
 
+  const keydownHandler = (e) => {
+    const player = charMap[socket.id];
+    if(e.key === "space" && player.x === 64 && player.y === 64){
+      data.setOpenHandler(prev => !prev);
+    }
+  }
+
+
+  document.addEventListener("keydown", keydownHandler);
   // data 안에 소켓id, nickname 있음
   // data for문 돌면서 isUserCalling checking 혹은..
   // [PASS] 2명+3명 그룹 합쳐질 때 그룹 통화중이라는 것을 표시해둬야 함 / 변수 하나 더 추가 true, false 체크
-
-  // function sortStreams() {
-  //   const streams = document.querySelector("#streams");
-  //   const streamArr = streams.querySelectorAll("div");
-  //   streamArr.forEach((stream) => (stream.className = `people${peopleInRoom}`));
-  // }
 
   async function handleAddStream(event, remoteSocketId, remoteNickname) {
     const peerStream = event.stream;
@@ -402,7 +402,6 @@ const Overworld = (data) => {
       nickname: nickname,
       roomId,
     });
-    // console.log(data);
   });
 
   socket.on("get_user_info", function (data) {
@@ -462,7 +461,6 @@ const Overworld = (data) => {
       //Update all objects
       Object.values(charMap).forEach((object) => {
         if (object.id === socket.id) {
-          // console.log(object.sprite.image.src);
           for (let i = 0; i < otherMaps.length; i++) {
             if (object.x === otherMaps[i].x && object.y === otherMaps[i].y) {
               console.log("warp!!!");
@@ -502,11 +500,8 @@ const Overworld = (data) => {
           ) {
             console.log("멀어짐");
             closer = closer.filter((element) => element !== object.id);
-            // console.log(socket)
             object.isUserCalling = false;
             object.isUserJoin = false;
-            // console.log(player, object);
-            // socket.emit("disconnected");
           }
         }
       });
@@ -519,17 +514,12 @@ const Overworld = (data) => {
           stream.removeChild(stream.firstChild);
         }
 
-        // for (let remoteSocketId in pcObj){
-        //   // console.log("-------- 커넥션 상태 --------", pcObj[remoteSocketId].iceConnectionState);
-        // }
         socket.emit("leave_Group", player.id);
         player.isUserCalling = false;
         player.isUserJoin = false;
       }
       //Draw Lower layer
       map.drawLowerImage(ctx, cameraPerson);
-
-      // console.log(charNickname);
 
       //Draw Game Objects
       Object.values(charMap)
@@ -547,7 +537,6 @@ const Overworld = (data) => {
             object.y -
             25 +
             utils.withGrid(ctx.canvas.clientHeight / 16 / 2) -
-            // utils.withGrid(ctx.canvas.clientWidth / 16 / 2) -
             cameraPerson.y +
             "px";
           objectNicknameContainer.style.left =
@@ -556,23 +545,6 @@ const Overworld = (data) => {
             cameraPerson.x +
             "px";
         });
-
-      // console.log(player?.y);
-      // if (map.roomNum === 3 && rotated && player?.y < -696) {
-      //   player.isRotated = true;
-      //   directionInput.heldDirections = [];
-      //   directionInput.map = { 
-      //     ArrowUp: "right",
-      //     // KeyW: "up",
-      //     ArrowDown: "left",
-      //     // KeyS: "down",
-      //     ArrowLeft: "up",
-      //     // KeyA: "left",
-      //     ArrowRight: "down",
-      //     // KeyD: "right",
-      //   };
-      //   rotated = true; 
-      // }
       if (player) {
         const data = {
           id: socket.id,
@@ -582,10 +554,6 @@ const Overworld = (data) => {
         };
         socket.emit("input", data);
       }
-
-      //Draw Upper layer
-      // this.map.drawUpperImage(this.ctx, cameraPerson);
-      // console.log(player?.y);
       requestAnimationFrame(() => {
         step();
       });
@@ -640,25 +608,6 @@ const Overworld = (data) => {
     charMap[id] = character;
     return character;
   };
-
-  // // bindActionInput() {
-  // //   new KeyPressListener("Enter", () => {
-  // //     // Is there a person here to talk to?
-  // //     this.map.checkForActionCutscene();
-  // //   });
-  // // }
-
-  // // bindHeroPositionCheck() {
-  // //   document.addEventListener("PersonWalkingComplete", (e) => {
-  // //     if (e.detail.whoId === "player") {
-  // //       // Hero's position has changed
-  // //       this.map.checkForFootstepCutscene();
-  // //     }
-  // //   });
-  // // }
-
-  // // this.bindActionInput();
-  // // this.bindHeroPositionCheck();
 
   startGameLoop();
 };

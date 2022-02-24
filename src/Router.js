@@ -5,10 +5,10 @@ import SignIn from "./routes/SignIn";
 import Lobby from "./routes/Lobby";
 import Room from "./routes/Room";
 import Room1 from "./routes/Room1";
-import SimpleSlider from "./components/CharacterSlider";
 import React from "react";
 import Room2 from "./routes/Room2";
 import Room3 from "./routes/Room3";
+import SettingPage from "./routes/SettingPage";
 
 export const Router = () => {
   return (
@@ -18,11 +18,11 @@ export const Router = () => {
         <Route path="/" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/lobby" element={<Lobby />} />
+        <Route path="/lobby/:id" element={<SettingPage />} />
         <Route path="/room/:roomId" element={<Room />} />
         <Route path="/room1/:roomId" element={<Room1 />} />
         <Route path="/room2/:roomId" element={<Room2 />} />
         <Route path="/room3/:roomId" element={<Room3 />} />
-        <Route path="/slider" element={<SimpleSlider />} />
       </Routes>
     </BrowserRouter>
   );

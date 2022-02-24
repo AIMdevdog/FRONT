@@ -290,12 +290,12 @@ const Lobby = ({ userData }) => {
     );
   };
   const readyToGoIntoTheRoom = (item) => {
-    window.location.href = `/room/${item.id}`;
-    // navigate(`/room/${item.id}`, {
-    //   state: {
-    //     roomId: item.id,
-    //   },
-    // });
+    navigate(`/lobby/${item.id}`, {
+      state: {
+        userData: isSaveUserData,
+        roomId: item.id,
+      },
+    });
   };
   return (
     <>
