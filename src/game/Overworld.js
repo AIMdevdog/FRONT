@@ -49,6 +49,8 @@ let producer
 let consumer
 let isProducer = false
 
+// ------------------------------------^ SFU
+
 let peopleInRoom = 1;
 
 const characters = [];
@@ -477,7 +479,116 @@ const Overworld = (data) => {
     })
   }
 
+  const signalNewConsumerTransport = async (remoteProducerId) => {
+    await socket.emit('createWebRtcTransport', { consumer: true }, ({ params }) => {
+      // The server sends back params needed 
+      // to create Send Transport on the client side
+      if (params.error) {
+        console.log(params.error)
+        return
+      }
+      console.log(`PARAMS... ${params}`)
+  
+      let consumerTransport
+      try {
+        consumerTransport = device.createRecvTransport(params)
+      } catch (error) {
+        // exceptions: 
+        // {InvalidStateError} if not loaded
+        // {TypeError} if wrong arguments.
+        console.log(error)
+        return
+      }
+  
+      consumerTransport.on('connect', async ({ dtlsParameters }, callback, errback) => {
+        try {
+          // Signal local DTLS parameters to the server side transport
+          // see server's socket.on('transport-recv-connect', ...)
+          await socket.emit('transport-recv-connect', {
+            dtlsParameters,
+            serverConsumerTransportId: params.id,
+          })
+  
+          // Tell the transport that parameters were transmitted.
+          callback()
+        } catch (error) {
+          // Tell the transport that something was wrong
+          errback(error)
+        }
+      })
+      connectRecvTransport(consumerTransport, remoteProducerId, params.id)
+    })
+  }
 
+  const connectRecvTransport = async (consumerTransport, remoteProducerId, serverConsumerTransportId) => {
+    // for consumer, we need to tell the server first
+    // to create a consumer based on the rtpCapabilities and consume
+    // if the router can consume, it will send back a set of params as below
+    await socket.emit('consume', {
+      rtpCapabilities: device.rtpCapabilities,
+      remoteProducerId,
+      serverConsumerTransportId,
+    }, async ({ params }) => {
+      if (params.error) {
+        console.log('Cannot Consume')
+        return
+      }
+  
+      console.log(`Consumer Params ${params}`)
+      // then consume with the local consumer transport
+      // which creates a consumer
+      const consumer = await consumerTransport.consume({
+        id: params.id,
+        producerId: params.producerId,
+        kind: params.kind,
+        rtpParameters: params.rtpParameters
+      })
+  
+      consumerTransports = [
+        ...consumerTransports,
+        {
+          consumerTransport,
+          serverConsumerTransportId: params.id,
+          producerId: remoteProducerId,
+          consumer,
+        },
+      ]
+  
+      // create a new div element for the new consumer media
+      // and append to the video container
+      // paintPeerFace()
+      const newElem = document.createElement("div")
+      newElem.setAttribute('id', `td-${remoteProducerId}`)
+      newElem.setAttribute('class', 'remoteVideo')
+      newElem.innerHTML = '<video id="' + remoteProducerId + '" autoplay class="video" ></video>'
+      videoContainer.appendChild(newElem)
+  
+      // destructure and retrieve the video track from the producer
+      const { track } = consumer
+  
+      document.getElementById(remoteProducerId).srcObject = new MediaStream([track])
+  
+      // the server consumer started with media paused
+      // so we need to inform the server to resume
+      socket.emit('consumer-resume', { serverConsumerId: params.serverConsumerId })
+    })
+  }
+  
+  socket.on('producer-closed', ({ remoteProducerId }) => {
+    // server notification is received when a producer is closed
+    // we need to close the client-side consumer and associated transport
+    const producerToClose = consumerTransports.find(transportData => transportData.producerId === remoteProducerId)
+    producerToClose.consumerTransport.close()
+    producerToClose.consumer.close()
+  
+    // remove the consumer transport from the list
+    consumerTransports = consumerTransports.filter(transportData => transportData.producerId !== remoteProducerId)
+  
+    // remove the video div element
+    videoContainer.removeChild(document.getElementById(`td-${remoteProducerId}`))
+  })
+
+  // ---------------------------------------- ^ SFU
 
 
 
