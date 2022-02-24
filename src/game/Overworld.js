@@ -55,8 +55,6 @@ const Overworld = (data) => {
 
   const keydownHandler = (e) => {
     const player = charMap[socket.id];
-    console.log(e.key);
-    console.log(player.x, player.y)
     if((e.key === "x" || e.key === "X" || e.key === "ㅌ") && player.x === 48 && player.y === 48){
       console.log("hi");
       data.setOpenDraw(prev => !prev);
@@ -75,8 +73,8 @@ const Overworld = (data) => {
   //   streamArr.forEach((stream) => (stream.className = `people${peopleInRoom}`));
   // }
 
-  const share = document.querySelector("#share");
-  share.addEventListener("click", sendArtsAddr);
+  // const share = document.querySelector("#share");
+  // share.addEventListener("click", sendArtsAddr);
 
   async function sendArtsAddr() {
     console.log('share click event실행');
@@ -346,7 +344,19 @@ const Overworld = (data) => {
   //상대방의 마우스 커서 그리기
   socket.on("shareCursorPosition", (cursorX, cursorY, remoteSocketId) => {
     //artsAddr로 작품을 그려주면 된다. 
-    console.log(cursorX, cursorY, remoteSocketId);
+    const draw = document.querySelector(".draw");
+    if(!draw){
+      return;
+    } else if (draw?.firstChild){
+      draw.removeChild(draw?.firstChild);
+    }
+    const img = document.createElement("img");
+    img.src = "https://img.icons8.com/ios-glyphs/344/cursor--v1.png";
+    // console.log(cursorX, cursorY, remoteSocketId);
+    img.style.top = cursorY - 240 + 'px';
+    img.style.left = cursorX - 165 + 'px';
+    draw.appendChild(img);
+    // console.dir(img);
   });
 
 
@@ -477,8 +487,6 @@ const Overworld = (data) => {
   socket.on("get_user_info", function (data) {
     // console.log(data);
     joinUser(data.id, data.x, data.y, data.nickname, data.src);
-
-    // console.log(cameraPerson);
 
     nicknameDiv = document.createElement("div");
     nicknameDiv.className = data.id;
