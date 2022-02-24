@@ -18,8 +18,6 @@ import moment from "moment";
 import { connect } from "react-redux";
 import ReactModal from "react-modal";
 
-const cookies = new Cookies();
-
 const LobbyContainer = styled.div`
   display: flex;
   flex-direction: column;

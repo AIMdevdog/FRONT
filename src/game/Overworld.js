@@ -51,12 +51,15 @@ const Overworld = (data) => {
 
   const keydownHandler = (e) => {
     const player = charMap[socket.id];
-    if(e.key === "space" && player.x === 64 && player.y === 64){
-      data.setOpenHandler(prev => !prev);
+    console.log(e.key);
+    console.log(player.x, player.y)
+    if((e.key === "x" || e.key === "X" || e.key === "ㅌ") && player.x === 48 && player.y === 48){
+      console.log("hi");
+      data.setOpenDraw(prev => !prev);
+    }else if(directionInput.direction){
+      data.setOpenDraw(false);
     }
   }
-
-
   document.addEventListener("keydown", keydownHandler);
   // data 안에 소켓id, nickname 있음
   // data for문 돌면서 isUserCalling checking 혹은..
