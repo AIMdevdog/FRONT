@@ -5,6 +5,7 @@ import { FaVideo } from "react-icons/fa";
 import utils from "./utils.js";
 import io from "socket.io-client";
 import _const from "../config/const.js";
+import mediasoupClient from 'mediasoup-client'
 
 let myStream;
 let cameraOff = false;
@@ -13,6 +14,40 @@ let pcObj = {
   // remoteSocketId: pc (peer connection)
   // pcObj[remoteSocketId] = myPeerConnection 이다
 };
+
+// WebRTC SFU (mediasoup)
+let params = {
+  // mediasoup params
+  encodings: [
+    {
+      rid: 'r0',
+      maxBitrate: 100000,
+      scalabilityMode: 'S1T3',
+    },
+    {
+      rid: 'r1',
+      maxBitrate: 300000,
+      scalabilityMode: 'S1T3',
+    },
+    {
+      rid: 'r2',
+      maxBitrate: 900000,
+      scalabilityMode: 'S1T3',
+    },
+  ],
+  // https://mediasoup.org/documentation/v3/mediasoup-client/api/#ProducerCodecOptions
+  codecOptions: {
+    videoGoogleStartBitrate: 1000
+  }
+}
+
+let device
+let rtpCapabilities
+let producerTransport
+let consumerTransports = []
+let producer
+let consumer
+let isProducer = false
 
 let peopleInRoom = 1;
 
@@ -257,6 +292,11 @@ const Overworld = (data) => {
       myStream // mute default
         .getAudioTracks()
         .forEach((track) => (track.enabled = false));
+      let track = myStream.getVideoTracks()[0]
+      params = {
+        track,
+        ...params
+      }
     } else {
       myStream = await navigator.mediaDevices.getDisplayMedia(
         displayMediaOptions
@@ -315,6 +355,132 @@ const Overworld = (data) => {
     chatBox.appendChild(li);
   }
 
+  // WebRTC SFU (mediasoup) functions
+
+  // A device is an endpoint connecting to a Router on the
+  // server side to send/recive media
+  const createDevice = async () => {
+    try {
+      device = new mediasoupClient.Device()
+
+      // https://mediasoup.org/documentation/v3/mediasoup-client/api/#device-load
+      // Loads the device with RTP capabilities of the Router (server side)
+      await device.load({
+        // see getRtpCapabilities() below
+        routerRtpCapabilities: rtpCapabilities
+      })
+
+      console.log('Device RTP Capabilities', device.rtpCapabilities)
+
+      // once the device loads, create transport
+      createSendTransport()
+
+    } catch (error) {
+      console.log(error)
+      if (error.name === 'UnsupportedError')
+        console.warn('browser not supported')
+    }
+  }
+
+  const createSendTransport = () => {
+    // see server's socket.on('createWebRtcTransport', sender?, ...)
+    // this is a call from Producer, so sender = true
+    socket.emit('createWebRtcTransport', { consumer: false }, ({ params }) => {
+      // The server sends back params needed 
+      // to create Send Transport on the client side
+      if (params.error) {
+        console.log(params.error)
+        return
+      }
+  
+      console.log(params)
+  
+      // creates a new WebRTC Transport to send media
+      // based on the server's producer transport params
+      // https://mediasoup.org/documentation/v3/mediasoup-client/api/#TransportOptions
+      producerTransport = device.createSendTransport(params)
+  
+      // https://mediasoup.org/documentation/v3/communication-between-client-and-server/#producing-media
+      // this event is raised when a first call to transport.produce() is made
+      // see connectSendTransport() below
+      producerTransport.on('connect', async ({ dtlsParameters }, callback, errback) => {
+        try {
+          // Signal local DTLS parameters to the server side transport
+          // see server's socket.on('transport-dconnect', ...)
+          await socket.emit('transport-connect', {
+            dtlsParameters,
+          })
+  
+          // Tell the transport that parameters were transmitted.
+          callback()
+  
+        } catch (error) {
+          errback(error)
+        }
+      })
+  
+      producerTransport.on('produce', async (parameters, callback, errback) => {
+        console.log(parameters)
+  
+        try {
+          // tell the server to create a Producer
+          // with the following parameters and produce
+          // and expect back a server side producer id
+          // see server's socket.on('transport-produce', ...)
+          await socket.emit('transport-produce', {
+            kind: parameters.kind,
+            rtpParameters: parameters.rtpParameters,
+            appData: parameters.appData,
+          }, ({ id, producersExist }) => {
+            // Tell the transport that parameters were transmitted and provide it with the
+            // server side producer's id.
+            callback({ id })
+  
+            // if producers exist, then join room
+            if (producersExist) getProducers()
+          })
+        } catch (error) {
+          errback(error)
+        }
+      })
+  
+      connectSendTransport()
+    })
+  }
+
+  const connectSendTransport = async () => {
+    // we now call produce() to instruct the producer transport
+    // to send media to the Router
+    // https://mediasoup.org/documentation/v3/mediasoup-client/api/#transport-produce
+    // this action will trigger the 'connect' and 'produce' events above
+    producer = await producerTransport.produce(params)
+  
+    producer.on('trackended', () => {
+      console.log('track ended')
+  
+      // close video track
+    })
+  
+    producer.on('transportclose', () => {
+      console.log('transport ended')
+  
+      // close video track
+    })
+  }
+
+  const getProducers = () => {
+    socket.emit('getProducers', producerIds => {
+      console.log(producerIds)
+      // for each of the producer create a consumer
+      // producerIds.forEach(id => signalNewConsumerTransport(id))
+      producerIds.forEach(signalNewConsumerTransport)
+    })
+  }
+
+
+
+
+
   // 남는 사람 기준
   socket.on("leave_succ", function (data) {
     const user = charMap[data.removeSid];
@@ -329,26 +495,37 @@ const Overworld = (data) => {
   socket.on("accept_join", async (userObjArr) => {
     try {
       await initCall();
+      socket.emit('getRtpCapabilities', (data) => {
+        console.log(`Router RTP Capabilities... ${data.rtpCapabilities}`)
+        // we assign to local variable and will be used when
+        // loading the client Device (see createDevice above)
+        rtpCapabilities = data.rtpCapabilities
+    
+        // once we have rtpCapabilities from the Router, create Device
+        createDevice()
+      })
 
-      const length = userObjArr.length;
-      if (length === 1) {
-        return;
-      }
 
-      for (let i = 0; i < length - 1; ++i) {
-        const newPC = await createConnection(
-          userObjArr[i].socketId,
-          userObjArr[i].nickname
-        );
-        const offer = await newPC.createOffer();
-        await newPC.setLocalDescription(offer);
-        socket.emit(
-          "offer",
-          offer,
-          userObjArr[i].socketId,
-          userObjArr[i].nickname
-        );
-      }
+
+      // const length = userObjArr.length;
+      // if (length === 1) {
+      //   return;
+      // }
+
+      // for (let i = 0; i < length - 1; ++i) {
+      //   const newPC = await createConnection(
+      //     userObjArr[i].socketId,
+      //     userObjArr[i].nickname
+      //   );
+      //   const offer = await newPC.createOffer();
+      //   await newPC.setLocalDescription(offer);
+      //   socket.emit(
+      //     "offer",
+      //     offer,
+      //     userObjArr[i].socketId,
+      //     userObjArr[i].nickname
+      //   );
+      // }
     } catch (err) {
       console.error(err);
     }
