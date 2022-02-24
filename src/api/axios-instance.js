@@ -49,6 +49,7 @@ instance.interceptors.response.use(
         data: { msg, result },
       } = requestResult;
       if (msg) {
+        console.log(msg);
         cookies.set("access-token", result?.access_token, { maxAge: 60 });
         alert("정보를 불러올 수 없습니다. 다시 시도해주세요.");
       }

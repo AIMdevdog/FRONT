@@ -2,9 +2,13 @@ import React from "react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import styled from "styled-components";
-import { room } from "../config/api";
-import { localGetItem } from "../utils/handleStorage";
+// import RoomItemComponent from "../components/RoomItem";
+import { user, room } from "../config/api";
+
+// icons
 import { GiBroom } from "react-icons/gi";
+import { BsThreeDotsVertical } from "react-icons/bs";
+
 import Header from "../components/Header";
 import LoadingComponent from "../components/Loading";
 
@@ -12,7 +16,9 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import moment from "moment";
 import { connect } from "react-redux";
-import _const from "../config/const";
+import ReactModal from "react-modal";
+
+const cookies = new Cookies();
 
 const LobbyContainer = styled.div`
   display: flex;
@@ -209,16 +215,27 @@ const RoomItemImageWrap = styled.div`
 const RoomItemDescription = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-end;
   margin-top: 16px;
 
+  div {
+    display: flex;
+    flex-direction: column;
+
+    svg {
+      cursor: pointer;
+    }
+  }
   span {
     font-family: "DM Sans", sans-serif;
     color: white;
     font-size: 14px;
+    display: inline-block;
+    /* line-height: 24px; */
 
     &:nth-child(2) {
       color: grey;
+      padding-top: 10px;
     }
   }
 `;
@@ -243,15 +260,86 @@ const EmptyRoom = styled.div`
   }
 `;
 
+const CreateRoomModalContainer = styled.div`
+  display: flex;
+  background-color: rgb(40, 45, 78);
+  flex-direction: column;
+  padding: 32px;
+  border-radius: 32px;
+  z-index: 7;
+  position: relative;
+`;
+
+const ModalButton = styled.div`
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+
+  button {
+    width: 100%;
+    border: none;
+    background-color: transparent;
+    color: white;
+    font-weight: bold;
+    margin-top: 20px;
+    height: 40px;
+    border-radius: 10px;
+
+    &:nth-child(1) {
+      background-color: rgb(6, 214, 160);
+      color: rgb(40, 45, 78);
+    }
+  }
+`;
+
+const RoomText = styled.div`
+  display: flex;
+  width: 100%;
+  align-items: center;
+  margin-bottom: 16px;
+
+  span {
+    color: rgb(255, 255, 255);
+    font-family: "DM Sans", sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 26px;
+  }
+`;
+
+const customStyles = {
+  content: {
+    top: "50%",
+    left: "50%",
+    right: "auto",
+    bottom: "auto",
+    marginRight: "-50%",
+    transform: "translate(-50%, -50%)",
+    padding: 0,
+    borderRadius: 32,
+    border: "none",
+    background: "transparent",
+    boxShadow: "rgba(0, 0, 0, 0.08) 0px 1px 12px",
+  },
+  overlay: {
+    background: "rgba(0, 0, 0, 0.6)",
+  },
+};
+
 const Lobby = ({ userData }) => {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [isGetRoom, setIsGetRoom] = useState([]);
-  const session = localGetItem("session");
-  const navigate = useNavigate();
+
   const [isSaveUserData, setIsSaveUserData] = useState(null);
   const [isChangeRoom, setIsChangeRoom] = useState(false);
   const [isMyRoom, setIsMyRoom] = useState([]);
+  const [isSearchRoom, setSearchRoom] = useState([]);
+
+  const [isRoomEdit, setIsRoomEdit] = useState(false);
+  const [isRoomId, setIsRoomId] = useState(null);
 
   const EnterIcon =
     "https://icon-library.com/images/enter-icon/enter-icon-1.jpg";
@@ -283,19 +371,54 @@ const Lobby = ({ userData }) => {
     setSearch(value);
   };
 
+  useEffect(() => {
+    const setSearchResult = () => {
+      if (search) {
+        const searchResult = isGetRoom.filter((room) =>
+          room.title.includes(search)
+        );
+        setSearchRoom(searchResult);
+      } else {
+        setSearchRoom([]);
+      }
+    };
+
+    setSearchResult();
+  }, [search]);
+
   const isChangeRoomType = () => {
     setIsChangeRoom((prev) => !prev);
     setIsMyRoom(
       isGetRoom.filter((room) => room?.hostId === isSaveUserData?.id)
     );
   };
+
+  const isRoomControl = (roomId) => {
+    setIsRoomEdit(!isRoomEdit);
+    setIsRoomId(roomId);
+  };
+
+  const isDeleteRoomConfirm = async () => {
+    try {
+      setIsLoading(true);
+      const result = await room.deleteRoom(isRoomId);
+      const {
+        data: { code, msg },
+      } = result;
+      if (code) {
+        alert(msg);
+        window.location.reload();
+      }
+      isRoomControl();
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const readyToGoIntoTheRoom = (item) => {
-    navigate(`/lobby/${item.id}`, {
-      state: {
-        userData: isSaveUserData,
-        roomId: item.id,
-      },
-    });
+    window.location.href = `/room/${item.id}`;
   };
   return (
     <>
@@ -307,10 +430,10 @@ const Lobby = ({ userData }) => {
         />
         <LobbyHeader>
           <TabButton room={isChangeRoom} onClick={isChangeRoomType}>
-            <span>All Space</span>
+            <span>모든 전시공간</span>
           </TabButton>
           <CreateSpace room={isChangeRoom} onClick={isChangeRoomType}>
-            <span>Created Space</span>
+            <span>내 전시공간</span>
           </CreateSpace>
           <SearchInput>
             <div>
@@ -327,27 +450,27 @@ const Lobby = ({ userData }) => {
           </SearchInput>
         </LobbyHeader>
         <RoomContainer>
-          {isChangeRoom ? (
+          {search ? (
             <>
-              {isMyRoom?.length === 0 ? (
+              {isSearchRoom?.length === 0 ? (
                 <EmptyRoom>
                   <GiBroom color="white" size="40" />
                   <div>
-                    <span>전시관이 없습니다.</span>
+                    <span>검색하신 전시관이 없습니다.</span>
                     <br />
-                    <span>작가라면 전시공간을 만들어보세요!</span>
+                    <span>정확한 전시관 이름을 입력해주세요.</span>
                   </div>
                 </EmptyRoom>
               ) : (
                 <>
                   <RoomItems>
-                    {isMyRoom?.map((item) => {
+                    {isSearchRoom?.map((item) => {
                       return (
-                        <RoomItem
-                          onClick={() => readyToGoIntoTheRoom(item)}
-                          key={item.id}
-                        >
-                          <RoomItemImageWrap background={item?.image}>
+                        <RoomItem key={item.id}>
+                          <RoomItemImageWrap
+                            background={item?.image}
+                            onClick={() => readyToGoIntoTheRoom(item)}
+                          >
                             <div>
                               <div>
                                 <p>
@@ -357,7 +480,10 @@ const Lobby = ({ userData }) => {
                             </div>
                           </RoomItemImageWrap>
                           <RoomItemDescription>
-                            <span>{item?.title}</span>
+                            <div>
+                              <span>{item?.title}</span>
+                              <span>{item?.description}</span>
+                            </div>
                             <span>{moment(item?.createdAt).fromNow()}</span>
                           </RoomItemDescription>
                           <div className="hover-action"></div>
@@ -370,49 +496,122 @@ const Lobby = ({ userData }) => {
             </>
           ) : (
             <>
-              {isGetRoom?.length === 0 ? (
-                <EmptyRoom>
-                  <GiBroom color="white" size="40" />
-                  <div>
-                    <span>전시관이 없습니다.</span>
-                    <br />
-                    <span>작가라면 전시공간을 만들어보세요!</span>
-                  </div>
-                </EmptyRoom>
+              {isChangeRoom ? (
+                <>
+                  {isMyRoom?.length === 0 ? (
+                    <EmptyRoom>
+                      <GiBroom color="white" size="40" />
+                      <div>
+                        <span>전시관이 없습니다.</span>
+                        <br />
+                        <span>작가라면 전시공간을 만들어보세요!</span>
+                      </div>
+                    </EmptyRoom>
+                  ) : (
+                    <>
+                      <RoomItems>
+                        {isMyRoom?.map((item) => {
+                          return (
+                            <RoomItem key={item.id}>
+                              <RoomItemImageWrap
+                                background={item?.image}
+                                onClick={() => readyToGoIntoTheRoom(item)}
+                              >
+                                <div>
+                                  <div>
+                                    <p>
+                                      <img src={EnterIcon} alt="" />
+                                    </p>
+                                  </div>
+                                </div>
+                              </RoomItemImageWrap>
+                              <RoomItemDescription>
+                                <div>
+                                  <span>{item?.title}</span>
+                                  <span>{item?.description}</span>
+                                </div>
+                                <div style={{ alignItems: "flex-end" }}>
+                                  <BsThreeDotsVertical
+                                    onClick={() => isRoomControl(item?.id)}
+                                    color="white"
+                                  />
+                                  <span>
+                                    {moment(item?.createdAt).fromNow()}
+                                  </span>
+                                </div>
+                              </RoomItemDescription>
+                              <div className="hover-action"></div>
+                            </RoomItem>
+                          );
+                        })}
+                      </RoomItems>
+                    </>
+                  )}
+                </>
               ) : (
                 <>
-                  <RoomItems>
-                    {isGetRoom?.map((item) => {
-                      return (
-                        <RoomItem
-                          onClick={() => readyToGoIntoTheRoom(item)}
-                          key={item.id}
-                        >
-                          <RoomItemImageWrap background={item?.image}>
-                            <div>
-                              <div>
-                                <p>
-                                  <img src={EnterIcon} alt="" />
-                                </p>
-                              </div>
-                            </div>
-                          </RoomItemImageWrap>
-                          <RoomItemDescription>
-                            <span>{item?.title}</span>
-                            <span>{moment(item?.createdAt).fromNow()}</span>
-                          </RoomItemDescription>
-                        </RoomItem>
-                      );
-                    })}
-                  </RoomItems>
+                  {isGetRoom?.length === 0 ? (
+                    <EmptyRoom>
+                      <GiBroom color="white" size="40" />
+                      <div>
+                        <span>전시관이 없습니다.</span>
+                        <br />
+                        <span>작가라면 전시공간을 만들어보세요!</span>
+                      </div>
+                    </EmptyRoom>
+                  ) : (
+                    <>
+                      <RoomItems>
+                        {isGetRoom?.map((item) => {
+                          return (
+                            <RoomItem key={item.id}>
+                              <RoomItemImageWrap
+                                background={item?.image}
+                                onClick={() => readyToGoIntoTheRoom(item)}
+                              >
+                                <div>
+                                  <div>
+                                    <p>
+                                      <img src={EnterIcon} alt="" />
+                                    </p>
+                                  </div>
+                                </div>
+                              </RoomItemImageWrap>
+                              <RoomItemDescription>
+                                <div>
+                                  <span>{item?.title}</span>
+                                  <span>{item?.description}</span>
+                                </div>
+                                <span>{moment(item?.createdAt).fromNow()}</span>
+                              </RoomItemDescription>
+                            </RoomItem>
+                          );
+                        })}
+                      </RoomItems>
+                    </>
+                  )}
                 </>
               )}
             </>
           )}
-
-          {/* <RoomItemComponent data={DummyData} userData={state} /> */}
         </RoomContainer>
       </LobbyContainer>
+      <ReactModal
+        ariaHideApp={false}
+        style={customStyles}
+        isOpen={isRoomEdit}
+        onRequestClose={isRoomControl}
+      >
+        <CreateRoomModalContainer>
+          <RoomText>
+            <span>방을 삭제하시겠습니까?</span>
+          </RoomText>
+          <ModalButton>
+            <button onClick={isDeleteRoomConfirm}>삭제</button>
+            <button onClick={isRoomControl}>취소</button>
+          </ModalButton>
+        </CreateRoomModalContainer>
+      </ReactModal>
     </>
   );
 };

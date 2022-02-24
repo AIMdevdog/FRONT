@@ -6,6 +6,7 @@ import App from "./App";
 import store from "./store";
 
 ReactModal.setAppElement("#root");
+const rootElement = document.getElementById("root");
 
 ReactDOM.render(
   <React.StrictMode>
@@ -13,5 +14,5 @@ ReactDOM.render(
       <App />
     </Provider>
   </React.StrictMode>,
-  document.getElementById("root")
+  rootElement
 );

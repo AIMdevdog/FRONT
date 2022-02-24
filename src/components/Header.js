@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
-import ReactModal from "react-modal";
 import { useNavigate } from "react-router";
 import styled from "styled-components";
-import { user, room } from "../config/api";
-import { localGetItem, removeItem } from "../utils/handleStorage";
+import { user } from "../config/api";
 import LoadingComponent from "./Loading";
 import Slider from "react-slick";
 import React from "react";
 
 import { Cookies } from "react-cookie";
+
+import CreateSpaceModal from "./CreateSpaceModal";
 
 const cookies = new Cookies();
 
@@ -174,148 +174,7 @@ const LogoutButton = styled.button`
   color: white;
   margin-right: 20px;
 `;
-const CreateRoomModalContainer = styled.div`
-  display: flex;
-  background-color: rgb(40, 45, 78);
-  flex-direction: column;
-  padding: 32px;
-  border-radius: 32px;
-  z-index: 7;
-  position: relative;
-`;
-const RoomText = styled.div`
-  display: flex;
-  width: 100%;
-  align-items: center;
-  margin-bottom: 16px;
 
-  span {
-    color: rgb(255, 255, 255);
-    font-family: "DM Sans", sans-serif;
-    font-weight: 700;
-    font-size: 20px;
-    line-height: 26px;
-  }
-`;
-const RoomImageContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-
-  div {
-    outline: rgba(255, 255, 255, 0.1) solid 0.6px;
-    cursor: pointer;
-    border-radius: 18px;
-    background: rgb(84, 92, 143);
-    margin: 6px;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    width: 285px;
-    position: relative;
-    transition: top 0.2s ease 0s;
-    top: 0px;
-
-    img {
-    }
-  }
-`;
-const ButtonContainer = styled.div`
-  display: flex;
-  margin-top: 36px;
-  width: 100%;
-  justify-content: center;
-  flex-direction: row;
-  align-items: center;
-`;
-const SelectButton = styled.div`
-  display: flex;
-  width: 200px;
-
-  button {
-    display: flex;
-    position: relative;
-    box-sizing: border-box;
-    outline: none;
-    -webkit-box-align: center;
-    align-items: center;
-    -webkit-box-pack: center;
-    justify-content: center;
-    font-family: inherit;
-    font-weight: 700;
-    transition: background-color 200ms ease 0s, border-color 200ms ease 0s;
-    cursor: pointer;
-    opacity: 1;
-    overflow: hidden;
-    background-color: rgb(6, 214, 160);
-    border: 2px solid transparent;
-    padding: 0px 16px;
-    width: 100%;
-    height: 48px;
-    border-radius: 16px;
-    font-size: 15px;
-    color: rgb(40, 45, 78) !important;
-  }
-`;
-const RoomInfoContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  margin-top: 20px;
-`;
-const RoomInfoLabel = styled.div`
-  display: flex;
-  margin-bottom: 4px;
-
-  label {
-    color: white;
-    margin-bottom: 6px;
-  }
-
-  input {
-    border: none;
-    box-shadow: none;
-    background: transparent;
-    -webkit-box-flex: 1;
-    flex-grow: 1;
-    font-weight: 500;
-    font-size: 15px;
-    font-family: inherit;
-    line-height: 20px;
-    color: rgb(17, 17, 17);
-    width: 100%;
-    height: 100%;
-  }
-`;
-const RoomInfoInput = styled.div`
-  width: 100%;
-  border: 2px solid rgb(151, 151, 151);
-  border-radius: 16px;
-  display: flex;
-  flex-direction: row;
-  -webkit-box-align: center;
-  align-items: center;
-  transition: border 200ms ease 0s;
-  box-sizing: border-box;
-  height: 48px;
-  padding: 0px 8px 0px 16px;
-
-  input {
-    border: none;
-    box-shadow: none;
-    background: transparent;
-    -webkit-box-flex: 1;
-    flex-grow: 1;
-    font-weight: 500;
-    font-size: 15px;
-    font-family: inherit;
-    line-height: 20px;
-    color: white;
-    width: 100%;
-    height: 100%;
-  }
-`;
 const customStyles = {
   content: {
     top: "50%",
@@ -432,7 +291,7 @@ const UserInfoBottomInputSection = styled.div`
       font-family: "DM Sans", sans-serif;
       font-weight: 700;
       font-size: 18px;
-      line-height: 24px;
+      line-height: 26px;
     }
   }
 
@@ -577,13 +436,11 @@ const ArrowWrap = styled.div`
 
 const Header = ({ isSaveUserData, setIsSaveUserData }) => {
   const navigate = useNavigate();
-  const session = localGetItem("session");
   const isLogin = cookies.get("refresh-token");
 
   const defaultImage =
     "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png";
-  const [isRoomTitle, setIsRoomTitle] = useState("");
-  const [isRoomDesc, setIsRoomDesc] = useState("");
+
   const [isPath, setIsPath] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isCreateRoomOpen, setIsCreateRoomOpen] = useState(false);
@@ -592,8 +449,6 @@ const Header = ({ isSaveUserData, setIsSaveUserData }) => {
   const [isSettingOpen, setIsSettingOpen] = useState(false);
   const [isNickname, setIsNickname] = useState("");
   const [isCurrentImg, setCurrent] = useState(0);
-  const roomImage =
-    "https://aim-image-storage.s3.ap-northeast-2.amazonaws.com/map2.png";
   const charImgs = [
     "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png",
     "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-sb7g6nQb3ZYxzNHryIbM.png",
@@ -622,13 +477,33 @@ const Header = ({ isSaveUserData, setIsSaveUserData }) => {
     isLogged();
   }, [isPath]);
 
-  const onClickLogo = () => {
-    if (session) {
-      navigate("/lobby");
-    } else {
-      navigate("/");
-    }
-  };
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const requestUserData = await user.getUserInfo();
+        const {
+          data: { result },
+        } = requestUserData;
+        if (result) {
+          // alert(msg);
+          setIsSaveUserData(result);
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    getUser();
+  }, []);
+
+  // const onClickLogo = () => {
+  //   if (session) {
+  //     navigate("/lobby");
+  //   } else {
+  //     navigate("/");
+  //   }
+  // };
+
   const onCreateSpace = () => {
     setIsCreateRoomOpen(!isCreateRoomOpen);
   };
@@ -640,50 +515,9 @@ const Header = ({ isSaveUserData, setIsSaveUserData }) => {
     navigate("/");
   };
 
-  const onChange = (event) => {
-    const {
-      target: { name, value },
-    } = event;
-    if (name === "isRoomTitle") {
-      setIsRoomTitle(value);
-    } else if (name === "isRoomDesc") {
-      setIsRoomDesc(value);
-    }
-  };
-
-  const onSelectSpace = async () => {
-    try {
-      setIsLoading(true);
-      if (!isRoomTitle || !isRoomDesc)
-        return alert("방 제목과 설명을 정확히 입력해주세요.");
-      setIsCreateRoomOpen(false);
-      const result = await room.createRoom(
-        isSaveUserData?.id,
-        roomImage,
-        isRoomTitle,
-        isRoomDesc
-      );
-      const { status } = result;
-      if (status === 200) {
-        alert("방 생성이 완료되었습니다.");
-        window.location.reload();
-      } else {
-        alert("방 생성에 실패하였습니다. 다시 시도해주세요.");
-      }
-    } catch (e) {
-      console.log(e);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const openSettingContainer = (item) => {
     setCurrent(charImgs[initIndex]);
-    // setIsRoomId(item.id);
     setIsSettingOpen(!isSettingOpen);
-    console.log(111);
-    // setIsNickname("");
-    // setCurrent(charImgs[0]);
   };
 
   const settings = {
@@ -698,16 +532,7 @@ const Header = ({ isSaveUserData, setIsSaveUserData }) => {
       setCurrent((before) => (before = charImgs[next]));
     },
     appendDots: (dots) => (
-      <div
-        style={
-          {
-            // width: "32px",
-            // height: "32px",
-            // overflow: "hidden",
-            // position: "relative",
-          }
-        }
-      >
+      <div>
         <ul style={{ margin: "0px" }}> {dots} </ul>
       </div>
     ),
@@ -735,6 +560,7 @@ const Header = ({ isSaveUserData, setIsSaveUserData }) => {
               imageRendering: "pixelated",
               transform: "scale(1.25)",
             }}
+            alt="character list"
           />
         </div>
       );
@@ -780,7 +606,8 @@ const Header = ({ isSaveUserData, setIsSaveUserData }) => {
       {isLoading && <LoadingComponent />}
       <HeaderContainer path={isPath}>
         <LeftSection>
-          <LogoSpan onClick={onClickLogo}>
+          {/* <LogoSpan onClick={onClickLogo}> */}
+          <LogoSpan>
             <span>AiM</span>
           </LogoSpan>
         </LeftSection>
@@ -797,7 +624,7 @@ const Header = ({ isSaveUserData, setIsSaveUserData }) => {
                             ? isSaveUserData?.character
                             : defaultImage
                         }
-                        alt="profile image"
+                        alt="profileImage"
                       />
                     </div>
                   </div>
@@ -811,66 +638,15 @@ const Header = ({ isSaveUserData, setIsSaveUserData }) => {
                 </UserProfileNickname>
               </button>
             </UserProfile>
-            <LogoutButton onClick={isLogOut}>Logout</LogoutButton>
-            <CreateButton onClick={onCreateSpace}>Create Space</CreateButton>
+            <LogoutButton onClick={isLogOut}>로그아웃</LogoutButton>
+            <CreateButton onClick={onCreateSpace}>전시공간 만들기</CreateButton>
           </RightSectionUserProfile>
         </RightSection>
       </HeaderContainer>
-      <ReactModal
-        style={customStyles}
-        isOpen={isCreateRoomOpen}
-        onRequestClose={onCreateSpace}
-      >
-        <CreateRoomModalContainer>
-          <RoomText>
-            <span>What are you looking to do on Gather?</span>
-          </RoomText>
-          <RoomImageContainer>
-            <div>
-              <img src={roomImage} alt="room image" />
-            </div>
-          </RoomImageContainer>
-          <RoomInfoContainer>
-            <RoomInfoLabel>
-              <label>
-                <span>Title</span>
-              </label>
-            </RoomInfoLabel>
-            <RoomInfoInput>
-              <input
-                name="isRoomTitle"
-                type="text"
-                required
-                value={isRoomTitle}
-                onChange={onChange}
-                placeholder="Enter your Room Title"
-              />
-            </RoomInfoInput>
-          </RoomInfoContainer>
-          <RoomInfoContainer>
-            <RoomInfoLabel>
-              <label>
-                <span>Description</span>
-              </label>
-            </RoomInfoLabel>
-            <RoomInfoInput>
-              <input
-                name="isRoomDesc"
-                type="text"
-                required
-                value={isRoomDesc}
-                onChange={onChange}
-                placeholder="Enter your Room Title"
-              />
-            </RoomInfoInput>
-          </RoomInfoContainer>
-          <ButtonContainer>
-            <SelectButton>
-              <button onClick={onSelectSpace}>Select Space</button>
-            </SelectButton>
-          </ButtonContainer>
-        </CreateRoomModalContainer>
-      </ReactModal>
+      <CreateSpaceModal
+        isCreateRoomOpen={isCreateRoomOpen}
+        onCreateSpace={onCreateSpace}
+      />
       {isSettingOpen && (
         <UserInfoModalContainer>
           <UserInfoModal>
@@ -897,7 +673,6 @@ const Header = ({ isSaveUserData, setIsSaveUserData }) => {
                 </div>
               </UserInfoTopSection>
               <UserNickname>
-                {/* <span>fred</span> */}
                 {isSaveUserData?.nickname ? (
                   <span>{isSaveUserData?.nickname}</span>
                 ) : (
@@ -907,14 +682,15 @@ const Header = ({ isSaveUserData, setIsSaveUserData }) => {
               <UserInfoBottomSection>
                 <UserInfoBottomInputSection>
                   <div>
-                    <span>Name your character</span>
+                    <span>캐릭터를 선택하고 이름을 지어보세요!</span>
                   </div>
                 </UserInfoBottomInputSection>
                 <UserInfoBottomInputSection>
                   <div>
                     <span>
-                      Pick a name for your character – don’t worry, you’ll be
-                      able to customize it after!
+                      걱정하지말고 닉네임을 입력하세요!
+                      <br />
+                      수정이 가능합니다!
                     </span>
                   </div>
                 </UserInfoBottomInputSection>
@@ -928,17 +704,17 @@ const Header = ({ isSaveUserData, setIsSaveUserData }) => {
                         required
                         value={isNickname}
                         onChange={onChangeNickname}
-                        placeholder="Enter your nickname"
+                        placeholder="닉네임을 입력해주세요."
                       />
                     </div>
                   </div>
                 </UserInfoBottomInputSection>
                 <SetButtonContainer>
                   <div>
-                    <BackButton onClick={openSettingContainer}>Back</BackButton>
+                    <BackButton onClick={openSettingContainer}>닫기</BackButton>
                   </div>
                   <div>
-                    <FinishButton onClick={saveUserInfo}>Finish</FinishButton>
+                    <FinishButton onClick={saveUserInfo}>완료</FinishButton>
                   </div>
                 </SetButtonContainer>
               </UserInfoBottomSection>
