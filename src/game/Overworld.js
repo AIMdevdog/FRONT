@@ -57,6 +57,8 @@ const Overworld = (data) => {
   //   streamArr.forEach((stream) => (stream.className = `people${peopleInRoom}`));
   // }
 
+  initCall();
+  
   async function handleAddStream(event, remoteSocketId, remoteNickname) {
     const peerStream = event.stream;
     console.log(peerStream);
@@ -328,7 +330,6 @@ const Overworld = (data) => {
 
   socket.on("accept_join", async (userObjArr) => {
     try {
-      await initCall();
 
       const length = userObjArr.length;
       if (length === 1) {
