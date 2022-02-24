@@ -182,14 +182,24 @@ const Room = ({ userData }) => {
         <div id="share" style={{position: 'absolute', top: 0, right: 0}}>
           <button>share</button>
         </div>
-      <ShareArt id="Arts">
+      <ShareArt id="Arts" onmousemove='cursorPosition'>
         {/* <img src="https://icon-library.com/images/enter-icon/enter-icon-1.jpg"
           alt="Grapefruit slice atop a pile of other slices">
         </img> */}
       </ShareArt>
+        
     </>
   );
 };
+
+function cursorPosition() {
+  var e = window.event;
+
+  var posX = e.clientX;
+  var posY = e.clientY;
+
+
+}
 
 function mapStateProps(state) {
   return {

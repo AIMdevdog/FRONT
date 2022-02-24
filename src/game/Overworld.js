@@ -329,26 +329,35 @@ const Overworld = (data) => {
     chatBox.appendChild(li);
   }
 
-  function popupArts(artsAddr) {
-    const SharedArts = document.querySelector("#Arts");
-    const div = document.createElement("div");
+  //상대방의 마우스 커서 그리기
+  socket.on("shareCursorPosition", (cursorX, cursorY) => {
+    //artsAddr로 작품을 그려주면 된다. 
+    console.log(cursorX, cursorY);
 
+  });
+
+  function updateDisplay(event) {
+    socket.emit("cursorPosition", event.pageX, event.pageY)
+  };
+
+  var SharedArts = document.querySelector("#Arts"); 
+  SharedArts.addEventListener("mousemove", updateDisplay, false);
+  SharedArts.addEventListener("mouseenter", updateDisplay, false);
+  SharedArts.addEventListener("mouseleave", updateDisplay, false);
+
+
+  function popupArts(artsAddr) {
+    const div = document.createElement("div");
     try {
       const artsImg = document.createElement("img");
       artsImg.src = `${artsAddr}`;
       div.appendChild(artsImg);
       SharedArts.appendChild(div);
-      // const video = document.createElement("video");
-      // video.className = "userVideo";
-      // video.autoplay = true;
-      // video.playsInline = true;
-      // video.srcObject = peerStream;
-      // div.appendChild(video);
-      // streams.appendChild(div);
     } catch (err) {
       console.error(err);
     }
   }
+
   //미술작품 공유
   socket.on("ShareAddr", (artsAddr, SocketId) => {
     //artsAddr로 작품을 그려주면 된다. 
