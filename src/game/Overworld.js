@@ -48,6 +48,8 @@ let consumerTransports = []
 let producer
 let consumer
 let isProducer = false
+// WebRTC SFU (mediasoup)
+
 
 // ------------------------------------^ SFU
 
@@ -81,7 +83,8 @@ const Overworld = (data) => {
     roomId = "room1" + map.roomId;
   }
 
-  const socket = io(_const.HOST);
+  // const socket = io(_const.HOST);
+  const socket = io("/mediasoup");
   let closer = [];
 
   // data 안에 소켓id, nickname 있음
@@ -112,6 +115,28 @@ const Overworld = (data) => {
 
   // 영상 connect
   async function paintPeerFace(peerStream, id, remoteNickname) {
+    const streams = document.querySelector("#streams");
+    const div = document.createElement("div");
+    // div.classList.add("userVideoContainer");
+    div.id = id;
+
+    // console.log("-------- 커넥션 상태 --------", pcObj[id].iceConnectionState);
+
+    try {
+      const video = document.createElement("video");
+      video.className = "userVideo";
+      video.autoplay = true;
+      video.playsInline = true;
+      video.srcObject = peerStream;
+      div.appendChild(video);
+      streams.appendChild(div);
+      // await sortStreams();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function paintPeerFaceSFU(peerStream, id, remoteNickname) {
     const streams = document.querySelector("#streams");
     const div = document.createElement("div");
     // div.classList.add("userVideoContainer");
@@ -312,6 +337,8 @@ const Overworld = (data) => {
         .getAudioTracks()
         .forEach((track) => (track.enabled = false));
     }
+
+    console.log("@!@@@@@@@@@@@@@", myStream)
   }
 
   async function initCall() {
@@ -556,24 +583,17 @@ const Overworld = (data) => {
   
       // create a new div element for the new consumer media
       // and append to the video container
-      // paintPeerFace()
-      const newElem = document.createElement("div")
-      newElem.setAttribute('id', `td-${remoteProducerId}`)
-      newElem.setAttribute('class', 'remoteVideo')
-      newElem.innerHTML = '<video id="' + remoteProducerId + '" autoplay class="video" ></video>'
-      videoContainer.appendChild(newElem)
-  
-      // destructure and retrieve the video track from the producer
+
       const { track } = consumer
-  
-      document.getElementById(remoteProducerId).srcObject = new MediaStream([track])
-  
+
+      paintPeerFaceSFU(new MediaStream([track]), remoteProducerId, "nickname")
+      
       // the server consumer started with media paused
       // so we need to inform the server to resume
       socket.emit('consumer-resume', { serverConsumerId: params.serverConsumerId })
     })
   }
-  
+
   socket.on('producer-closed', ({ remoteProducerId }) => {
     // server notification is received when a producer is closed
     // we need to close the client-side consumer and associated transport
@@ -585,12 +605,11 @@ const Overworld = (data) => {
     consumerTransports = consumerTransports.filter(transportData => transportData.producerId !== remoteProducerId)
   
     // remove the video div element
-    videoContainer.removeChild(document.getElementById(`td-${remoteProducerId}`))
+    removePeerFace(remoteProducerId)
   })
 
-  // ---------------------------------------- ^ SFU
 
-
+  // WebRTC SFU (mediasoup) functions
 
   // 남는 사람 기준
   socket.on("leave_succ", function (data) {
@@ -615,8 +634,6 @@ const Overworld = (data) => {
         // once we have rtpCapabilities from the Router, create Device
         createDevice()
       })
-
-
 
       // const length = userObjArr.length;
       // if (length === 1) {
