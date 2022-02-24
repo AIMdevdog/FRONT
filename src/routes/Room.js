@@ -111,6 +111,11 @@ const CharacterNickname = styled.div`
     color: white;
   }
 `;
+const ShareArt = styled.div`
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+`;
 
 const Room = ({ userData }) => {
   const params = useParams();
@@ -173,13 +178,15 @@ const Room = ({ userData }) => {
           <VideoButton />
         </CamBtn>
       </MyVideoBox>
-      <ScreenBottomBar />
-      <div id="" style={{position: 'absolute', top: 0, right: 0}}>
-        <button>asd</button>
-      </div>
-      <div id="asd">
-        <img />
-      </div>
+      <ScreenBottomBar/>
+        <div id="share" style={{position: 'absolute', top: 0, right: 0}}>
+          <button>share</button>
+        </div>
+      <ShareArt id="Arts">
+        {/* <img src="https://icon-library.com/images/enter-icon/enter-icon-1.jpg"
+          alt="Grapefruit slice atop a pile of other slices">
+        </img> */}
+      </ShareArt>
     </>
   );
 };
