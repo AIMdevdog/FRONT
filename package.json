@@ -17,6 +17,8 @@
     "expired-storage": "^1.0.2",
     "express": "^4.17.2",
     "material-icons": "^1.10.7",
+    "mediasoup": "^3.9.7",
+    "mediasoup-client": "^3.6.50",
     "moment": "^2.29.1",
     "nodemon": "^2.0.15",
     "react": "^17.0.2",
