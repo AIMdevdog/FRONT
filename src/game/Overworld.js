@@ -330,14 +330,14 @@ const Overworld = (data) => {
   }
 
   //상대방의 마우스 커서 그리기
-  socket.on("shareCursorPosition", (cursorX, cursorY) => {
+  socket.on("shareCursorPosition", (cursorX, cursorY, remoteSocketId) => {
     //artsAddr로 작품을 그려주면 된다. 
-    console.log(cursorX, cursorY);
-
+    console.log(cursorX, cursorY, remoteSocketId);
   });
 
+
   function updateDisplay(event) {
-    socket.emit("cursorPosition", event.pageX, event.pageY)
+    socket.emit("cursorPosition", event.pageX, event.pageY, socket.id);
   };
 
   var SharedArts = document.querySelector("#Arts"); 
