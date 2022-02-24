@@ -111,6 +111,11 @@ const CharacterNickname = styled.div`
     color: white;
   }
 `;
+const ShareArt = styled.div`
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+`;
 
 const Draw = styled.div`
   position: fixed;
@@ -190,9 +195,28 @@ const Room = ({ userData }) => {
       </MyVideoBox>
       <ScreenBottomBar />
       {openDraw ? <Draw> test</Draw>: null}
+      <ScreenBottomBar/>
+        <div id="share" style={{position: 'absolute', top: 0, right: 0}}>
+          <button>share</button>
+        </div>
+      <ShareArt id="Arts" onmousemove='cursorPosition'>
+        {/* <img src="https://icon-library.com/images/enter-icon/enter-icon-1.jpg"
+          alt="Grapefruit slice atop a pile of other slices">
+        </img> */}
+      </ShareArt>
+        
     </>
   );
 };
+
+function cursorPosition() {
+  var e = window.event;
+
+  var posX = e.clientX;
+  var posY = e.clientY;
+
+
+}
 
 function mapStateProps(state) {
   return {

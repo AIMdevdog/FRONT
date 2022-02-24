@@ -12,6 +12,10 @@ let pcObj = {
   // remoteSocketId: pc (peer connection)
   // pcObj[remoteSocketId] = myPeerConnection 이다
 };
+var sendChannel = [];       // RTCDataChannel for the local (sender)
+var receiveChannel = [];    // RTCDataChannel for the remote (receiver)
+var localConnection = [];   // RTCPeerConnection for our "local" connection
+var remoteConnection = [];  // RTCPeerConnection for the "remote"
 
 let peopleInRoom = 1;
 
@@ -65,9 +69,24 @@ const Overworld = (data) => {
   // data for문 돌면서 isUserCalling checking 혹은..
   // [PASS] 2명+3명 그룹 합쳐질 때 그룹 통화중이라는 것을 표시해둬야 함 / 변수 하나 더 추가 true, false 체크
 
+  // function sortStreams() {
+  //   const streams = document.querySelector("#streams");
+  //   const streamArr = streams.querySelectorAll("div");
+  //   streamArr.forEach((stream) => (stream.className = `people${peopleInRoom}`));
+  // }
+
+  const share = document.querySelector("#share");
+  share.addEventListener("click", sendArtsAddr);
+
+  async function sendArtsAddr() {
+    console.log('share click event실행');
+    const artsAddr = "https://icon-library.com/images/enter-icon/enter-icon-1.jpg";
+    socket.emit("ArtsAddr", artsAddr, socket.id);
+  }
+
   async function handleAddStream(event, remoteSocketId, remoteNickname) {
     const peerStream = event.stream;
-    console.log(peerStream);
+    // console.log(peerStream);
     const user = charMap[remoteSocketId]; // person.js에 있는 거랑 같이
 
     if (!user.isUserJoin) {
@@ -110,7 +129,7 @@ const Overworld = (data) => {
     const streamArr = streams.querySelectorAll("div");
     // console.log("총 길이 " , streamArr.length);
     streamArr.forEach((streamElement) => {
-      console.log(streamArr, streamElement.id, id);
+      // console.log(streamArr, streamElement.id, id);
       if (streamElement.id === id) {
         streams.removeChild(streamElement);
       }
@@ -157,6 +176,7 @@ const Overworld = (data) => {
       console.log("+------getTracks------+", myStream);
 
       pcObj[remoteSocketId] = myPeerConnection;
+      // console.log(pcObj);
 
       ++peopleInRoom;
       // sortStreams();
@@ -257,7 +277,7 @@ const Overworld = (data) => {
     camBtn.style.display = "block";
     if (!sharing) {
       myStream = await navigator.mediaDevices.getUserMedia(cameraConstraints);
-      console.log("mystream", myStream);
+      // console.log("mystream", myStream);
       // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
       myFace.srcObject = myStream;
       myFace.muted = true;
@@ -269,7 +289,7 @@ const Overworld = (data) => {
       myStream = await navigator.mediaDevices.getDisplayMedia(
         displayMediaOptions
       );
-      console.log("mystream", myStream);
+      // console.log("mystream", myStream);
       // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
       myFace.srcObject = myStream;
       myFace.muted = true;
@@ -323,6 +343,42 @@ const Overworld = (data) => {
     chatBox.appendChild(li);
   }
 
+  //상대방의 마우스 커서 그리기
+  socket.on("shareCursorPosition", (cursorX, cursorY, remoteSocketId) => {
+    //artsAddr로 작품을 그려주면 된다. 
+    console.log(cursorX, cursorY, remoteSocketId);
+  });
+
+
+  function updateDisplay(event) {
+    socket.emit("cursorPosition", event.pageX, event.pageY, socket.id);
+  };
+
+  var SharedArts = document.querySelector("#Arts"); 
+  SharedArts.addEventListener("mousemove", updateDisplay, false);
+  SharedArts.addEventListener("mouseenter", updateDisplay, false);
+  SharedArts.addEventListener("mouseleave", updateDisplay, false);
+
+
+  function popupArts(artsAddr) {
+    const div = document.createElement("div");
+    try {
+      const artsImg = document.createElement("img");
+      artsImg.src = `${artsAddr}`;
+      div.appendChild(artsImg);
+      SharedArts.appendChild(div);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  //미술작품 공유
+  socket.on("ShareAddr", (artsAddr, SocketId) => {
+    //artsAddr로 작품을 그려주면 된다. 
+    console.log("Other browser check", artsAddr, SocketId);
+    popupArts(artsAddr);
+  });
+
   // 남는 사람 기준
   socket.on("leave_succ", function (data) {
     const user = charMap[data.removeSid];
@@ -348,6 +404,10 @@ const Overworld = (data) => {
           userObjArr[i].socketId,
           userObjArr[i].nickname
         );
+        // sendChannel[userObjArr[i].socketId] = await newPC.createDataChannel("sendChannel");
+        // sendChannel[userObjArr[i].socketId].addEventListener("message", console.log);
+        // console.log("made data channel", "local", socket.id, "remote", userObjArr[i].socketId);
+
         const offer = await newPC.createOffer();
         await newPC.setLocalDescription(offer);
         socket.emit(
@@ -365,6 +425,13 @@ const Overworld = (data) => {
 
   socket.on("offer", async (offer, remoteSocketId, remoteNickname) => {
     try {
+      // console.log('*******', remoteSocketId);
+      // console.log('****pcObj', pcObj);
+    
+      // pcObj[remoteSocketId].ondatachannel = ev => {
+      //   sendChannel[remoteSocketId] = ev.channel;
+      //   sendChannel[remoteSocketId].addEventListener("message", console.log);
+      // };
       const newPC = await createConnection(remoteSocketId, remoteNickname);
       await newPC.setRemoteDescription(offer);
       const answer = await newPC.createAnswer();
@@ -408,7 +475,10 @@ const Overworld = (data) => {
   });
 
   socket.on("get_user_info", function (data) {
+    // console.log(data);
     joinUser(data.id, data.x, data.y, data.nickname, data.src);
+
+    // console.log(cameraPerson);
 
     nicknameDiv = document.createElement("div");
     nicknameDiv.className = data.id;
