@@ -174,6 +174,12 @@ const Room = ({ userData }) => {
         </CamBtn>
       </MyVideoBox>
       <ScreenBottomBar />
+      <div id="" style={{position: 'absolute', top: 0, right: 0}}>
+        <button>asd</button>
+      </div>
+      <div id="asd">
+        <img />
+      </div>
     </>
   );
 };
