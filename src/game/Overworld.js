@@ -507,6 +507,7 @@ const Overworld = (data) => {
   
       consumerTransport.on('connect', async ({ dtlsParameters }, callback, errback) => {
         try {
+          console.log('&&&&&connect&&&&&');
           // Signal local DTLS parameters to the server side transport
           // see server's socket.on('transport-recv-connect', ...)
           await socket.emit('transport-recv-connect', {
@@ -535,11 +536,11 @@ const Overworld = (data) => {
       serverConsumerTransportId,
     }, async ({ params }) => {
       if (params.error) {
-        console.log('Cannot Consume')
+        console.log('******Cannot Consume******')
         return
       }
   
-      console.log(`Consumer Params ${params}`)
+      console.log(`******Consumer Params ${params}*******`)
       // then consume with the local consumer transport
       // which creates a consumer
       const consumer = await consumerTransport.consume({
@@ -561,7 +562,6 @@ const Overworld = (data) => {
   
       // create a new div element for the new consumer media
       // and append to the video container
-      // paintPeerFace()
       // const newElem = document.createElement("div")
       // newElem.setAttribute('id', `td-${remoteProducerId}`)
       // newElem.setAttribute('class', 'remoteVideo')
@@ -570,6 +570,7 @@ const Overworld = (data) => {
       
       // destructure and retrieve the video track from the producer
       const { track } = consumer
+      console.log('**************', new MediaStream([track]));
       paintPeerFace(new MediaStream([track]), remoteProducerId, "nickname")
   
   
@@ -612,25 +613,35 @@ const Overworld = (data) => {
   socket.on("accept_join", async (userObjArr) => {
     try {
 
-      const length = userObjArr.length;
-      if (length === 1) {
-        return;
-      }
+      // const length = userObjArr.length;
+      // if (length === 1) {
+      //   return;
+      // }
 
-      for (let i = 0; i < length - 1; ++i) {
-        const newPC = await createConnection(
-          userObjArr[i].socketId,
-          userObjArr[i].nickname
-        );
-        const offer = await newPC.createOffer();
-        await newPC.setLocalDescription(offer);
-        socket.emit(
-          "offer",
-          offer,
-          userObjArr[i].socketId,
-          userObjArr[i].nickname
-        );
-      }
+      // for (let i = 0; i < length - 1; ++i) {
+      //   const newPC = await createConnection(
+      //     userObjArr[i].socketId,
+      //     userObjArr[i].nickname
+      //   );
+      //   const offer = await newPC.createOffer();
+      //   await newPC.setLocalDescription(offer);
+      //   socket.emit(
+      //     "offer",
+      //     offer,
+      //     userObjArr[i].socketId,
+      //     userObjArr[i].nickname
+      //   );
+      // }
+      await initCall();
+      socket.emit('getRtpCapabilities', userObjArr.roomName, (data) => {
+        console.log(`Router RTP Capabilities... ${data.rtpCapabilities}`)
+        // we assign to local variable and will be used when
+        // loading the client Device (see createDevice above)
+        rtpCapabilities = data.rtpCapabilities
+    
+        // once we have rtpCapabilities from the Router, create Device
+        createDevice()
+      })
     } catch (err) {
       console.error(err);
     }
@@ -683,7 +694,7 @@ const Overworld = (data) => {
   });
 
   socket.on("get_user_info", function (data) {
-    console.log(data);
+    // console.log(data);
     joinUser(data.id, data.x, data.y, data.nickname, data.src);
 
     const cameraPerson = charMap[socket.id] || map.gameObjects.player;
