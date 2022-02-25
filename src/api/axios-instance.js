@@ -43,7 +43,7 @@ instance.interceptors.response.use(
     if (error.response.status === 401 && errorAPI.retry === undefined) {
       errorAPI.retry = true;
       console.log("토큰이 이상한 오류일 경우");
-      //   await token.refreshToken();
+      //   await token.();
       const requestResult = await token.getRefreshToken();
       const {
         data: { msg, result },
