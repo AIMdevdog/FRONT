@@ -202,7 +202,7 @@ const UserListContainer = styled.div`
   ul {
     li {
       display: flex;
-      justify-content: flex-start;
+      justify-content: space-between;
       align-items: center;
       position: relative;
       top: 0 !important;
@@ -215,22 +215,28 @@ const UserListContainer = styled.div`
         border-radius: 20px;
       }
 
-      img {
-        object-fit: cover;
-        object-position: 0px -10px;
-        width: 32px;
-        height: 64px;
-        image-rendering: pixelated;
-        -webkit-transform: scale(1.25);
-        -ms-transform: scale(1.25);
-        transform: scale(1);
-      }
+      div {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
 
-      span {
-        display: block;
-        margin-left: 10px;
-        color: white;
-        font-size: 14px;
+        img {
+          object-fit: cover;
+          object-position: 0px -10px;
+          width: 32px;
+          height: 64px;
+          image-rendering: pixelated;
+          -webkit-transform: scale(1.25);
+          -ms-transform: scale(1.25);
+          transform: scale(1);
+        }
+
+        span {
+          display: block;
+          margin-left: 10px;
+          color: white;
+          font-size: 14px;
+        }
       }
 
       p {
@@ -245,6 +251,8 @@ const UserListContainer = styled.div`
     }
   }
 `;
+
+const SelcteShare = styled.button``;
 
 const RoomSideBar = ({ url, collapsed, setCollapsed }) => {
   const [exitModal, setExitModal] = useState(false);
@@ -275,7 +283,9 @@ const RoomSideBar = ({ url, collapsed, setCollapsed }) => {
         <aside>
           <ProSidebar collapsed={collapsed}>
             <UserListContainer>
+              <SelcteShare>공유 선택</SelcteShare>
               <ul className="user-list"></ul>
+              <button id="share">공유하기</button>
             </UserListContainer>
             <ChatContainer collapsed={collapsed}>
               <MessageContainer id="chatRoom">
@@ -321,8 +331,7 @@ const RoomSideBar = ({ url, collapsed, setCollapsed }) => {
                   onClick={onExitModal}
                   style={{ backgroundColor: "rgb(169,169,169)" }}
                 >
-                  {" "}
-                  아니요{" "}
+                  아니요
                 </button>
               </SetButtonContainer>
             </ExitModalContainer>

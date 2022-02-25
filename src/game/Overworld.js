@@ -76,14 +76,22 @@ const Overworld = (data) => {
   //   streamArr.forEach((stream) => (stream.className = `people${peopleInRoom}`));
   // }
 
-  // const share = document.querySelector("#share");
-  // share.addEventListener("click", sendArtsAddr);
+  const share = document.querySelector("#share");
+  share.addEventListener("click", sendArtsAddr);
 
   async function sendArtsAddr() {
-    console.log("share click event실행");
+    const shareChecked = document.querySelectorAll(
+      "input[name='share-checkbox-name']:checked"
+    );
+    let receivers = [];
+
+    shareChecked.forEach((shareSocketId) => {
+      receivers.push(shareSocketId.value);
+    });
+
     const artsAddr =
       "https://icon-library.com/images/enter-icon/enter-icon-1.jpg";
-    socket.emit("ArtsAddr", artsAddr, socket.id);
+    socket.emit("ArtsAddr", artsAddr, socket.id, receivers);
   }
 
   initCall();
@@ -476,6 +484,8 @@ const Overworld = (data) => {
   let userImg;
   let userNicknameSpan;
   let onOffButton;
+  let shareInput;
+  let userInfoDiv;
 
   socket.on("join_user", function (data) {
     //====================  비디오 추가 함수 =================//
@@ -512,18 +522,30 @@ const Overworld = (data) => {
 
     // user list
     const userList = document.querySelector(".user-list");
+
+    // for (let i = 0; i < data?.length; i ++) {
+    // }
+
     userListItem = document.createElement("li");
     userNicknameSpan = document.createElement("span");
     userImg = document.createElement("img");
+    userInfoDiv = document.createElement("div");
+    shareInput = document.createElement("input");
     onOffButton = document.createElement("p");
 
     userImg.src = data.src;
     userListItem.className = data.id;
     userNicknameSpan.innerHTML = data.nickname;
+    shareInput.type = "checkbox";
+    shareInput.className = "share-checkbox";
+    shareInput.name = "share-checkbox-name";
+    shareInput.value = data.id;
 
-    userListItem.appendChild(userImg);
+    userInfoDiv.appendChild(userImg);
+    userInfoDiv.appendChild(userNicknameSpan);
+    userListItem.appendChild(userInfoDiv);
     userListItem.appendChild(onOffButton);
-    userListItem.appendChild(userNicknameSpan);
+    userListItem.appendChild(shareInput);
 
     userList.appendChild(userListItem);
   });

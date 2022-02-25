@@ -20,9 +20,9 @@ import PictureFrame from "../components/pictureFrame";
 const StreamsContainer = styled.div`
   position: fixed;
   display: flex;
-  left: 0;
+  left: 50%;
   top: 60px;
-  width: 100%;
+  width: 20%;
   height: 100px;
   justify-content: center;
   align-items: center;
@@ -179,7 +179,7 @@ const Room = ({ userData }) => {
       });
     });
     return () => {
-      console.log("room leave!!")
+      console.log("room leave!!");
     };
   }, []);
   return (
@@ -193,8 +193,11 @@ const Room = ({ userData }) => {
           <CharacterNickname className="nickname"> </CharacterNickname>
         </div>
       </div>
-      <RoomSideBar url={url} collapsed={collapsed} setCollapsed={setCollapsed}/>
-      <button style={{position:"fixed",top:"10px"}}>share</button>
+      <RoomSideBar
+        url={url}
+        collapsed={collapsed}
+        setCollapsed={setCollapsed}
+      />
       <StreamsContainer id="streams"></StreamsContainer>
       <MyVideoBox>
         <MyVideo id="myFace" autoPlay="autoplay"></MyVideo>
@@ -216,8 +219,6 @@ function cursorPosition() {
 
   var posX = e.clientX;
   var posY = e.clientY;
-
-
 }
 
 function mapStateProps(state) {
