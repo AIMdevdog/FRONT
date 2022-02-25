@@ -5,7 +5,6 @@ import { FaVideo } from "react-icons/fa";
 import utils from "./utils.js";
 import io from "socket.io-client";
 import _const from "../config/const.js";
-// import mediasoupClient from "mediasoup-client";
 const mediasoupClient = require('mediasoup-client')
 
 let myStream;
@@ -370,6 +369,7 @@ const Overworld = (data) => {
   // server side to send/recive media
   const createDevice = async () => {
     try {
+      console.log("createDevice 실행")
       device = new mediasoupClient.Device()
       // device = getMedia(false)
       console.log('**********device체크', device)
@@ -394,9 +394,13 @@ const Overworld = (data) => {
   }
 
   const createSendTransport = () => {
+    console.log("createSendTransport 실행")
+
     // see server's socket.on('createWebRtcTransport', sender?, ...)
     // this is a call from Producer, so sender = true
     socket.emit('createWebRtcTransport', { consumer: false }, ({ params }) => {
+      console.log("createSendTransport에서 createWebRtcTransport 콜백 실행")
+
       // The server sends back params needed 
       // to create Send Transport on the client side
       if (params.error) {
@@ -415,6 +419,8 @@ const Overworld = (data) => {
       // this event is raised when a first call to transport.produce() is made
       // see connectSendTransport() below
       producerTransport.on('connect', async ({ dtlsParameters }, callback, errback) => {
+        console.log("producerTransport의 connect 이벤트 실행")
+
         try {
           // Signal local DTLS parameters to the server side transport
           // see server's socket.on('transport-dconnect', ...)
@@ -431,6 +437,7 @@ const Overworld = (data) => {
       })
   
       producerTransport.on('produce', async (parameters, callback, errback) => {
+        console.log("producerTransport의 produce 이벤트 실행")
         console.log(parameters)
   
         try {
@@ -448,6 +455,7 @@ const Overworld = (data) => {
             callback({ id })
   
             // if producers exist, then join room
+            console.log()
             if (producersExist) getProducers()
           })
         } catch (error) {
@@ -460,27 +468,42 @@ const Overworld = (data) => {
   }
 
   const connectSendTransport = async () => {
+    console.log("connectSendTransport 실행")
+
     // we now call produce() to instruct the producer transport
     // to send media to the Router
     // https://mediasoup.org/documentation/v3/mediasoup-client/api/#transport-produce
     // this action will trigger the 'connect' and 'produce' events above
+
     producer = await producerTransport.produce(params)
   
     producer.on('trackended', () => {
+      console.log("producer의 trackended 이벤트 실행")
+
       console.log('track ended')
   
       // close video track
     })
   
     producer.on('transportclose', () => {
+      console.log("producer의 transportclose 이벤트 실행")
+
+      console.log("producer")
       console.log('transport ended')
   
       // close video track
     })
   }
 
+  // server informs the client of a new producer just joined
+  socket.on('new-producer', ({ producerId }) => signalNewConsumerTransport(producerId))
+
   const getProducers = () => {
+    console.log("getProducers 실행")
+
     socket.emit('getProducers', producerIds => {
+      console.log("getProducers 콜백 실행")
+
       console.log(producerIds)
       // for each of the producer create a consumer
       // producerIds.forEach(id => signalNewConsumerTransport(id))
@@ -489,7 +512,10 @@ const Overworld = (data) => {
   }
 
   const signalNewConsumerTransport = async (remoteProducerId) => {
+    console.log("signalNewConsumerTransport 실행")
+
     await socket.emit('createWebRtcTransport', { consumer: true }, ({ params }) => {
+      console.log("signalNewConsumerTransport에서 createWebRtcTransport 콜백 실행")
       // The server sends back params needed 
       // to create Send Transport on the client side
       if (params.error) {
@@ -510,6 +536,7 @@ const Overworld = (data) => {
       }
   
       consumerTransport.on('connect', async ({ dtlsParameters }, callback, errback) => {
+        console.log("consumerTransport의 connect 이벤트 실행")
         try {
           console.log('&&&&&connect&&&&&');
           // Signal local DTLS parameters to the server side transport
@@ -531,6 +558,8 @@ const Overworld = (data) => {
   }
 
   const connectRecvTransport = async (consumerTransport, remoteProducerId, serverConsumerTransportId) => {
+    console.log("connectRecvTransport 실행")
+
     // for consumer, we need to tell the server first
     // to create a consumer based on the rtpCapabilities and consume
     // if the router can consume, it will send back a set of params as below
@@ -574,9 +603,8 @@ const Overworld = (data) => {
       
       // destructure and retrieve the video track from the producer
       const { track } = consumer
-      console.log('***connect recv transport***', new MediaStream([track]));
+      // console.log('**************', new MediaStream([track]));
       paintPeerFace(new MediaStream([track]), remoteProducerId, "nickname")
-  
   
       // document.getElementById(remoteProducerId).srcObject = new MediaStream([track])
   
@@ -587,6 +615,8 @@ const Overworld = (data) => {
   }
   
   socket.on('producer-closed', ({ remoteProducerId }) => {
+    console.log("producer-closed 콜백 실행")
+
     // server notification is received when a producer is closed
     // we need to close the client-side consumer and associated transport
     const producerToClose = consumerTransports.find(transportData => transportData.producerId === remoteProducerId)
