@@ -125,6 +125,7 @@ const Overworld = (data) => {
     // console.log("-------- 커넥션 상태 --------", pcObj[id].iceConnectionState);
 
     try {
+      console.log('******peerstream', peerStream);
       const video = document.createElement("video");
       video.className = "userVideo";
       video.autoplay = true;
@@ -613,9 +614,20 @@ const Overworld = (data) => {
     writeChat(message);
   });
 
-  socket.on("accept_join", async (userObjArr) => {
+  socket.on("accept_join", async (groupName) => {
     try {
+      // SFU
+      await initCall();
+      socket.emit('getRtpCapabilities', groupName, (data) => {
+        console.log(`Router RTP Capabilities... ${data.rtpCapabilities}`)
+        // we assign to local variable and will be used when
+        // loading the client Device (see createDevice above)
+        rtpCapabilities = data.rtpCapabilities
+    
+        // once we have rtpCapabilities from the Router, create Device
+        createDevice()
 
+      // Mesh코드~  
       // const length = userObjArr.length;
       // if (length === 1) {
       //   return;
@@ -635,15 +647,7 @@ const Overworld = (data) => {
       //     userObjArr[i].nickname
       //   );
       // }
-      await initCall();
-      socket.emit('getRtpCapabilities', userObjArr.roomName, (data) => {
-        console.log(`Router RTP Capabilities... ${data.rtpCapabilities}`)
-        // we assign to local variable and will be used when
-        // loading the client Device (see createDevice above)
-        rtpCapabilities = data.rtpCapabilities
-    
-        // once we have rtpCapabilities from the Router, create Device
-        createDevice()
+      
       })
     } catch (err) {
       console.error(err);
