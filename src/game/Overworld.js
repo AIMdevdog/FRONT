@@ -5,7 +5,8 @@ import { FaVideo } from "react-icons/fa";
 import utils from "./utils.js";
 import io from "socket.io-client";
 import _const from "../config/const.js";
-import mediasoupClient from "mediasoup-client";
+// import mediasoupClient from "mediasoup-client";
+const mediasoupClient = require('mediasoup-client')
 
 let myStream;
 let cameraOff = false;
@@ -369,6 +370,8 @@ const Overworld = (data) => {
   const createDevice = async () => {
     try {
       device = new mediasoupClient.Device()
+      // device = getMedia(false)
+      console.log('**********device체크', device)
 
       // https://mediasoup.org/documentation/v3/mediasoup-client/api/#device-load
       // Loads the device with RTP capabilities of the Router (server side)
@@ -570,7 +573,7 @@ const Overworld = (data) => {
       
       // destructure and retrieve the video track from the producer
       const { track } = consumer
-      console.log('**************', new MediaStream([track]));
+      console.log('***connect recv transport***', new MediaStream([track]));
       paintPeerFace(new MediaStream([track]), remoteProducerId, "nickname")
   
   
