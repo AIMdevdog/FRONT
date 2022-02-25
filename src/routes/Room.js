@@ -140,11 +140,18 @@ const Room = ({ userData }) => {
   const [openDraw, setOpenDraw] = useState(false);
   const [collapsed, setCollapsed] = useState(true);
 
+  const [isChatCollapsed, setChatCollapsed] = useState(false);
+  const [isShareCollapsed, setShareCollapsed] = useState(false);
+
+  console.log(isShareCollapsed);
+
   useEffect(() => {
     userData.then((data) => {
       Overworld({
         config: document.querySelector(".game-container"),
         setOpenDraw,
+        isChatCollapsed,
+        isShareCollapsed,
         nickname: data.nickname || "ANON",
         Room: {
           RoomSrc:
@@ -197,6 +204,12 @@ const Room = ({ userData }) => {
         url={url}
         collapsed={collapsed}
         setCollapsed={setCollapsed}
+        setOpenDraw={setOpenDraw}
+        openDraw={openDraw}
+        setChatCollapsed={setChatCollapsed}
+        isChatCollapsed={isChatCollapsed}
+        setShareCollapsed={setShareCollapsed}
+        isShareCollapsed={isShareCollapsed}
       />
       <StreamsContainer id="streams"></StreamsContainer>
       <MyVideoBox>

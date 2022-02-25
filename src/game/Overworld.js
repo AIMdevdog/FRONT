@@ -75,9 +75,13 @@ const Overworld = (data) => {
   //   const streamArr = streams.querySelectorAll("div");
   //   streamArr.forEach((stream) => (stream.className = `people${peopleInRoom}`));
   // }
+  console.log(data.isShareCollapsed, "--");
 
-  const share = document.querySelector("#share");
-  share.addEventListener("click", sendArtsAddr);
+  let share;
+  if (data.isShareCollapsed) {
+    share = document.querySelector("#share");
+    share.addEventListener("click", sendArtsAddr);
+  }
 
   async function sendArtsAddr() {
     const shareChecked = document.querySelectorAll(
@@ -89,9 +93,7 @@ const Overworld = (data) => {
       receivers.push(shareSocketId.value);
     });
 
-    const artsAddr =
-      "https://icon-library.com/images/enter-icon/enter-icon-1.jpg";
-    socket.emit("ArtsAddr", artsAddr, socket.id, receivers);
+    socket.emit("ArtsAddr", socket.id, receivers);
   }
 
   initCall();
@@ -325,24 +327,32 @@ const Overworld = (data) => {
 
   // chat form
 
-  const chatForm = document.querySelector("#chatForm");
-  const chatBox = document.querySelector("#chatBox");
-
   const MYCHAT_CN = "myChat";
   const NOTICE_CN = "noticeChat";
 
-  chatForm.addEventListener("submit", handleChatSubmit);
+  console.log(data.isChatCollapsed);
 
-  function handleChatSubmit(event) {
-    event.preventDefault();
-    const chatInput = chatForm.querySelector("input");
-    const message = chatInput.value;
-    chatInput.value = "";
+  let chatForm, chatBox;
+  if (data.isChatCollapsed) {
+    chatForm = document.querySelector("#chatForm");
+    chatBox = document.querySelector("#chatBox");
 
-    let groupName = 1;
+    console.log();
 
-    socket.emit("chat", `${nickname}: ${message}`, groupName);
-    writeChat(`You: ${message}`, MYCHAT_CN);
+    chatForm.addEventListener("submit", handleChatSubmit);
+
+    function handleChatSubmit(event) {
+      console.log("눌럿따.");
+      event.preventDefault();
+      const chatInput = chatForm.querySelector("input");
+      const message = chatInput.value;
+      chatInput.value = "";
+
+      let groupName = 1;
+
+      socket.emit("chat", `${nickname}: ${message}`, groupName);
+      writeChat(`You: ${message}`, MYCHAT_CN);
+    }
   }
 
   function writeChat(message, className = null) {
@@ -382,23 +392,15 @@ const Overworld = (data) => {
   SharedArts.addEventListener("mouseenter", updateDisplay, false);
   SharedArts.addEventListener("mouseleave", updateDisplay, false);
 
-  function popupArts(artsAddr) {
-    const div = document.createElement("div");
-    try {
-      const artsImg = document.createElement("img");
-      artsImg.src = `${artsAddr}`;
-      div.appendChild(artsImg);
-      SharedArts.appendChild(div);
-    } catch (err) {
-      console.error(err);
-    }
+  function popupArts() {
+    data.setOpenDraw((prev) => !prev);
   }
 
   //미술작품 공유
-  socket.on("ShareAddr", (artsAddr, SocketId) => {
+  socket.on("ShareAddr", (SocketId) => {
     //artsAddr로 작품을 그려주면 된다.
-    console.log("Other browser check", artsAddr, SocketId);
-    popupArts(artsAddr);
+    console.log("Other browser check", SocketId);
+    popupArts();
   });
 
   // 남는 사람 기준
@@ -521,33 +523,35 @@ const Overworld = (data) => {
     nicknameContainer.appendChild(nicknameDiv);
 
     // user list
-    const userList = document.querySelector(".user-list");
+    if (data.isShareCollapsed) {
+      const userList = document.querySelector(".user-list");
 
-    // for (let i = 0; i < data?.length; i ++) {
-    // }
+      userListItem = document.createElement("li");
+      userNicknameSpan = document.createElement("span");
+      userImg = document.createElement("img");
+      userInfoDiv = document.createElement("div");
+      shareInput = document.createElement("input");
+      onOffButton = document.createElement("p");
 
-    userListItem = document.createElement("li");
-    userNicknameSpan = document.createElement("span");
-    userImg = document.createElement("img");
-    userInfoDiv = document.createElement("div");
-    shareInput = document.createElement("input");
-    onOffButton = document.createElement("p");
+      userImg.src = data.src;
+      userListItem.className = data.id;
+      userNicknameSpan.innerHTML = data.nickname;
+      shareInput.type = "checkbox";
+      shareInput.className = "share-checkbox";
+      shareInput.name = "share-checkbox-name";
+      shareInput.value = data.id;
 
-    userImg.src = data.src;
-    userListItem.className = data.id;
-    userNicknameSpan.innerHTML = data.nickname;
-    shareInput.type = "checkbox";
-    shareInput.className = "share-checkbox";
-    shareInput.name = "share-checkbox-name";
-    shareInput.value = data.id;
+      userInfoDiv.appendChild(userImg);
+      userInfoDiv.appendChild(userNicknameSpan);
+      userListItem.appendChild(userInfoDiv);
+      userListItem.appendChild(onOffButton);
 
-    userInfoDiv.appendChild(userImg);
-    userInfoDiv.appendChild(userNicknameSpan);
-    userListItem.appendChild(userInfoDiv);
-    userListItem.appendChild(onOffButton);
-    userListItem.appendChild(shareInput);
+      if (socket.id !== data.id) {
+        userListItem.appendChild(shareInput);
+      }
 
-    userList.appendChild(userListItem);
+      userList.appendChild(userListItem);
+    }
   });
 
   socket.on("leave_user", function (data) {

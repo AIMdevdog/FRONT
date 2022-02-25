@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ProSidebar, Menu, SidebarFooter } from "react-pro-sidebar";
-import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import { FaArrowLeft, FaArrowRight, FaShare } from "react-icons/fa";
+import { IoChatbubblesSharp } from "react-icons/io5";
 import { ImExit } from "react-icons/im";
 import { IoSend } from "react-icons/io5";
 import "react-pro-sidebar/dist/css/styles.css";
@@ -15,6 +16,7 @@ const Layout = styled.div`
   left: 0;
   top: 0;
   height: 100vh;
+  z-index: 99;
 
   .layout {
     display: flex;
@@ -24,7 +26,14 @@ const Layout = styled.div`
   .layout .content {
     background-color: rgb(40, 45, 78);
     padding: 20px;
-    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .pro-sidebar {
+    width: 300px;
   }
 
   .pro-sidebar > .pro-sidebar-inner {
@@ -42,7 +51,13 @@ const Layout = styled.div`
   }
   div.exitBtn {
     display: inline-block;
-    margin-top: auto;
+    cursor: pointer;
+  }
+`;
+
+const IconActionContainer = styled.div`
+  div {
+    margin-top: 20px;
     cursor: pointer;
   }
 `;
@@ -85,7 +100,6 @@ const ChatContainer = styled.div`
   position: absolute;
   bottom: 20px;
   width: 100%;
-  opacity: ${(props) => (props.collapsed ? 0 : 1)};
 
   .chatSendBox {
     width: 100%;
@@ -239,6 +253,10 @@ const UserListContainer = styled.div`
         }
       }
 
+      input {
+        border: none;
+      }
+
       p {
         position: absolute;
         left: 20px;
@@ -254,7 +272,17 @@ const UserListContainer = styled.div`
 
 const SelcteShare = styled.button``;
 
-const RoomSideBar = ({ url, collapsed, setCollapsed }) => {
+const RoomSideBar = ({
+  url,
+  collapsed,
+  setCollapsed,
+  setOpenDraw,
+  openDraw,
+  setChatCollapsed,
+  isChatCollapsed,
+  setShareCollapsed,
+  isShareCollapsed,
+}) => {
   const [exitModal, setExitModal] = useState(false);
 
   const onExitModal = () => setExitModal(!exitModal);
@@ -277,11 +305,20 @@ const RoomSideBar = ({ url, collapsed, setCollapsed }) => {
     };
   });
 
+  const isShareIconAction = () => {
+    setShareCollapsed((prev) => !prev);
+    setChatCollapsed(false);
+  };
+  const isChatIconAction = () => {
+    setChatCollapsed((prev) => !prev);
+    setShareCollapsed(false);
+  };
+
   return (
     <Layout>
       <div className="layout">
         <aside>
-          <ProSidebar collapsed={collapsed}>
+          {/* <ProSidebar collapsed={collapsed}>
             <UserListContainer>
               <SelcteShare>공유 선택</SelcteShare>
               <ul className="user-list"></ul>
@@ -300,12 +337,35 @@ const RoomSideBar = ({ url, collapsed, setCollapsed }) => {
                 </button>
               </form>
             </ChatContainer>
-          </ProSidebar>
+          </ProSidebar> */}
+          {isChatCollapsed && (
+            <ProSidebar collapsed={collapsed}>
+              <ChatContainer collapsed={collapsed}>
+                <MessageContainer id="chatRoom">
+                  <ul id="chatBox"></ul>
+                </MessageContainer>
+                <form id="chatForm" className="chatSendBox">
+                  <InputContainer>
+                    <input type="text" placeholder="Write your chat" required />
+                  </InputContainer>
+                  <button>
+                    <IoSend size="16" />
+                  </button>
+                </form>
+              </ChatContainer>
+            </ProSidebar>
+          )}
+          {isShareCollapsed && (
+            <ProSidebar collapsed={collapsed}>
+              <UserListContainer>
+                <SelcteShare>공유 선택</SelcteShare>
+                <ul className="user-list"></ul>
+                <button id="share">공유하기</button>
+              </UserListContainer>
+            </ProSidebar>
+          )}
         </aside>
-        <main
-          className="content"
-          style={{ display: "flex", flexDirection: "column" }}
-        >
+        <main className="content">
           <div className="btn" onClick={() => setCollapsed(!collapsed)}>
             {collapsed ? (
               <FaArrowRight size={24} color="white" />
@@ -313,9 +373,18 @@ const RoomSideBar = ({ url, collapsed, setCollapsed }) => {
               <FaArrowLeft size={24} color="white" />
             )}
           </div>
-          <div className="exitBtn" onClick={onExitModal}>
-            <ImExit color="white" size={32} />
-          </div>
+
+          <IconActionContainer>
+            <div onClick={isChatIconAction}>
+              <IoChatbubblesSharp color="white" size={24} />
+            </div>
+            <div onClick={isShareIconAction}>
+              <FaShare color={openDraw ? "white" : "grey"} size={24} />
+            </div>
+            <div className="exitBtn" onClick={onExitModal}>
+              <ImExit color="white" size={24} />
+            </div>
+          </IconActionContainer>
           <ReactModal
             style={customStyles}
             isOpen={exitModal}

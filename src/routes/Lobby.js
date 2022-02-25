@@ -1,6 +1,6 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import styled from "styled-components";
 // import RoomItemComponent from "../components/RoomItem";
 import { user, room } from "../config/api";
@@ -15,8 +15,11 @@ import LoadingComponent from "../components/Loading";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import moment from "moment";
+import { Cookies } from "react-cookie";
 import { connect } from "react-redux";
 import ReactModal from "react-modal";
+
+const cookies = new Cookies();
 
 const LobbyContainer = styled.div`
   display: flex;
@@ -49,7 +52,7 @@ const TabButton = styled.button`
 
   span {
     /* color: ${(props) =>
-    !props.room ? "rgb(84, 92, 143)" : "transparent"}; */
+      !props.room ? "rgb(84, 92, 143)" : "transparent"}; */
     color: rgb(255, 255, 255);
     font-family: "DM Sans", sans-serif;
     font-weight: 700;
@@ -342,10 +345,6 @@ const Lobby = ({ userData }) => {
   const EnterIcon =
     "https://icon-library.com/images/enter-icon/enter-icon-1.jpg";
 
-  userData.then((data) => {
-    setIsSaveUserData(data);
-  })
-
   useEffect(() => {
     const getRoom = async () => {
       try {
@@ -362,6 +361,7 @@ const Lobby = ({ userData }) => {
 
     getRoom();
   }, []);
+
   const onSearchChange = (e) => {
     const {
       target: { value },
