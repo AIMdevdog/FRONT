@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { ProSidebar, Menu, SidebarFooter } from "react-pro-sidebar";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
-import { ImExit } from "react-icons/im"
+import { ImExit } from "react-icons/im";
 import { IoSend } from "react-icons/io5";
 import "react-pro-sidebar/dist/css/styles.css";
 import styled from "styled-components";
 import ReactModal from "react-modal";
+import io from "socket.io-client";
+import { useSelector } from "react-redux";
+import CONST from "../config/const";
 
 const Layout = styled.div`
   position: fixed;
@@ -37,7 +40,7 @@ const Layout = styled.div`
     font-size: 0.9rem;
     cursor: pointer;
   }
-  div.exitBtn{
+  div.exitBtn {
     display: inline-block;
     margin-top: auto;
     cursor: pointer;
@@ -168,8 +171,8 @@ const SetButtonContainer = styled.div`
     display: flex;
     margin: 8px;
   }
-  button{ 
-      display: flex;
+  button {
+    display: flex;
     position: relative;
     box-sizing: border-box;
     outline: none;
@@ -194,12 +197,56 @@ const SetButtonContainer = styled.div`
   }
 `;
 
-const ExitButton = styled.button`
+const UserListContainer = styled.div`
+  padding: 10px;
+  ul {
+    li {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      position: relative;
+      top: 0 !important;
+      left: 0 !important;
+      cursor: pointer;
+      padding: 4px 20px;
 
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+      }
+
+      img {
+        object-fit: cover;
+        object-position: 0px -10px;
+        width: 32px;
+        height: 64px;
+        image-rendering: pixelated;
+        -webkit-transform: scale(1.25);
+        -ms-transform: scale(1.25);
+        transform: scale(1);
+      }
+
+      span {
+        display: block;
+        margin-left: 10px;
+        color: white;
+        font-size: 14px;
+      }
+
+      p {
+        position: absolute;
+        left: 20px;
+        bottom: 20px;
+        width: 10px;
+        height: 10px;
+        background-color: green;
+        border-radius: 50%;
+      }
+    }
+  }
 `;
 
-const RoomSideBar = ({url, collapsed, setCollapsed}) => {
-  
+const RoomSideBar = ({ url, collapsed, setCollapsed }) => {
   const [exitModal, setExitModal] = useState(false);
 
   const onExitModal = () => setExitModal(!exitModal);
@@ -207,10 +254,10 @@ const RoomSideBar = ({url, collapsed, setCollapsed}) => {
     if (e.key === "Escape") {
       setExitModal(!exitModal);
     }
-  }
+  };
   const onExitRoom = () => {
-    window.location.href = url
-  }
+    window.location.href = url;
+  };
 
   useEffect(() => {
     const addEvent = () => {
@@ -219,14 +266,17 @@ const RoomSideBar = ({url, collapsed, setCollapsed}) => {
     addEvent();
     return () => {
       window.removeEventListener("keydown", escExit);
-    }
-  })
+    };
+  });
 
   return (
     <Layout>
       <div className="layout">
         <aside>
           <ProSidebar collapsed={collapsed}>
+            <UserListContainer>
+              <ul className="user-list"></ul>
+            </UserListContainer>
             <ChatContainer collapsed={collapsed}>
               <MessageContainer id="chatRoom">
                 <ul id="chatBox"></ul>
@@ -242,7 +292,10 @@ const RoomSideBar = ({url, collapsed, setCollapsed}) => {
             </ChatContainer>
           </ProSidebar>
         </aside>
-        <main className="content" style={{ display: "flex", flexDirection: "column" }}>
+        <main
+          className="content"
+          style={{ display: "flex", flexDirection: "column" }}
+        >
           <div className="btn" onClick={() => setCollapsed(!collapsed)}>
             {collapsed ? (
               <FaArrowRight size={24} color="white" />
@@ -264,7 +317,13 @@ const RoomSideBar = ({url, collapsed, setCollapsed}) => {
               </ExitText>
               <SetButtonContainer>
                 <button onClick={onExitRoom}> 예 </button>
-                <button onClick={onExitModal} style={{backgroundColor:"rgb(169,169,169)",}}> 아니요 </button>
+                <button
+                  onClick={onExitModal}
+                  style={{ backgroundColor: "rgb(169,169,169)" }}
+                >
+                  {" "}
+                  아니요{" "}
+                </button>
               </SetButtonContainer>
             </ExitModalContainer>
           </ReactModal>

@@ -12,10 +12,10 @@ let pcObj = {
   // remoteSocketId: pc (peer connection)
   // pcObj[remoteSocketId] = myPeerConnection 이다
 };
-var sendChannel = [];       // RTCDataChannel for the local (sender)
-var receiveChannel = [];    // RTCDataChannel for the remote (receiver)
-var localConnection = [];   // RTCPeerConnection for our "local" connection
-var remoteConnection = [];  // RTCPeerConnection for the "remote"
+var sendChannel = []; // RTCDataChannel for the local (sender)
+var receiveChannel = []; // RTCDataChannel for the remote (receiver)
+var localConnection = []; // RTCPeerConnection for our "local" connection
+var remoteConnection = []; // RTCPeerConnection for the "remote"
 
 let peopleInRoom = 1;
 
@@ -53,17 +53,18 @@ const Overworld = (data) => {
   const socket = io(_const.HOST);
   let closer = [];
 
-
   const keydownHandler = (e) => {
     const player = charMap[socket.id];
-    if ((e.key === "x" || e.key === "X" || e.key === "ㅌ") && player.x === 48 && player.y === 48) {
-      data.setOpenDraw(prev => !prev);
-
+    if (
+      (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
+      player.x === 48 &&
+      player.y === 48
+    ) {
+      data.setOpenDraw((prev) => !prev);
     } else if (directionInput.direction) {
       data.setOpenDraw(false);
-
     }
-  }
+  };
   document.addEventListener("keydown", keydownHandler);
   // data 안에 소켓id, nickname 있음
   // data for문 돌면서 isUserCalling checking 혹은..
@@ -79,10 +80,13 @@ const Overworld = (data) => {
   // share.addEventListener("click", sendArtsAddr);
 
   async function sendArtsAddr() {
-    console.log('share click event실행');
-    const artsAddr = "https://icon-library.com/images/enter-icon/enter-icon-1.jpg";
+    console.log("share click event실행");
+    const artsAddr =
+      "https://icon-library.com/images/enter-icon/enter-icon-1.jpg";
     socket.emit("ArtsAddr", artsAddr, socket.id);
   }
+
+  initCall();
 
   async function handleAddStream(event, remoteSocketId, remoteNickname) {
     const peerStream = event.stream;
@@ -345,7 +349,7 @@ const Overworld = (data) => {
 
   //상대방의 마우스 커서 그리기
   socket.on("shareCursorPosition", (cursorX, cursorY, remoteSocketId) => {
-    //artsAddr로 작품을 그려주면 된다. 
+    //artsAddr로 작품을 그려주면 된다.
     const draw = document.querySelector(".draw");
     if (!draw) {
       return;
@@ -355,22 +359,20 @@ const Overworld = (data) => {
     const img = document.createElement("img");
     img.src = "https://img.icons8.com/ios-glyphs/344/cursor--v1.png";
     // console.log(cursorX, cursorY, remoteSocketId);
-    img.style.top = cursorY - 240 + 'px';
-    img.style.left = cursorX - 165 + 'px';
+    img.style.top = cursorY - 240 + "px";
+    img.style.left = cursorX - 165 + "px";
     draw.appendChild(img);
     // console.dir(img);
   });
 
-
   function updateDisplay(event) {
     socket.emit("cursorPosition", event.pageX, event.pageY, socket.id);
-  };
+  }
 
   var SharedArts = document.querySelector("#Arts");
   SharedArts.addEventListener("mousemove", updateDisplay, false);
   SharedArts.addEventListener("mouseenter", updateDisplay, false);
   SharedArts.addEventListener("mouseleave", updateDisplay, false);
-
 
   function popupArts(artsAddr) {
     const div = document.createElement("div");
@@ -386,7 +388,7 @@ const Overworld = (data) => {
 
   //미술작품 공유
   socket.on("ShareAddr", (artsAddr, SocketId) => {
-    //artsAddr로 작품을 그려주면 된다. 
+    //artsAddr로 작품을 그려주면 된다.
     console.log("Other browser check", artsAddr, SocketId);
     popupArts(artsAddr);
   });
@@ -404,8 +406,6 @@ const Overworld = (data) => {
 
   socket.on("accept_join", async (userObjArr) => {
     try {
-      await initCall();
-
       const length = userObjArr.length;
       if (length === 1) {
         return;
@@ -472,6 +472,10 @@ const Overworld = (data) => {
   });
 
   let nicknameDiv;
+  let userListItem;
+  let userImg;
+  let userNicknameSpan;
+  let onOffButton;
 
   socket.on("join_user", function (data) {
     //====================  비디오 추가 함수 =================//
@@ -505,6 +509,23 @@ const Overworld = (data) => {
     nicknameDiv.style.position = "absolute";
 
     nicknameContainer.appendChild(nicknameDiv);
+
+    // user list
+    const userList = document.querySelector(".user-list");
+    userListItem = document.createElement("li");
+    userNicknameSpan = document.createElement("span");
+    userImg = document.createElement("img");
+    onOffButton = document.createElement("p");
+
+    userImg.src = data.src;
+    userListItem.className = data.id;
+    userNicknameSpan.innerHTML = data.nickname;
+
+    userListItem.appendChild(userImg);
+    userListItem.appendChild(onOffButton);
+    userListItem.appendChild(userNicknameSpan);
+
+    userList.appendChild(userListItem);
   });
 
   socket.on("leave_user", function (data) {
@@ -612,7 +633,9 @@ const Overworld = (data) => {
         .forEach((object) => {
           object.sprite.draw(ctx, cameraPerson);
 
-          const objectNicknameContainer = document.getElementById(`${object.nickname}`);
+          const objectNicknameContainer = document.getElementById(
+            `${object.nickname}`
+          );
           objectNicknameContainer.style.top =
             object.y -
             25 +
@@ -665,9 +688,6 @@ const Overworld = (data) => {
     const userNicknameContainer = document.querySelector(`.${data.id}`);
     const parentDiv = userNicknameContainer.parentNode;
     parentDiv.removeChild(userNicknameContainer);
-
-
-
   };
 
   const joinUser = (id, x, y, nickname, src) => {
@@ -691,13 +711,5 @@ const Overworld = (data) => {
 
   startGameLoop();
 };
-
-
-
-
-
-
-
-
 
 export default Overworld;
