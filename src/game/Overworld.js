@@ -83,6 +83,7 @@ const Overworld = (data) => {
     const shareChecked = document.querySelectorAll(
       "input[name='share-checkbox-name']:checked"
     );
+    const sender = socket.id;
     let receivers = [];
 
     shareChecked.forEach((shareSocketId) => {
@@ -90,8 +91,8 @@ const Overworld = (data) => {
     });
 
     const artsAddr =
-      "https://icon-library.com/images/enter-icon/enter-icon-1.jpg";
-    socket.emit("ArtsAddr", artsAddr, socket.id, receivers);
+      "https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1672&q=80";
+    socket.emit("ArtsAddr", artsAddr, sender, receivers);
   }
 
   initCall();
@@ -398,6 +399,7 @@ const Overworld = (data) => {
   socket.on("ShareAddr", (artsAddr, SocketId) => {
     //artsAddr로 작품을 그려주면 된다.
     console.log("Other browser check", artsAddr, SocketId);
+    //true, false로 그리고 안그리고 
     popupArts(artsAddr);
   });
 
