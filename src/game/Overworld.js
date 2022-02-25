@@ -385,6 +385,10 @@ const Overworld = (data) => {
   });
 
   let nicknameDiv;
+  let userListItem;
+  let userImg;
+  let userNicknameSpan;
+  let onOffButton;
 
   socket.on("join_user", function (data) {
     //====================  비디오 추가 함수 =================//
@@ -404,13 +408,10 @@ const Overworld = (data) => {
     console.log(data);
     joinUser(data.id, data.x, data.y, data.nickname, data.src);
 
-    const cameraPerson = charMap[socket.id] || map.gameObjects.player;
-
-    console.log(cameraPerson);
-
+    // nickname
     nicknameDiv = document.createElement("div");
     nicknameDiv.className = data.id;
-    nicknameDiv.innerHTML = nickname;
+    nicknameDiv.innerHTML = data.nickname;
 
     nicknameDiv.style.width = 100;
     nicknameDiv.style.transform = "translateX(-40%)";
@@ -423,6 +424,23 @@ const Overworld = (data) => {
     nicknameDiv.style.position = "absolute";
 
     nicknameContainer.appendChild(nicknameDiv);
+
+    // user list
+    const userList = document.querySelector(".user-list");
+    userListItem = document.createElement("li");
+    userNicknameSpan = document.createElement("span");
+    userImg = document.createElement("img");
+    onOffButton = document.createElement("p");
+
+    userImg.src = data.src;
+    userListItem.className = data.id;
+    userNicknameSpan.innerHTML = data.nickname;
+
+    userListItem.appendChild(userImg);
+    userListItem.appendChild(onOffButton);
+    userListItem.appendChild(userNicknameSpan);
+
+    userList.appendChild(userListItem);
   });
 
   socket.on("leave_user", function (data) {
@@ -536,22 +554,23 @@ const Overworld = (data) => {
         .forEach((object) => {
           object.sprite.draw(ctx, cameraPerson);
 
-          const objectNicknameContainer = document.querySelector(
-            `.${object.id}`
-          );
+          setTimeout(() => {
+            const objectNicknameContainer = document.querySelector(
+              `.${object.id}`
+            );
 
-          objectNicknameContainer.style.top =
-            object.y -
-            25 +
-            utils.withGrid(ctx.canvas.clientHeight / 16 / 2) -
-            // utils.withGrid(ctx.canvas.clientWidth / 16 / 2) -
-            cameraPerson.y +
-            "px";
-          objectNicknameContainer.style.left =
-            object.x +
-            utils.withGrid(ctx.canvas.clientWidth / 16 / 2) -
-            cameraPerson.x +
-            "px";
+            objectNicknameContainer.style.top =
+              object.y -
+              25 +
+              utils.withGrid(ctx.canvas.clientHeight / 16 / 2) -
+              cameraPerson.y +
+              "px";
+            objectNicknameContainer.style.left =
+              object.x +
+              utils.withGrid(ctx.canvas.clientWidth / 16 / 2) -
+              cameraPerson.x +
+              "px";
+          }, 100);
         });
 
       if (player) {

@@ -241,7 +241,7 @@ const SignIn = () => {
         }
       }
       const { access_token, refresh_token } = result;
-      cookies.set("access-token", access_token, { maxAge: 3600 });
+      cookies.set("access-token", access_token, { maxAge: 259200 });
       cookies.set("refresh-token", refresh_token, { maxAge: 259200 });
       navigate("/lobby");
     } catch (e) {

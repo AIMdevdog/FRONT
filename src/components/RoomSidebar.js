@@ -1,9 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ProSidebar, Menu } from "react-pro-sidebar";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { IoSend } from "react-icons/io5";
 import "react-pro-sidebar/dist/css/styles.css";
 import styled from "styled-components";
+import io from "socket.io-client";
+import { useSelector } from "react-redux";
+import CONST from "../config/const";
 
 const Layout = styled.div`
   position: fixed;
@@ -109,14 +112,77 @@ const MessageContaienr = styled.div`
   }
 `;
 
+const UserListContainer = styled.div`
+  padding: 10px;
+  ul {
+    li {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      position: relative;
+      top: 0 !important;
+      left: 0 !important;
+      cursor: pointer;
+      padding: 4px 20px;
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+      }
+
+      img {
+        object-fit: cover;
+        object-position: 0px -10px;
+        width: 32px;
+        height: 64px;
+        image-rendering: pixelated;
+        -webkit-transform: scale(1.25);
+        -ms-transform: scale(1.25);
+        transform: scale(1);
+      }
+
+      span {
+        display: block;
+        margin-left: 10px;
+        color: white;
+        font-size: 14px;
+      }
+
+      p {
+        position: absolute;
+        left: 20px;
+        bottom: 20px;
+        width: 10px;
+        height: 10px;
+        background-color: green;
+        border-radius: 50%;
+      }
+    }
+  }
+`;
+
 const RoomSideBar = () => {
   const [collapsed, setCollapsed] = useState(true);
+  const [isUser, setUser] = useState(null);
+  useSelector(async (state) => {
+    try {
+      const isSelectUserState = await state;
+      setUser(isSelectUserState);
+    } catch (e) {
+      console.log(e);
+    }
+  });
+
+  // const socket = io(CONST.HOST);
 
   return (
     <Layout>
       <div className="layout">
         <aside>
           <ProSidebar collapsed={collapsed}>
+            <UserListContainer>
+              <ul className="user-list"></ul>
+            </UserListContainer>
             <ChatContainer collapsed={collapsed}>
               <MessageContaienr id="chatRoom">
                 <ul id="chatBox"></ul>
