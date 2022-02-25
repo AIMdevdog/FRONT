@@ -15,6 +15,7 @@ import styled from "styled-components";
 import VideoButton from "../components/VideoButton";
 import { connect } from "react-redux";
 import ScreenBottomBar from "../components/ScreenBottomBar";
+import PictureFrame from "../components/pictureFrame";
 
 const StreamsContainer = styled.div`
   position: fixed;
@@ -111,21 +112,16 @@ const CharacterNickname = styled.div`
     color: white;
   }
 `;
-const ShareArt = styled.div`
-  div{
-    position: fixed;
-    width: 500px;
-    height: 500px;
-    background-color: red;
-    left: 30%;
-    top: 30%;
-  }
-  img{
-    width: 24px;
-    height: 24px;
-    position: absolute;
-  }
-`;
+// const ShareArt = styled.div`
+//   div{
+//     position: fixed;
+//     width: 500px;
+//     height: 500px;
+//     background-color: red;
+//     left: 30%;
+//     top: 30%;
+//   }
+// `;
 
 // const Draw = styled.div`
 //   position: fixed;
@@ -142,6 +138,7 @@ const Room = ({ userData }) => {
   const url = "http://localhost:3000/lobby";
 
   const [openDraw, setOpenDraw] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
 
   useEffect(() => {
     userData.then((data) => {
@@ -187,15 +184,17 @@ const Room = ({ userData }) => {
   }, []);
   return (
     <>
+      <div id="Arts">
+        {openDraw ? <PictureFrame collapsed={collapsed}></PictureFrame> : null}
+      </div>
       <div className="roomContainer" style={{ display: "flex" }}>
         <div className="game-container" style={{ backgroundColor: "black" }}>
           <canvas className="game-canvas"></canvas>
-          <CharacterNickname className="nickname">
-            {/* <span className="nickname"></span> */}
-          </CharacterNickname>
+          <CharacterNickname className="nickname"> </CharacterNickname>
         </div>
       </div>
-      <RoomSideBar url={url}/>
+      <RoomSideBar url={url} collapsed={collapsed} setCollapsed={setCollapsed}/>
+      <button style={{position:"fixed",top:"10px"}}>share</button>
       <StreamsContainer id="streams"></StreamsContainer>
       <MyVideoBox>
         <MyVideo id="myFace" autoPlay="autoplay"></MyVideo>
@@ -204,14 +203,10 @@ const Room = ({ userData }) => {
         </CamBtn>
       </MyVideoBox>
       <ScreenBottomBar />
-      <ScreenBottomBar/>
-        {/* <div id="share" style={{position: 'absolute', top: 0, right: 0}}>
+      <ScreenBottomBar />
+      {/* <div id="share" style={{position: 'absolute', top: 0, right: 0}}>
           <button>share</button>
         </div> */}
-      <ShareArt id="Arts" onmousemove='cursorPosition'>
-        {openDraw ? <div className="draw"> test</div>: null}
-      </ShareArt>
-        
     </>
   );
 };

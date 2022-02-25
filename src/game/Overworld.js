@@ -53,13 +53,15 @@ const Overworld = (data) => {
   const socket = io(_const.HOST);
   let closer = [];
 
+
   const keydownHandler = (e) => {
     const player = charMap[socket.id];
-    if((e.key === "x" || e.key === "X" || e.key === "ㅌ") && player.x === 48 && player.y === 48){
-      console.log("hi");
+    if ((e.key === "x" || e.key === "X" || e.key === "ㅌ") && player.x === 48 && player.y === 48) {
       data.setOpenDraw(prev => !prev);
-    }else if(directionInput.direction){
+
+    } else if (directionInput.direction) {
       data.setOpenDraw(false);
+
     }
   }
   document.addEventListener("keydown", keydownHandler);
@@ -345,9 +347,9 @@ const Overworld = (data) => {
   socket.on("shareCursorPosition", (cursorX, cursorY, remoteSocketId) => {
     //artsAddr로 작품을 그려주면 된다. 
     const draw = document.querySelector(".draw");
-    if(!draw){
+    if (!draw) {
       return;
-    } else if (draw?.firstChild){
+    } else if (draw?.firstChild) {
       draw.removeChild(draw?.firstChild);
     }
     const img = document.createElement("img");
@@ -364,7 +366,7 @@ const Overworld = (data) => {
     socket.emit("cursorPosition", event.pageX, event.pageY, socket.id);
   };
 
-  var SharedArts = document.querySelector("#Arts"); 
+  var SharedArts = document.querySelector("#Arts");
   SharedArts.addEventListener("mousemove", updateDisplay, false);
   SharedArts.addEventListener("mouseenter", updateDisplay, false);
   SharedArts.addEventListener("mouseleave", updateDisplay, false);
@@ -437,7 +439,7 @@ const Overworld = (data) => {
     try {
       // console.log('*******', remoteSocketId);
       // console.log('****pcObj', pcObj);
-    
+
       // pcObj[remoteSocketId].ondatachannel = ev => {
       //   sendChannel[remoteSocketId] = ev.channel;
       //   sendChannel[remoteSocketId].addEventListener("message", console.log);
@@ -489,7 +491,7 @@ const Overworld = (data) => {
     joinUser(data.id, data.x, data.y, data.nickname, data.src);
 
     nicknameDiv = document.createElement("div");
-    nicknameDiv.className = data.id;
+    nicknameDiv.id = data.nickname;
     nicknameDiv.innerHTML = data.nickname;
 
     nicknameDiv.style.width = 100;
@@ -610,10 +612,7 @@ const Overworld = (data) => {
         .forEach((object) => {
           object.sprite.draw(ctx, cameraPerson);
 
-          const objectNicknameContainer = document.querySelector(
-            `.${object.id}`
-          );
-
+          const objectNicknameContainer = document.getElementById(`${object.nickname}`);
           objectNicknameContainer.style.top =
             object.y -
             25 +
@@ -692,5 +691,13 @@ const Overworld = (data) => {
 
   startGameLoop();
 };
+
+
+
+
+
+
+
+
 
 export default Overworld;

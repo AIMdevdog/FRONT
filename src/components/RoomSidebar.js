@@ -198,8 +198,8 @@ const ExitButton = styled.button`
 
 `;
 
-const RoomSideBar = ({url}) => {
-  const [collapsed, setCollapsed] = useState(true);
+const RoomSideBar = ({url, collapsed, setCollapsed}) => {
+  
   const [exitModal, setExitModal] = useState(false);
 
   const onExitModal = () => setExitModal(!exitModal);

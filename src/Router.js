@@ -8,7 +8,7 @@ import Room1 from "./routes/Room1";
 import React from "react";
 import Room2 from "./routes/Room2";
 import Room3 from "./routes/Room3";
-import SettingPage from "./routes/SettingPage";
+import PictureFrame from "./components/pictureFrame";
 
 export const Router = () => {
   return (
@@ -18,7 +18,7 @@ export const Router = () => {
         <Route path="/" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/lobby" element={<Lobby />} />
-        <Route path="/lobby/:id" element={<SettingPage />} />
+        <Route path="/picture" element={<PictureFrame />} />
         <Route path="/room/:roomId" element={<Room />} />
         <Route path="/room1/:roomId" element={<Room1 />} />
         <Route path="/room2/:roomId" element={<Room2 />} />
