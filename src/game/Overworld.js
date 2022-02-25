@@ -251,7 +251,7 @@ const Overworld = (data) => {
   myFaceBtn.addEventListener("click", closeScreenSharing);
 
   function handleMuteClick() {
-    myStream //
+    myStream
       .getAudioTracks()
       .forEach((track) => (track.enabled = !track.enabled));
     if (muted) {
@@ -292,7 +292,7 @@ const Overworld = (data) => {
     camBtn.style.display = "block";
     if (!sharing) {
       myStream = await navigator.mediaDevices.getUserMedia(cameraConstraints);
-      console.log("mystream", myStream);
+      // console.log("mystream", myStream);
       // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
       myFace.srcObject = myStream;
       myFace.muted = true;
@@ -301,7 +301,7 @@ const Overworld = (data) => {
       myStream // mute default
         .getAudioTracks()
         .forEach((track) => (track.enabled = false));
-      let track = myStream.getVideoTracks()[0]
+      const track = myStream.getVideoTracks()[0]
       params = {
         track,
         ...params
@@ -442,6 +442,7 @@ const Overworld = (data) => {
             kind: parameters.kind,
             rtpParameters: parameters.rtpParameters,
             appData: parameters.appData,
+            track: myStream.getVideoTracks()[0]
           }, ({ id, producersExist }) => {
             // Tell the transport that parameters were transmitted and provide it with the
             // server side producer's id.
