@@ -16,6 +16,7 @@ import VideoButton from "../components/VideoButton";
 import { connect } from "react-redux";
 import ScreenBottomBar from "../components/ScreenBottomBar";
 import PictureFrame from "../components/pictureFrame";
+import { user } from "../config/api";
 
 const StreamsContainer = styled.div`
   position: fixed;
@@ -143,62 +144,116 @@ const Room = ({ userData }) => {
   const [isChatCollapsed, setChatCollapsed] = useState(false);
   const [isShareCollapsed, setShareCollapsed] = useState(false);
 
+  const [isUser, setUser] = useState(null);
+
   console.log(isShareCollapsed);
 
   useEffect(() => {
-    userData.then((data) => {
-      Overworld({
-        config: document.querySelector(".game-container"),
-        setOpenDraw,
-        isChatCollapsed,
-        isShareCollapsed,
-        nickname: data.nickname || "ANON",
-        Room: {
-          RoomSrc:
-            "https://aim-image-storage.s3.ap-northeast-2.amazonaws.com/map2.png",
-          roomId,
-          roomNum: 0,
-          gameObjects: {
-            player: new Person({
-              id: null,
-              isPlayerControlled: true,
-              x: 80,
-              y: 80,
-              src:
-                data.character ||
-                "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png",
-            }),
-          },
-        },
-        adjust: {
-          xaxios: 0,
-          yaxios: 0,
-          yratio: 1,
-        },
-        otherMaps: [
-          {
-            x: 16,
-            y: 448,
-            url: `http://localhost:3000/room3/${roomId}`,
-            // url: "/room1",
-          },
-        ],
-      });
-    });
+    const getUser = async () => {
+      try {
+        const requestResult = user.getUserInfo();
+        const {
+          data: { mag, result },
+        } = requestResult;
+        setUser(result);
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    // userData.then((data) => {
+    //   Overworld({
+    //     config: document.querySelector(".game-container"),
+    //     setOpenDraw,
+    //     isChatCollapsed,
+    //     isShareCollapsed,
+    //     nickname: data.nickname || "ANON",
+    // Room: {
+    //   RoomSrc:
+    //     "https://aim-image-storage.s3.ap-northeast-2.amazonaws.com/map2.png",
+    //   roomId,
+    //   roomNum: 0,
+    //   gameObjects: {
+    //     player: new Person({
+    //       id: null,
+    //       isPlayerControlled: true,
+    //       x: 80,
+    //       y: 80,
+    //       src:
+    //         data.character ||
+    //         "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png",
+    //     }),
+    //   },
+    // },
+    // adjust: {
+    //   xaxios: 0,
+    //   yaxios: 0,
+    //   yratio: 1,
+    // },
+    // otherMaps: [
+    //   {
+    //     x: 16,
+    //     y: 448,
+    //     url: `http://localhost:3000/room3/${roomId}`,
+    //     // url: "/room1",
+    //   },
+    // ],
+    //   });
+    // });
     return () => {
       console.log("room leave!!");
     };
   }, []);
+
+  const config = document.querySelector(".game-container");
+  const room = {
+    RoomSrc:
+      "https://aim-image-storage.s3.ap-northeast-2.amazonaws.com/map2.png",
+    roomId,
+    roomNum: 0,
+    gameObjects: {
+      player: new Person({
+        id: null,
+        isPlayerControlled: true,
+        x: 80,
+        y: 80,
+        src:
+          isUser?.character ||
+          "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png",
+      }),
+    },
+  };
+
+  const adjust = {
+    xaxios: 0,
+    yaxios: 0,
+    yratio: 1,
+  };
+
+  const otherMaps = [
+    {
+      x: 16,
+      y: 448,
+      url: `http://localhost:3000/room3/${roomId}`,
+      // url: "/room1",
+    },
+  ];
+
   return (
     <>
       <div id="Arts">
         {openDraw ? <PictureFrame collapsed={collapsed}></PictureFrame> : null}
       </div>
       <div className="roomContainer" style={{ display: "flex" }}>
-        <div className="game-container" style={{ backgroundColor: "black" }}>
-          <canvas className="game-canvas"></canvas>
-          <CharacterNickname className="nickname"> </CharacterNickname>
-        </div>
+        <Overworld
+          setOpenDraw={setOpenDraw}
+          isChatCollapsed={isChatCollapsed}
+          isShareCollapsed={isShareCollapsed}
+          nickname={isUser?.nickname}
+          Room={room}
+          adjust={adjust}
+          otherMaps={otherMaps}
+        />
       </div>
       <RoomSideBar
         url={url}

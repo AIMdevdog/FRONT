@@ -4,6 +4,14 @@ import { Person } from "./Person.js";
 import utils from "./utils.js";
 import io from "socket.io-client";
 import _const from "../config/const.js";
+import styled from "styled-components";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+const CharacterNickname = styled.div`
+  span {
+    color: white;
+  }
+`;
 
 let myStream;
 let cameraOff = false;
@@ -23,11 +31,29 @@ const characters = [];
 const charMap = {};
 
 const Overworld = (data) => {
+  const [isCanvas, setIsCanvas] = useState(null);
+  const containerEl = useRef();
+  const canvasRef = useRef();
+
+  // useEffect(() => {
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  //   const canvas = ref.current.getContext("2d");
+  //   setIsCanvas(canvas);
+  // }, []);
+
+  // console.log(isCanvas);
+
   const config = data.config;
   const nickname = data.nickname;
-  const element = config;
-  const canvas = element.querySelector(".game-canvas");
-  const ctx = canvas.getContext("2d");
+  // const element = config;
+  // const element = containerEl;
+  // console.log(data);
+  // console.log(element);
+  // const canvas = element.querySelector(".game-canvas");
+
+  const directionInput = new DirectionInput();
+  directionInput.init();
+
   const cameraConstraints = {
     audio: true,
     video: true,
@@ -42,8 +68,7 @@ const Overworld = (data) => {
   }
   const adjustValue = data.adjust;
   const otherMaps = data.otherMaps;
-  const directionInput = new DirectionInput();
-  directionInput.init();
+
   let roomId;
   if (map.roomNum === 0) {
     roomId = "room" + map.roomId;
@@ -53,19 +78,19 @@ const Overworld = (data) => {
   const socket = io(_const.HOST);
   let closer = [];
 
-  const keydownHandler = (e) => {
-    const player = charMap[socket.id];
-    if (
-      (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
-      player.x === 48 &&
-      player.y === 48
-    ) {
-      data.setOpenDraw((prev) => !prev);
-    } else if (directionInput.direction) {
-      data.setOpenDraw(false);
-    }
-  };
-  document.addEventListener("keydown", keydownHandler);
+  // const keydownHandler = (e) => {
+  //   const player = charMap[socket.id];
+  //   if (
+  //     (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
+  //     player.x === 48 &&
+  //     player.y === 48
+  //   ) {
+  //     data.setOpenDraw((prev) => !prev);
+  //   } else if (directionInput.direction) {
+  //     data.setOpenDraw(false);
+  //   }
+  // };
+  // document.addEventListener("keydown", keydownHandler);
   // data 안에 소켓id, nickname 있음
   // data for문 돌면서 isUserCalling checking 혹은..
   // [PASS] 2명+3명 그룹 합쳐질 때 그룹 통화중이라는 것을 표시해둬야 함 / 변수 하나 더 추가 true, false 체크
@@ -129,8 +154,8 @@ const Overworld = (data) => {
       video.autoplay = true;
       video.playsInline = true;
       video.srcObject = peerStream;
-      div.appendChild(video);
-      streams.appendChild(div);
+      // div.appendChild(video);
+      // streams.appendChild(div);
       // await sortStreams();
     } catch (err) {
       console.error(err);
@@ -246,8 +271,8 @@ const Overworld = (data) => {
   }
   const shareBtn = document.querySelector("#shareBtn");
   const myFaceBtn = document.querySelector("#myFaceBtn");
-  shareBtn.addEventListener("click", handleScreenSharing);
-  myFaceBtn.addEventListener("click", closeScreenSharing);
+  // shareBtn.addEventListener("click", handleScreenSharing);
+  // myFaceBtn.addEventListener("click", closeScreenSharing);
 
   function handleMuteClick() {
     myStream //
@@ -275,8 +300,8 @@ const Overworld = (data) => {
   const cameraBtn = document.querySelector("#playerCamera");
   const muteBtn = document.querySelector("#playerMute");
 
-  cameraBtn.addEventListener("click", handleCameraClick);
-  muteBtn.addEventListener("click", handleMuteClick);
+  // cameraBtn.addEventListener("click", handleCameraClick);
+  // muteBtn.addEventListener("click", handleMuteClick);
 
   var displayMediaOptions = {
     video: {
@@ -359,10 +384,10 @@ const Overworld = (data) => {
     const li = document.createElement("li");
     const span = document.createElement("span");
     span.innerText = message;
-    li.appendChild(span);
+    // li.appendChild(span);
     li.classList.add(className);
     li.classList.add("message-list");
-    chatBox.appendChild(li);
+    // chatBox.appendChild(li);
   }
 
   //상대방의 마우스 커서 그리기
@@ -379,7 +404,7 @@ const Overworld = (data) => {
     // console.log(cursorX, cursorY, remoteSocketId);
     img.style.top = cursorY - 240 + "px";
     img.style.left = cursorX - 165 + "px";
-    draw.appendChild(img);
+    // draw.appendChild(img);
     // console.dir(img);
   });
 
@@ -388,9 +413,9 @@ const Overworld = (data) => {
   }
 
   var SharedArts = document.querySelector("#Arts");
-  SharedArts.addEventListener("mousemove", updateDisplay, false);
-  SharedArts.addEventListener("mouseenter", updateDisplay, false);
-  SharedArts.addEventListener("mouseleave", updateDisplay, false);
+  // SharedArts.addEventListener("mousemove", updateDisplay, false);
+  // SharedArts.addEventListener("mouseenter", updateDisplay, false);
+  // SharedArts.addEventListener("mouseleave", updateDisplay, false);
 
   function popupArts() {
     data.setOpenDraw((prev) => !prev);
@@ -520,7 +545,7 @@ const Overworld = (data) => {
     nicknameDiv.style.textAlign = "center";
     nicknameDiv.style.position = "absolute";
 
-    nicknameContainer.appendChild(nicknameDiv);
+    // nicknameContainer.appendChild(nicknameDiv);
 
     // user list
     if (data.isShareCollapsed) {
@@ -541,16 +566,16 @@ const Overworld = (data) => {
       shareInput.name = "share-checkbox-name";
       shareInput.value = data.id;
 
-      userInfoDiv.appendChild(userImg);
-      userInfoDiv.appendChild(userNicknameSpan);
-      userListItem.appendChild(userInfoDiv);
-      userListItem.appendChild(onOffButton);
+      // userInfoDiv.appendChild(userImg);
+      // userInfoDiv.appendChild(userNicknameSpan);
+      // userListItem.appendChild(userInfoDiv);
+      // userListItem.appendChild(onOffButton);
 
       if (socket.id !== data.id) {
-        userListItem.appendChild(shareInput);
+        // userListItem.appendChild(shareInput);
       }
 
-      userList.appendChild(userListItem);
+      // userList.appendChild(userListItem);
     }
   });
 
@@ -559,138 +584,148 @@ const Overworld = (data) => {
   });
 
   socket.on("update_state", function (data) {
-    updateLocation(data);
+    // updateLocation(data);
   });
 
-  const startGameLoop = () => {
-    const step = () => {
-      //Clear off the canvas
-      if (map.roomNum === 0) {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-      } else if (map.roomNum === 1) {
-        canvas.width = window.innerWidth;
-        canvas.height = 200;
-      } else {
-        canvas.width = 70;
-        canvas.height = 80;
-        data.mainContainer.style.height = window.innerHeight + "px";
-      }
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const startGameLoop = () => {
+      const step = () => {
+        //Clear off the canvas
+        // console.log(isCCanvas);
+        if (map.roomNum === 0) {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+        } else if (map.roomNum === 1) {
+          canvas.width = window.innerWidth;
+          canvas.height = 200;
+        } else {
+          canvas.width = 70;
+          canvas.height = 80;
+          data.mainContainer.style.height = window.innerHeight + "px";
+        }
 
-      //Establish the camera person
-      const cameraPerson = charMap[socket.id] || map.gameObjects.player;
-      const player = charMap[socket.id];
+        // ctx.clearRect(0, 0, isCCanvas?.width, isCCanvas?.height);
+        ctx.clearRect(0, 0, canvas?.width, canvas?.height);
 
-      if (data.setCameraPosition) {
-        data.setYCameraPosition(-cameraPerson.y / 80 - 3.5);
-        data.setCameraPosition(-cameraPerson.x / 80 + 6);
-      }
+        //Establish the camera person
+        const cameraPerson = charMap[socket.id] || map.gameObjects.player;
+        const player = charMap[socket.id];
 
-      //Update all objects
-      Object.values(charMap).forEach((object) => {
-        if (object.id === socket.id) {
-          for (let i = 0; i < otherMaps.length; i++) {
-            if (object.x === otherMaps[i].x && object.y === otherMaps[i].y) {
-              console.log("warp!!!");
-              window.location.href = `${otherMaps[i].url}`;
+        if (data.setCameraPosition) {
+          data.setYCameraPosition(-cameraPerson.y / 80 - 3.5);
+          data.setCameraPosition(-cameraPerson.x / 80 + 6);
+        }
+
+        //Update all objects
+        Object.values(charMap).forEach((object) => {
+          if (object.id === socket.id) {
+            for (let i = 0; i < otherMaps.length; i++) {
+              if (object.x === otherMaps[i].x && object.y === otherMaps[i].y) {
+                console.log("warp!!!");
+                window.location.href = `${otherMaps[i].url}`;
+              }
+            }
+            object.update({
+              arrow: directionInput.direction,
+              map: map,
+              // id: socket.id,
+            });
+          } else {
+            object.update({
+              arrow: object.nextDirection.shift(),
+              map: map,
+              // id: socket.id,
+            });
+            if (
+              !object.isUserCalling &&
+              Math.abs(player?.x - object.x) < 64 &&
+              Math.abs(player?.y - object.y) < 96
+            ) {
+              //화상 통화 연결
+              closer.push(object.id);
+              console.log("가까워짐");
+              player.isUserCalling = true;
+              object.isUserCalling = true;
+              socket.emit("user_call", {
+                caller: player.id,
+                callee: object.id,
+              });
+            }
+            if (
+              object.isUserCalling &&
+              (Math.abs(player.x - object.x) > 96 ||
+                Math.abs(player.y - object.y) > 128)
+            ) {
+              console.log("멀어짐");
+              closer = closer.filter((element) => element !== object.id);
+              object.isUserCalling = false;
+              object.isUserJoin = false;
             }
           }
-          object.update({
-            arrow: directionInput.direction,
-            map: map,
-            // id: socket.id,
-          });
-        } else {
-          object.update({
-            arrow: object.nextDirection.shift(),
-            map: map,
-            // id: socket.id,
-          });
-          if (
-            !object.isUserCalling &&
-            Math.abs(player?.x - object.x) < 64 &&
-            Math.abs(player?.y - object.y) < 96
-          ) {
-            //화상 통화 연결
-            closer.push(object.id);
-            console.log("가까워짐");
-            player.isUserCalling = true;
-            object.isUserCalling = true;
-            socket.emit("user_call", {
-              caller: player.id,
-              callee: object.id,
-            });
-          }
-          if (
-            object.isUserCalling &&
-            (Math.abs(player.x - object.x) > 96 ||
-              Math.abs(player.y - object.y) > 128)
-          ) {
-            console.log("멀어짐");
-            closer = closer.filter((element) => element !== object.id);
-            object.isUserCalling = false;
-            object.isUserJoin = false;
-          }
-        }
-      });
-      const playercheck = player ? player.isUserCalling : false;
-      if (playercheck && closer.length === 0) {
-        // 나가는 사람 기준
-        const stream = document.querySelector("#streams");
-        while (stream.hasChildNodes()) {
-          // 내가 가지고있는 다른 사람의 영상을 전부 삭제
-          stream.removeChild(stream.firstChild);
-        }
-
-        socket.emit("leave_Group", player.id);
-        player.isUserCalling = false;
-        player.isUserJoin = false;
-      }
-      //Draw Lower layer
-      map.drawLowerImage(ctx, cameraPerson);
-
-      //Draw Game Objects
-      Object.values(charMap)
-        .sort((a, b) => {
-          return a.y - b.y;
-        })
-        .forEach((object) => {
-          object.sprite.draw(ctx, cameraPerson);
-
-          const objectNicknameContainer = document.getElementById(
-            `${object.nickname}`
-          );
-          objectNicknameContainer.style.top =
-            object.y -
-            25 +
-            utils.withGrid(ctx.canvas.clientHeight / 16 / 2) -
-            cameraPerson.y +
-            "px";
-          objectNicknameContainer.style.left =
-            object.x +
-            utils.withGrid(ctx.canvas.clientWidth / 16 / 2) -
-            cameraPerson.x +
-            "px";
         });
-      if (player) {
-        const data = {
-          id: socket.id,
-          x: player.x,
-          y: player.y,
-          direction: directionInput.direction,
-        };
-        socket.emit("input", data);
-      }
-      requestAnimationFrame(() => {
-        step();
-      });
+        const playercheck = player ? player.isUserCalling : false;
+        if (playercheck && closer.length === 0) {
+          // 나가는 사람 기준
+          const stream = document.querySelector("#streams");
+          while (stream.hasChildNodes()) {
+            // 내가 가지고있는 다른 사람의 영상을 전부 삭제
+            stream.removeChild(stream.firstChild);
+          }
+
+          socket.emit("leave_Group", player.id);
+          player.isUserCalling = false;
+          player.isUserJoin = false;
+        }
+        //Draw Lower layer
+        map.drawLowerImage(ctx, cameraPerson);
+
+        //Draw Game Objects
+        Object.values(charMap)
+          .sort((a, b) => {
+            return a.y - b.y;
+          })
+          .forEach((object) => {
+            object.sprite.draw(ctx, cameraPerson);
+
+            const objectNicknameContainer = document.getElementById(
+              `${object.nickname}`
+            );
+            objectNicknameContainer.style.top =
+              object.y -
+              25 +
+              utils.withGrid(ctx.canvas.clientHeight / 16 / 2) -
+              cameraPerson.y +
+              "px";
+            objectNicknameContainer.style.left =
+              object.x +
+              utils.withGrid(ctx.canvas.clientWidth / 16 / 2) -
+              cameraPerson.x +
+              "px";
+          });
+        if (player) {
+          const data = {
+            id: socket.id,
+            x: player.x,
+            y: player.y,
+            direction: directionInput.direction,
+          };
+          socket.emit("input", data);
+        }
+        requestAnimationFrame(() => {
+          step();
+        });
+      };
+      step();
     };
-    step();
-  };
+
+    startGameLoop();
+  }, []);
 
   const updateLocation = (data) => {
+    console.log(data);
     let char;
     for (let i = 0; i < characters.length; i++) {
       char = charMap[data[i].id];
@@ -735,7 +770,18 @@ const Overworld = (data) => {
     return character;
   };
 
-  startGameLoop();
+  // startGameLoop();
+
+  return (
+    <div
+      ref={containerEl}
+      className="game-container"
+      style={{ backgroundColor: "black" }}
+    >
+      <canvas ref={canvasRef} className="game-canvas"></canvas>
+      <CharacterNickname className="nickname"> </CharacterNickname>
+    </div>
+  );
 };
 
 export default Overworld;
