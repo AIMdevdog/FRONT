@@ -243,6 +243,7 @@ const Room = ({ userData }) => {
               charMap={charMap}
               characters={characters}
               socket={socket}
+              openDraw={openDraw}
             />
             <CharacterNickname nicknames={nicknames} />
             <RoomSideBar

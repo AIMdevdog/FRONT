@@ -402,7 +402,7 @@ const RoomSideBar = ({
 
   useEffect(() => {
     socket.on("ShareAddr", (socketId) => {
-      openShareArtsWorks();
+      setOpenDraw(true);
     });
   });
 

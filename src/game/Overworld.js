@@ -20,7 +20,7 @@ var remoteConnection = []; // RTCPeerConnection for the "remote"
 
 let peopleInRoom = 1;
 
-const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket }) => {
+const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) => {
   console.log("Overworld");
 
   const [isCanvas, setIsCanvas] = useState(null);
@@ -59,7 +59,8 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket }) => {
         player.y === 48
       ) {
         setOpenDraw((prev) => !prev);
-      } else if (directionInput.direction) {
+      } else if ((!openDraw && (e.key === "x" || e.key === "X" || e.key === "ㅌ")) 
+      || directionInput.direction) {
         setOpenDraw(false);
       }
     };
