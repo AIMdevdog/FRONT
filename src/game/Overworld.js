@@ -457,7 +457,7 @@ const Overworld = (data) => {
   
             // if producers exist, then join room
             console.log()
-            if (producersExist) getProducers()
+            if (producersExist) getProducers() // producersExist -> producer.len>1 ? true : false 
           })
         } catch (error) {
           errback(error)
