@@ -291,6 +291,7 @@ const Overworld = (data) => {
     camBtn.style.display = "block";
     if (!sharing) {
       myStream = await navigator.mediaDevices.getUserMedia(cameraConstraints);
+
       console.log("mystream", myStream);
       // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
       myFace.srcObject = myStream;
@@ -300,11 +301,13 @@ const Overworld = (data) => {
       myStream // mute default
         .getAudioTracks()
         .forEach((track) => (track.enabled = false));
-      let track = myStream.getVideoTracks()[0]
+
+      const track = myStream.getVideoTracks()[0]
       params = {
         track,
         ...params
       }
+      console.log("params in getMedia", params)
     } else {
       myStream = await navigator.mediaDevices.getDisplayMedia(
         displayMediaOptions
@@ -317,6 +320,12 @@ const Overworld = (data) => {
       myStream // mute default
         .getAudioTracks()
         .forEach((track) => (track.enabled = false));
+
+      const track = myStream.getVideoTracks()[0]
+        params = {
+          track,
+          ...params
+        }
     }
   }
 
@@ -445,7 +454,7 @@ const Overworld = (data) => {
             // Tell the transport that parameters were transmitted and provide it with the
             // server side producer's id.
             callback({ id })
-  
+            console.log("******",id, producersExist)
             // if producers exist, then join room
             if (producersExist) getProducers()
           })
@@ -464,7 +473,7 @@ const Overworld = (data) => {
     // https://mediasoup.org/documentation/v3/mediasoup-client/api/#transport-produce
     // this action will trigger the 'connect' and 'produce' events above
     producer = await producerTransport.produce(params)
-  
+    console.log("params in connectSendTransport", params)
     producer.on('trackended', () => {
       console.log('track ended')
   
@@ -477,6 +486,8 @@ const Overworld = (data) => {
       // close video track
     })
   }
+  // server informs the client of a new producer just joined
+  socket.on('new-producer', ({ producerId }) => signalNewConsumerTransport(producerId))
 
   const getProducers = () => {
     socket.emit('getProducers', producerIds => {
@@ -488,6 +499,7 @@ const Overworld = (data) => {
   }
 
   const signalNewConsumerTransport = async (remoteProducerId) => {
+    console.log('signalNewConsumerTransport실행', remoteProducerId)
     await socket.emit('createWebRtcTransport', { consumer: true }, ({ params }) => {
       // The server sends back params needed 
       // to create Send Transport on the client side
@@ -543,7 +555,8 @@ const Overworld = (data) => {
         return
       }
   
-      console.log(`******Consumer Params ${params}*******`)
+      console.log(`******Consumer Params ${params.track}*******`, params)
+      console.log("&&&&&&&&&&connectRecvTransport 실행&&&&&&&&&&&")
       // then consume with the local consumer transport
       // which creates a consumer
       const consumer = await consumerTransport.consume({
@@ -562,6 +575,7 @@ const Overworld = (data) => {
           consumer,
         },
       ]
+      console.log(consumer.track)
   
       // create a new div element for the new consumer media
       // and append to the video container
@@ -571,11 +585,12 @@ const Overworld = (data) => {
       // newElem.innerHTML = '<video id="' + remoteProducerId + '" autoplay class="video" ></video>'
       // videoContainer.appendChild(newElem)
       
-      // destructure and retrieve the video track from the producer
+      // // destructure and retrieve the video track from the producer
       const { track } = consumer
-      console.log('***connect recv transport***', new MediaStream([track]));
-      paintPeerFace(new MediaStream([track]), remoteProducerId, "nickname")
-  
+      const newMediaStream = new MediaStream([track])
+      console.log('***connect recv transport***', newMediaStream);
+      paintPeerFace(newMediaStream, remoteProducerId, "nickname")
+
   
       // document.getElementById(remoteProducerId).srcObject = new MediaStream([track])
   
@@ -613,7 +628,7 @@ const Overworld = (data) => {
     writeChat(message);
   });
 
-  socket.on("accept_join", async (userObjArr) => {
+  socket.on("accept_join", async (groupName) => {
     try {
 
       // const length = userObjArr.length;
@@ -636,7 +651,7 @@ const Overworld = (data) => {
       //   );
       // }
       await initCall();
-      socket.emit('getRtpCapabilities', userObjArr.roomName, (data) => {
+      socket.emit('getRtpCapabilities', groupName, (data) => {
         console.log(`Router RTP Capabilities... ${data.rtpCapabilities}`)
         // we assign to local variable and will be used when
         // loading the client Device (see createDevice above)
