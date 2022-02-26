@@ -494,22 +494,6 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket }) => {
   // let userInfoDiv;
 
   useEffect(() => {
-    const keydownHandler = (e) => {
-      const player = charMap[socket?.id];
-      if (
-        (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
-        player.x === 48 &&
-        player.y === 48
-      ) {
-        setOpenDraw((prev) => !prev);
-      } else if (directionInput.direction) {
-        setOpenDraw(false);
-      }
-    };
-    document.addEventListener("keydown", keydownHandler);
-  }, []);
-
-  useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     let isLoop = true;
