@@ -20,6 +20,7 @@ import { user } from "../config/api";
 import { joinUser, leaveUser, updateLocation } from "../utils/game/character";
 import { io } from "socket.io-client";
 import _const from "../config/const";
+import { DirectionInput } from "../game/DirectionInput";
 
 const StreamsContainer = styled.div`
   position: fixed;
@@ -137,20 +138,18 @@ const CharacterNickname = styled.div`
 // `;
 
 const Room = ({ userData }) => {
-  const [socket, setSocket] = useState(null);
   const characters = [];
   const charMap = {};
+  const [socket, setSocket] = useState(null);
   const params = useParams();
   const roomId = params.roomId;
   const url = "http://localhost:3000/lobby";
   const nicknameContainer = document.querySelector(".nickname");
 
-
   const [openDraw, setOpenDraw] = useState(false);
   const [collapsed, setCollapsed] = useState(true);
 
-  const [isChatCollapsed, setChatCollapsed] = useState(false);
-  const [isShareCollapsed, setShareCollapsed] = useState(false);
+  const [isCharacter, setIsCharacter] = useState([]);
 
   const [isUser, setUser] = useState(null);
 
@@ -158,7 +157,7 @@ const Room = ({ userData }) => {
     userData.then((data) => {
       setUser(data);
       setSocket(io(_const.HOST));
-    })
+    });
     return () => {
       console.log("room leave!!");
     };
@@ -180,8 +179,10 @@ const Room = ({ userData }) => {
       socket.on("get_user_info", function (data) {
         // console.log(data);
         const user = joinUser(data.id, data.x, data.y, data.nickname, data.src);
-        
-        characters.push(user);
+        // characters.push(user);
+        // setIsCharacter([...isCharacter, user]);
+        setIsCharacter((prev) => [...prev, user]);
+
         charMap[data.id] = user;
 
         // const nicknameDiv = document.createElement("div");
@@ -233,14 +234,14 @@ const Room = ({ userData }) => {
       });
 
       socket.on("leave_user", function (data) {
-        leaveUser(data, charMap, characters);
+        leaveUser(data, charMap, isCharacter);
       });
 
       socket.on("update_state", function (data) {
-        updateLocation(data, charMap, characters, socket.id);
+        updateLocation(data, charMap, isCharacter, socket.id);
       });
     }
-  }, [isUser, socket])
+  }, [isUser, socket]);
 
   const room = {
     RoomSrc:
@@ -272,35 +273,64 @@ const Room = ({ userData }) => {
     },
   ];
 
+  // const isOpenPicture = () => {
+
+  // const directionInput = new DirectionInput();
+  // directionInput.init();
+
+  // const keydownHandler = (e) => {
+  //   const player = charMap[socket?.id];
+  //   if (
+  //     (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
+  //     player.x === 48 &&
+  //     player.y === 48
+  //   ) {
+  //     setOpenDraw((prev) => !prev);
+  //   } else if (directionInput.direction) {
+  //     setOpenDraw(false);
+  //   }
+  // };
+  // document.addEventListener("keydown", (e) => {
+  //   keydownHandler(e);
+  // });
+
+  // }
+
+  console.log(characters);
+
   return (
     <>
-      <div id="Arts">
-        {openDraw ? <PictureFrame collapsed={collapsed}></PictureFrame> : null}
-      </div>
       <div className="roomContainer" style={{ display: "flex" }}>
-        {socket ? <Overworld
-          setOpenDraw={setOpenDraw}
-          isChatCollapsed={isChatCollapsed}
-          isShareCollapsed={isShareCollapsed}
-          Room={room}
-          adjust={adjust}
-          otherMaps={otherMaps}
-          charMap={charMap}
-          characters={characters}
-          socket={socket}
-        /> : null}
+        {socket ? (
+          <>
+            {openDraw ? (
+              <div id="Arts">
+                <PictureFrame collapsed={collapsed} socket={socket} />
+              </div>
+            ) : null}
+            <Overworld
+              setOpenDraw={setOpenDraw}
+              Room={room}
+              adjust={adjust}
+              otherMaps={otherMaps}
+              charMap={charMap}
+              characters={characters}
+              socket={socket}
+            />
+            <RoomSideBar
+              url={url}
+              socket={socket}
+              collapsed={collapsed}
+              setCollapsed={setCollapsed}
+              setOpenDraw={setOpenDraw}
+              charMap={charMap}
+              characters={isCharacter}
+              openDraw={openDraw}
+            />
+          </>
+        ) : null}
       </div>
-      <RoomSideBar
-        url={url}
-        collapsed={collapsed}
-        setCollapsed={setCollapsed}
-        setOpenDraw={setOpenDraw}
-        openDraw={openDraw}
-        setChatCollapsed={setChatCollapsed}
-        isChatCollapsed={isChatCollapsed}
-        setShareCollapsed={setShareCollapsed}
-        isShareCollapsed={isShareCollapsed}
-      />
+
       <StreamsContainer id="streams"></StreamsContainer>
       <MyVideoBox>
         <MyVideo id="myFace" autoPlay="autoplay"></MyVideo>

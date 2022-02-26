@@ -27,9 +27,15 @@ var remoteConnection = []; // RTCPeerConnection for the "remote"
 
 let peopleInRoom = 1;
 
-
-
-const Overworld = ({ setOpenDraw, isChatCollapsed, isShareCollapsed, Room, adjust, otherMaps, charMap, characters, socket }) => {
+const Overworld = ({
+  setOpenDraw,
+  Room,
+  adjust,
+  otherMaps,
+  charMap,
+  characters,
+  socket,
+}) => {
   console.log("Overworld");
 
   const [isCanvas, setIsCanvas] = useState(null);
@@ -73,19 +79,6 @@ const Overworld = ({ setOpenDraw, isChatCollapsed, isShareCollapsed, Room, adjus
 
   let closer = [];
 
-  // const keydownHandler = (e) => {
-  //   const player = charMap[socket.id];
-  //   if (
-  //     (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
-  //     player.x === 48 &&
-  //     player.y === 48
-  //   ) {
-  //     setOpenDraw((prev) => !prev);
-  //   } else if (directionInput.direction) {
-  //     setOpenDraw(false);
-  //   }
-  // };
-  // document.addEventListener("keydown", keydownHandler);
   // 안에 소켓id, nickname 있음
   // for문 돌면서 isUserCalling checking 혹은..
   // [PASS] 2명+3명 그룹 합쳐질 때 그룹 통화중이라는 것을 표시해둬야 함 / 변수 하나 더 추가 true, false 체크
@@ -408,9 +401,9 @@ const Overworld = ({ setOpenDraw, isChatCollapsed, isShareCollapsed, Room, adjus
   // }
 
   // var SharedArts = document.querySelector("#Arts");
-  // // SharedArts.addEventListener("mousemove", updateDisplay, false);
-  // // SharedArts.addEventListener("mouseenter", updateDisplay, false);
-  // // SharedArts.addEventListener("mouseleave", updateDisplay, false);
+  // SharedArts.addEventListener("mousemove", updateDisplay, false);
+  // SharedArts.addEventListener("mouseenter", updateDisplay, false);
+  // SharedArts.addEventListener("mouseleave", updateDisplay, false);
 
   // function popupArts() {
   //   setOpenDraw((prev) => !prev);
@@ -529,6 +522,22 @@ const Overworld = ({ setOpenDraw, isChatCollapsed, isShareCollapsed, Room, adjus
   // socket.on("update_state", function (data) {
   //   // updateLocation(data);
   // });
+
+  useEffect(() => {
+    const keydownHandler = (e) => {
+      const player = charMap[socket?.id];
+      if (
+        (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
+        player.x === 48 &&
+        player.y === 48
+      ) {
+        setOpenDraw((prev) => !prev);
+      } else if (directionInput.direction) {
+        setOpenDraw(false);
+      }
+    };
+    document.addEventListener("keydown", keydownHandler);
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -657,7 +666,7 @@ const Overworld = ({ setOpenDraw, isChatCollapsed, isShareCollapsed, Room, adjus
     setTimeout(() => {
       setIsLoading(false);
       startGameLoop();
-    }, 3000)
+    }, 3000);
   }, []);
 
   // const updateLocation = (data) => {
@@ -695,7 +704,7 @@ const Overworld = ({ setOpenDraw, isChatCollapsed, isShareCollapsed, Room, adjus
       <div
         ref={containerEl}
         className="game-container"
-        style={{ backgroundColor: "black" }}
+        style={{ backgroundColor: "black", width: "100vw", height: "100vh" }}
       >
         <canvas ref={canvasRef} className="game-canvas"></canvas>
         <CharacterNickname className="nickname"> </CharacterNickname>
