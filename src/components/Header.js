@@ -516,6 +516,7 @@ const Header = ({ isSaveUserData, setIsSaveUserData }) => {
   };
 
   const openSettingContainer = (item) => {
+    setIsNickname("");
     setCurrent(charImgs[initIndex]);
     setIsSettingOpen(!isSettingOpen);
   };

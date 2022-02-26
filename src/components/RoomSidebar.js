@@ -8,6 +8,7 @@ import "react-pro-sidebar/dist/css/styles.css";
 import styled from "styled-components";
 import ReactModal from "react-modal";
 import { RiCheckboxCircleFill, RiCheckboxCircleLine } from "react-icons/ri";
+import { useNavigate } from "react-router";
 
 const Layout = styled.div`
   position: fixed;
@@ -304,6 +305,7 @@ const RoomSideBar = ({
   charMap,
   characters,
 }) => {
+  const navigate = useNavigate();
   const [exitModal, setExitModal] = useState(false);
 
   const [isChatCollapsed, setChatCollapsed] = useState(false);
@@ -315,13 +317,15 @@ const RoomSideBar = ({
   const [checkedArr, setCheckedArr] = useState([]);
 
   const onExitModal = () => setExitModal(!exitModal);
+
   const escExit = (e) => {
     if (e.key === "Escape") {
       setExitModal(!exitModal);
     }
   };
   const onExitRoom = () => {
-    window.location.href = url;
+    socket.close();
+    navigate(url);
   };
 
   useEffect(() => {

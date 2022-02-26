@@ -17,28 +17,11 @@ export const joinUser = (id, x, y, nickname, src) => {
     return character;
 };
 
-export const leaveUser = (data, charMap, characters) => {
-    for (let i = 0; i < characters.length; i++) {
-        if (characters[i].id === data.id) {
-            characters.splice(i, 1);
-            break;
-        }
+export const updateLocation = (data, character, socketId) => {
+    if(character.id === socketId){
+        return;
     }
-    delete charMap[data.id];
-    // const userNicknameContainer = document.querySelector(`.${data.id}`);
-    // const parentDiv = userNicknameContainer.parentNode;
-    // parentDiv.removeChild(userNicknameContainer);
-};
-
-export const updateLocation = (data, charMap, characters, socketId) => {
-    let char;
-    for (let i = 0; i < characters.length; i++) {
-        char = charMap[data[i].id];
-        if(char.id === socketId){
-            continue;
-        }
-        char.nextDirection.unshift(data[i].direction);
-        char.x = data[i].x;
-        char.y = data[i].y;
-    }
+    character.nextDirection.unshift(data.direction);
+    character.x = data.x;
+    character.y = data.y;
 };

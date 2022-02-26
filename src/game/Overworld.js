@@ -1,17 +1,10 @@
 import { OverworldMap } from "./OverworldMap.js";
 import { DirectionInput } from "./DirectionInput.js";
-import { Person } from "./Person.js";
 import utils from "./utils.js";
 import _const from "../config/const.js";
-import styled from "styled-components";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import LoadingComponent from "../components/Loading.js";
-
-const CharacterNickname = styled.div`
-  span {
-    color: white;
-  }
-`;
+import { useNavigate } from "react-router";
 
 let myStream;
 let cameraOff = false;
@@ -27,36 +20,19 @@ var remoteConnection = []; // RTCPeerConnection for the "remote"
 
 let peopleInRoom = 1;
 
-const Overworld = ({
-  setOpenDraw,
-  Room,
-  adjust,
-  otherMaps,
-  charMap,
-  characters,
-  socket,
-}) => {
+const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket }) => {
   console.log("Overworld");
 
   const [isCanvas, setIsCanvas] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const containerEl = useRef();
   const canvasRef = useRef();
+  const navigate = useNavigate();
   // useEffect(() => {
   //   // eslint-disable-next-line react-hooks/exhaustive-deps
   //   const canvas = ref.current.getContext("2d");
   //   setIsCanvas(canvas);
   // }, []);
-
-  // console.log(isCanvas);
-
-  // const nickname = nickname;
-  // const element = config;
-  // const element = containerEl;
-  // console.log(;
-  // console.log(element);
-  // const canvas = element.querySelector(".game-canvas");
-
   const directionInput = new DirectionInput();
   directionInput.init();
 
@@ -65,19 +41,35 @@ const Overworld = ({
     video: true,
   };
 
-  // const nicknameContainer = document.querySelector(".nickname");
-
   const map = new OverworldMap(Room);
-  const adjustValue = adjust;
-
-  // let roomId;
-  // if (map.roomNum === 0) {
-  //   roomId = "room" + map.roomId;
-  // } else if (map.roomNum === 1) {
-  //   roomId = "room1" + map.roomId;
-  // }
 
   let closer = [];
+  const socketDisconnect = () => {
+    console.log("Overworld disconnect");
+    console.log(socket.id);
+    socket.close();
+  };
+
+  useEffect(() => {
+    const keydownHandler = (e) => {
+      const player = charMap[socket.id];
+      if (
+        (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
+        player.x === 48 &&
+        player.y === 48
+      ) {
+        setOpenDraw((prev) => !prev);
+      } else if (directionInput.direction) {
+        setOpenDraw(false);
+      }
+    };
+    window.addEventListener("popstate", socketDisconnect);
+    window.addEventListener("keydown", keydownHandler);
+    return () => {
+      window.removeEventListener("popstate", socketDisconnect);
+      window.removeEventListener("keydown", keydownHandler);
+    };
+  }, []);
 
   // 안에 소켓id, nickname 있음
   // for문 돌면서 isUserCalling checking 혹은..
@@ -494,34 +486,12 @@ const Overworld = ({
   //   // }
   // });
 
-  // let nicknameDiv;
   // let userListItem;
   // let userImg;
   // let userNicknameSpan;
   // let onOffButton;
   // let shareInput;
   // let userInfoDiv;
-
-  // socket.on("join_user", function (data) {
-  //   //====================  비디오 추가 함수 =================//
-  //   console.log("새로운 유저 접속");
-
-  //   socket.emit("send_user_info", {
-  //     src: map.gameObjects.player.sprite.image.src,
-  //     x: map.gameObjects.player.x,
-  //     y: map.gameObjects.player.y,
-  //     nickname: nickname,
-  //     roomId,
-  //   });
-  // });
-
-  // socket.on("leave_user", function (data) {
-  //   leaveUser(data);
-  // });
-
-  // socket.on("update_state", function (data) {
-  //   // updateLocation(data);
-  // });
 
   useEffect(() => {
     const keydownHandler = (e) => {
@@ -542,11 +512,10 @@ const Overworld = ({
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
-
+    let isLoop = true;
     const startGameLoop = () => {
       const step = () => {
-        //Clear off the canvas
-        // console.log(isCCanvas);
+        // console.log("overworld loop");
         if (map.roomNum === 0) {
           canvas.width = window.innerWidth;
           canvas.height = window.innerHeight;
@@ -555,7 +524,7 @@ const Overworld = ({
           canvas.height = 200;
         }
 
-        // ctx.clearRect(0, 0, isCCanvas?.width, isCCanvas?.height);
+        //Clear off the canvas
         ctx.clearRect(0, 0, canvas?.width, canvas?.height);
 
         //Establish the camera person
@@ -567,8 +536,10 @@ const Overworld = ({
           if (object.id === socket.id) {
             for (let i = 0; i < otherMaps.length; i++) {
               if (object.x === otherMaps[i].x && object.y === otherMaps[i].y) {
-                console.log("warp!!!");
-                window.location.href = `${otherMaps[i].url}`;
+                // console.log("warp!!!");
+                socket.close();
+                navigate(otherMaps[i].url);
+                // window.location.href = `${otherMaps[i].url}`;
               }
             }
             object.update({
@@ -633,20 +604,24 @@ const Overworld = ({
           .forEach((object) => {
             object.sprite.draw(ctx, cameraPerson);
 
-            // const objectNicknameContainer = document.getElementById(
-            //   `${object.nickname}`
-            // );
-            // objectNicknameContainer.style.top =
-            //   object.y -
-            //   25 +
-            //   utils.withGrid(ctx.canvas.clientHeight / 16 / 2) -
-            //   cameraPerson.y +
-            //   "px";
-            // objectNicknameContainer.style.left =
-            //   object.x +
-            //   utils.withGrid(ctx.canvas.clientWidth / 16 / 2) -
-            //   cameraPerson.x +
-            //   "px";
+            const objectNicknameContainer = document.getElementById(
+              `${object.nickname}`
+            );
+            // console.dir(objectNicknameContainer);
+            if (!objectNicknameContainer) {
+              return;
+            }
+            objectNicknameContainer.style.top =
+              object.y -
+              25 +
+              utils.withGrid(ctx.canvas.clientHeight / 16 / 2) -
+              cameraPerson.y +
+              "px";
+            objectNicknameContainer.style.left =
+              object.x +
+              utils.withGrid(ctx.canvas.clientWidth / 16 / 2) -
+              cameraPerson.x +
+              "px";
           });
         if (player) {
           const data = {
@@ -657,9 +632,11 @@ const Overworld = ({
           };
           socket.emit("input", data);
         }
-        requestAnimationFrame(() => {
-          step();
-        });
+        if (isLoop) {
+          requestAnimationFrame(() => {
+            step();
+          });
+        }
       };
       step();
     };
@@ -667,36 +644,10 @@ const Overworld = ({
       setIsLoading(false);
       startGameLoop();
     }, 3000);
+    return () => {
+      isLoop = false;
+    };
   }, []);
-
-  // const updateLocation = (data) => {
-  //   console.log(data);
-  //   let char;
-  //   for (let i = 0; i < characters.length; i++) {
-  //     char = charMap[data[i].id];
-  //     if (char.id === socket.id) {
-  //       continue;
-  //     }
-  //     char.nextDirection.unshift(data[i].direction);
-  //     char.x = data[i].x;
-  //     char.y = data[i].y;
-  //   }
-  // };
-
-  // const leaveUser = (data) => {
-  //   for (let i = 0; i < characters.length; i++) {
-  //     if (characters[i].id === data.id) {
-  //       characters.splice(i, 1);
-  //       break;
-  //     }
-  //   }
-  //   delete charMap[data.id];
-  //   const userNicknameContainer = document.querySelector(`.${data.id}`);
-  //   const parentDiv = userNicknameContainer.parentNode;
-  //   parentDiv.removeChild(userNicknameContainer);
-  // };
-
-  // startGameLoop();
 
   return (
     <>
@@ -707,7 +658,7 @@ const Overworld = ({
         style={{ backgroundColor: "black", width: "100vw", height: "100vh" }}
       >
         <canvas ref={canvasRef} className="game-canvas"></canvas>
-        <CharacterNickname className="nickname"> </CharacterNickname>
+        {/* <CharacterNickname className="nickname"> </CharacterNickname> */}
       </div>
     </>
   );
