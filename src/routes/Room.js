@@ -141,60 +141,61 @@ const Room = ({ userData }) => {
   const [collapsed, setCollapsed] = useState(true);
 
   useEffect(() => {
-    userData.then((data) => {
-      Overworld({
-        config: document.querySelector(".game-container"),
-        setOpenDraw,
-        nickname: data.nickname || "ANON",
-        Room: {
-          RoomSrc:
-            "https://aim-image-storage.s3.ap-northeast-2.amazonaws.com/map2.png",
-          roomId,
-          roomNum: 0,
-          gameObjects: {
-            player: new Person({
-              id: null,
-              isPlayerControlled: true,
-              x: 80,
-              y: 80,
-              src:
-                data.character ||
-                "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png",
-            }),
+      userData.then((data) => {
+        Overworld({
+          config: document.querySelector(".game-container"),
+          setOpenDraw,
+          nickname: data.nickname || "ANON",
+          Room: {
+            RoomSrc:
+              "https://aim-image-storage.s3.ap-northeast-2.amazonaws.com/map2.png",
+            roomId,
+            roomNum: 0,
+            gameObjects: {
+              player: new Person({
+                id: null,
+                isPlayerControlled: true,
+                x: 80,
+                y: 80,
+                src:
+                  data.character ||
+                  "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png",
+              }),
+            },
           },
-        },
-        adjust: {
-          xaxios: 0,
-          yaxios: 0,
-          yratio: 1,
-        },
-        otherMaps: [
-          {
-            x: 16,
-            y: 448,
-            url: `http://localhost:3000/room3/${roomId}`,
-            // url: "/room1",
+          adjust: {
+            xaxios: 0,
+            yaxios: 0,
+            yratio: 1,
           },
-        ],
+          otherMaps: [
+            {
+              x: 16,
+              y: 448,
+              url: `http://localhost:3000/room3/${roomId}`,
+              // url: "/room1",
+            },
+          ],
+        });
       });
-    });
     return () => {
       console.log("room leave!!")
     };
-  }, []);
+  }, [])
+
   return (
     <>
       <div id="Arts">
         {openDraw ? <PictureFrame collapsed={collapsed}></PictureFrame> : null}
       </div>
+      <RoomSideBar url={url} collapsed={collapsed} setCollapsed={setCollapsed} openDraw={openDraw} />
       <div className="roomContainer" style={{ display: "flex" }}>
         <div className="game-container" style={{ backgroundColor: "black" }}>
           <canvas className="game-canvas"></canvas>
           <CharacterNickname className="nickname"> </CharacterNickname>
         </div>
       </div>
-      <RoomSideBar url={url} collapsed={collapsed} setCollapsed={setCollapsed}/>
-      <button style={{position:"fixed",top:"10px"}}>share</button>
+      <button style={{ position: "fixed", top: "10px" }}>share</button>
       <StreamsContainer id="streams"></StreamsContainer>
       <MyVideoBox>
         <MyVideo id="myFace" autoPlay="autoplay"></MyVideo>

@@ -12,6 +12,7 @@ const Layout = styled.div`
   left: 0;
   top: 0;
   height: 100vh;
+  z-index: 80;
 
   .layout {
     display: flex;
@@ -198,7 +199,7 @@ const ExitButton = styled.button`
 
 `;
 
-const RoomSideBar = ({url, collapsed, setCollapsed}) => {
+const RoomSideBar = ({url, collapsed, setCollapsed, openDraw}) => {
   
   const [exitModal, setExitModal] = useState(false);
 
@@ -243,7 +244,11 @@ const RoomSideBar = ({url, collapsed, setCollapsed}) => {
           </ProSidebar>
         </aside>
         <main className="content" style={{ display: "flex", flexDirection: "column" }}>
-          <div className="btn" onClick={() => setCollapsed(!collapsed)}>
+          <div className="btn" onClick={() => {
+            if(!openDraw){
+              setCollapsed(!collapsed)
+            }
+            }}>
             {collapsed ? (
               <FaArrowRight size={24} color="white" />
             ) : (

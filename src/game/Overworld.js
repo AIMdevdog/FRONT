@@ -58,7 +58,7 @@ const Overworld = (data) => {
     const player = charMap[socket.id];
     if ((e.key === "x" || e.key === "X" || e.key === "ㅌ") && player.x === 48 && player.y === 48) {
       data.setOpenDraw(prev => !prev);
-
+      data.setCollapsed(false);
     } else if (directionInput.direction) {
       data.setOpenDraw(false);
 
@@ -344,7 +344,7 @@ const Overworld = (data) => {
   }
 
   //상대방의 마우스 커서 그리기
-  socket.on("shareCursorPosition", (cursorX, cursorY, remoteSocketId) => {
+  socket.on("shareCursorPosition", (xRatio, yRatio, remoteSocketId) => {
     //artsAddr로 작품을 그려주면 된다. 
     const draw = document.querySelector(".draw");
     if (!draw) {
@@ -353,17 +353,20 @@ const Overworld = (data) => {
       draw.removeChild(draw?.firstChild);
     }
     const img = document.createElement("img");
+    const artDiv = document.querySelector(".frame");
     img.src = "https://img.icons8.com/ios-glyphs/344/cursor--v1.png";
-    // console.log(cursorX, cursorY, remoteSocketId);
-    img.style.top = cursorY - 240 + 'px';
-    img.style.left = cursorX - 165 + 'px';
+    const xPosition = draw.clientWidth * xRatio;
+    const yPosition = draw.clientHeight * yRatio;
+    img.style.left = xPosition + 'px';
+    img.style.top = yPosition + 'px';
     draw.appendChild(img);
-    // console.dir(img);
   });
 
-
   function updateDisplay(event) {
-    socket.emit("cursorPosition", event.pageX, event.pageY, socket.id);
+    const artDiv = document.querySelector(".frame");
+    const xRatio = (event.pageX - artDiv.offsetLeft) / artDiv.clientWidth;
+    const yRatio = (event.pageY - artDiv.offsetTop) / artDiv.clientHeight;
+    socket.emit("cursorPosition", xRatio, yRatio, socket.id);
   };
 
   var SharedArts = document.querySelector("#Arts");
@@ -487,7 +490,7 @@ const Overworld = (data) => {
   });
 
   socket.on("get_user_info", function (data) {
-    // console.log(data);
+    console.log("get_user_info");
     joinUser(data.id, data.x, data.y, data.nickname, data.src);
 
     nicknameDiv = document.createElement("div");
@@ -643,15 +646,16 @@ const Overworld = (data) => {
 
   const updateLocation = (data) => {
     let char;
-    for (let i = 0; i < characters.length; i++) {
-      char = charMap[data[i].id];
-      if (char.id === socket.id) {
-        continue;
-      }
-      char.nextDirection.unshift(data[i].direction);
-      char.x = data[i].x;
-      char.y = data[i].y;
-    }
+    // console.log(characters);
+    // for (let i = 0; i < characters.length; i++) {
+    //   char = charMap[data[i].id];
+    //   if (char.id === socket.id) {
+    //     continue;
+    //   }
+    //   char.nextDirection.unshift(data[i].direction);
+    //   char.x = data[i].x;
+    //   char.y = data[i].y;
+    // }
   };
 
   const leaveUser = (data) => {

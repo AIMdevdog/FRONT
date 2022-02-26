@@ -169,6 +169,9 @@ const Room3 = ({ userData }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [cameraPosition, setCameraPosition] = useState(0);
   const [yCameraPosition, setYCameraPosition] = useState(0);
+  
+  const [openDraw, setOpenDraw] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
   const url = `http://localhost:3000/room/${roomId}`
   const downHandler = (e) => {
     switch (e.key) {
@@ -247,7 +250,7 @@ const Room3 = ({ userData }) => {
           <Gallery3 images={images} roomId={roomId} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
         </Suspense>
       </ThreeCanvas>
-      <RoomSideBar url={url}/>
+      <RoomSideBar url={url} collapsed={collapsed} setCollapsed={setCollapsed} openDraw={openDraw}/>
       <div style={{
         display: "flex", justifyContent: "center",
         position: "fixed",
