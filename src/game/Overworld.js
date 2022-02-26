@@ -115,11 +115,11 @@ const Overworld = (data) => {
   }
 
   // 영상 connect
-  async function paintPeerFace(peerStream, id, remoteNickname) {
+  async function paintPeerFace(peerStream, remoteProducerId, remoteNickname) {
     const streams = document.querySelector("#streams");
     const div = document.createElement("div");
     // div.classList.add("userVideoContainer");
-    div.id = id;
+    div.id = remoteProducerId;
 
     // console.log("-------- 커넥션 상태 --------", pcObj[id].iceConnectionState);
 
@@ -477,6 +477,7 @@ const Overworld = (data) => {
     // https://mediasoup.org/documentation/v3/mediasoup-client/api/#transport-produce
     // this action will trigger the 'connect' and 'produce' events above
 
+    console.log("--------------- params : ", params)
     producer = await producerTransport.produce(params)
   
     producer.on('trackended', () => {
@@ -605,9 +606,11 @@ const Overworld = (data) => {
       
       // destructure and retrieve the video track from the producer
       const { track } = consumer
+      console.log("---------------- consumer : ", consumer)
+      console.log("---------------- params : ", params)
       const peerStream = new MediaStream([track])
-      console.log("----------- peer's Track : ", track)
-      console.log('**************', peerStream);
+      // console.log("----------- peer's Track : ", track)
+      // console.log('**************', peerStream);
       paintPeerFace(peerStream, remoteProducerId, "nickname")
   
       // document.getElementById(remoteProducerId).srcObject = new MediaStream([track])
