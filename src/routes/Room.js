@@ -17,6 +17,9 @@ import { connect } from "react-redux";
 import ScreenBottomBar from "../components/ScreenBottomBar";
 import PictureFrame from "../components/pictureFrame";
 import { user } from "../config/api";
+import { joinUser, leaveUser, updateLocation } from "../utils/game/character";
+import { io } from "socket.io-client";
+import _const from "../config/const";
 
 const StreamsContainer = styled.div`
   position: fixed;
@@ -134,9 +137,14 @@ const CharacterNickname = styled.div`
 // `;
 
 const Room = ({ userData }) => {
+  const [socket, setSocket] = useState(null);
+  const characters = [];
+  const charMap = {};
   const params = useParams();
   const roomId = params.roomId;
   const url = "http://localhost:3000/lobby";
+  const nicknameContainer = document.querySelector(".nickname");
+
 
   const [openDraw, setOpenDraw] = useState(false);
   const [collapsed, setCollapsed] = useState(true);
@@ -146,70 +154,97 @@ const Room = ({ userData }) => {
 
   const [isUser, setUser] = useState(null);
 
-  console.log(isShareCollapsed);
-
   useEffect(() => {
-    const getUser = async () => {
-      try {
-        const requestResult = user.getUserInfo();
-        const {
-          data: { mag, result },
-        } = requestResult;
-        setUser(result);
-      } catch (e) {
-        console.log(e);
-      }
-    };
-
-    // userData.then((data) => {
-    //   Overworld({
-    //     config: document.querySelector(".game-container"),
-    //     setOpenDraw,
-    //     isChatCollapsed,
-    //     isShareCollapsed,
-    //     nickname: data.nickname || "ANON",
-    // Room: {
-    //   RoomSrc:
-    //     "https://aim-image-storage.s3.ap-northeast-2.amazonaws.com/map2.png",
-    //   roomId,
-    //   roomNum: 0,
-    //   gameObjects: {
-    //     player: new Person({
-    //       id: null,
-    //       isPlayerControlled: true,
-    //       x: 80,
-    //       y: 80,
-    //       src:
-    //         data.character ||
-    //         "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png",
-    //     }),
-    //   },
-    // },
-    // adjust: {
-    //   xaxios: 0,
-    //   yaxios: 0,
-    //   yratio: 1,
-    // },
-    // otherMaps: [
-    //   {
-    //     x: 16,
-    //     y: 448,
-    //     url: `http://localhost:3000/room3/${roomId}`,
-    //     // url: "/room1",
-    //   },
-    // ],
-    //   });
-    // });
+    userData.then((data) => {
+      setUser(data);
+      setSocket(io(_const.HOST));
+    })
     return () => {
       console.log("room leave!!");
     };
   }, []);
 
-  const config = document.querySelector(".game-container");
+  useEffect(() => {
+    if (isUser && socket) {
+      socket.on("join_user", function () {
+        console.log("새로운 유저 접속");
+        socket.emit("send_user_info", {
+          src: isUser.character,
+          x: 80,
+          y: 80,
+          nickname: isUser.nickname,
+          roomId: "room" + roomId,
+        });
+      });
+
+      socket.on("get_user_info", function (data) {
+        // console.log(data);
+        const user = joinUser(data.id, data.x, data.y, data.nickname, data.src);
+        
+        characters.push(user);
+        charMap[data.id] = user;
+
+        // const nicknameDiv = document.createElement("div");
+        // nicknameDiv.id = data.nickname;
+        // nicknameDiv.innerHTML = data.nickname;
+
+        // nicknameDiv.style.width = 100;
+        // nicknameDiv.style.transform = "translateX(-40%)";
+        // nicknameDiv.style.backgroundColor = "rgba(0, 0, 0, 0.6)";
+        // nicknameDiv.style.padding = "6px";
+        // nicknameDiv.style.borderRadius = "6px";
+        // nicknameDiv.style.color = "white";
+        // nicknameDiv.style.fontSize = "12px";
+        // nicknameDiv.style.textAlign = "center";
+        // nicknameDiv.style.position = "absolute";
+
+        // nicknameContainer.appendChild(nicknameDiv);
+
+        // user list
+        // if (data.isShareCollapsed) {
+        //   const userList = document.querySelector(".user-list");
+
+        //   userListItem = document.createElement("li");
+        //   userNicknameSpan = document.createElement("span");
+        //   userImg = document.createElement("img");
+        //   userInfoDiv = document.createElement("div");
+        //   shareInput = document.createElement("input");
+        //   onOffButton = document.createElement("p");
+
+        //   userImg.src = data.src;
+        //   userListItem.className = data.id;
+        //   userNicknameSpan.innerHTML = data.nickname;
+        //   shareInput.type = "checkbox";
+        //   shareInput.className = "share-checkbox";
+        //   shareInput.name = "share-checkbox-name";
+        //   shareInput.value = data.id;
+
+        // userInfoDiv.appendChild(userImg);
+        // userInfoDiv.appendChild(userNicknameSpan);
+        // userListItem.appendChild(userInfoDiv);
+        // userListItem.appendChild(onOffButton);
+
+        // if (socket.id !== data.id) {
+        //   // userListItem.appendChild(shareInput);
+        // }
+
+        // userList.appendChild(userListItem);
+        // }
+      });
+
+      socket.on("leave_user", function (data) {
+        leaveUser(data, charMap, characters);
+      });
+
+      socket.on("update_state", function (data) {
+        updateLocation(data, charMap, characters, socket.id);
+      });
+    }
+  }, [isUser, socket])
+
   const room = {
     RoomSrc:
       "https://aim-image-storage.s3.ap-northeast-2.amazonaws.com/map2.png",
-    roomId,
     roomNum: 0,
     gameObjects: {
       player: new Person({
@@ -223,13 +258,11 @@ const Room = ({ userData }) => {
       }),
     },
   };
-
   const adjust = {
     xaxios: 0,
     yaxios: 0,
     yratio: 1,
   };
-
   const otherMaps = [
     {
       x: 16,
@@ -245,15 +278,17 @@ const Room = ({ userData }) => {
         {openDraw ? <PictureFrame collapsed={collapsed}></PictureFrame> : null}
       </div>
       <div className="roomContainer" style={{ display: "flex" }}>
-        <Overworld
+        {socket ? <Overworld
           setOpenDraw={setOpenDraw}
           isChatCollapsed={isChatCollapsed}
           isShareCollapsed={isShareCollapsed}
-          nickname={isUser?.nickname}
           Room={room}
           adjust={adjust}
           otherMaps={otherMaps}
-        />
+          charMap={charMap}
+          characters={characters}
+          socket={socket}
+        /> : null}
       </div>
       <RoomSideBar
         url={url}

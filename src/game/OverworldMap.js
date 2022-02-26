@@ -6,10 +6,10 @@ export class OverworldMap {
     // const {config, src} = data;
     this.overworld = null;
     this.gameObjects = config.gameObjects;
-    this.cutsceneSpace = config.cutsceneSpace || {};
+    // this.cutsceneSpace = config.cutsceneSpace || {};
     this.walls = config.walls || {};
     this.roomNum = config.roomNum;
-    this.roomId = config.roomId;
+    // this.roomId = config.roomId;
     this.lowerImage = new Image();
     this.lowerImage.src = config.RoomSrc;
 
@@ -33,16 +33,6 @@ export class OverworldMap {
   isSpaceTaken(currentX, currentY, direction) {
     const { x, y } = utils.nextPosition(currentX, currentY, direction);
     return this.walls[`${x},${y}`] || false;
-  }
-
-  mountObjects() {
-    Object.keys(this.gameObjects).forEach((key) => {
-      let object = this.gameObjects[key];
-      object.id = key;
-
-      //TODO: determine if this object should actually mount
-      object.mount(this);
-    });
   }
 
   addWall(x, y) {
