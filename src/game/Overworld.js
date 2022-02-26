@@ -305,6 +305,7 @@ const Overworld = (data) => {
         track,
         ...params
       }
+      console.log("----------- myTrack : ", track)
     } else {
       myStream = await navigator.mediaDevices.getDisplayMedia(
         displayMediaOptions
@@ -456,7 +457,7 @@ const Overworld = (data) => {
             callback({ id })
   
             // if producers exist, then join room
-            console.log()
+            console.log('############# producersExist : ', producersExist)
             if (producersExist) getProducers()
           })
         } catch (error) {
@@ -604,8 +605,10 @@ const Overworld = (data) => {
       
       // destructure and retrieve the video track from the producer
       const { track } = consumer
-      // console.log('**************', new MediaStream([track]));
-      paintPeerFace(new MediaStream([track]), remoteProducerId, "nickname")
+      const peerStream = new MediaStream([track])
+      console.log("----------- peer's Track : ", track)
+      console.log('**************', peerStream);
+      paintPeerFace(peerStream, remoteProducerId, "nickname")
   
       // document.getElementById(remoteProducerId).srcObject = new MediaStream([track])
   
