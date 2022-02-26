@@ -37,14 +37,8 @@ const Overworld3 = (data) => {
   let roomId = "room3" + map.roomId
   let prevAngle = 1;
   let rotationAngle = 1;
-
-
-  const socket = io(_const.HOST);
+  const socket = data.socket;
   let closer = [];
-
-
-
-
   const cameraRotate = (e) => {
     switch (e.key) {
       case "e": case "E": case "ㄷ":
@@ -146,287 +140,287 @@ const Overworld3 = (data) => {
   document.addEventListener("keydown", cameraRotate);
 
 
-  async function handleAddStream(event, remoteSocketId, remoteNickname) {
-    const peerStream = event.stream;
-    console.log(peerStream);
-    const user = charMap[remoteSocketId]; // person.js에 있는 거랑 같이
+  // async function handleAddStream(event, remoteSocketId, remoteNickname) {
+  //   const peerStream = event.stream;
+  //   console.log(peerStream);
+  //   const user = charMap[remoteSocketId]; // person.js에 있는 거랑 같이
 
-    if (!user.isUserJoin) {
-      // 유저가 어떤 그룹에도 속하지 않을 때 영상을 키겠다
-      user.isUserJoin = true;
-      try {
-        await paintPeerFace(peerStream, remoteSocketId, remoteNickname);
-      } catch (err) {
-        console.error(err);
-      }
-    }
-  }
+  //   if (!user.isUserJoin) {
+  //     // 유저가 어떤 그룹에도 속하지 않을 때 영상을 키겠다
+  //     user.isUserJoin = true;
+  //     try {
+  //       await paintPeerFace(peerStream, remoteSocketId, remoteNickname);
+  //     } catch (err) {
+  //       console.error(err);
+  //     }
+  //   }
+  // }
 
-  // 영상 connect
-  async function paintPeerFace(peerStream, id, remoteNickname) {
-    const streams = document.querySelector("#streams");
-    const div = document.createElement("div");
-    // div.classList.add("userVideoContainer");
-    div.id = id;
+  // // 영상 connect
+  // async function paintPeerFace(peerStream, id, remoteNickname) {
+  //   const streams = document.querySelector("#streams");
+  //   const div = document.createElement("div");
+  //   // div.classList.add("userVideoContainer");
+  //   div.id = id;
 
-    // console.log("-------- 커넥션 상태 --------", pcObj[id].iceConnectionState);
+  //   // console.log("-------- 커넥션 상태 --------", pcObj[id].iceConnectionState);
 
-    try {
-      const video = document.createElement("video");
-      video.className = "userVideo";
-      video.autoplay = true;
-      video.playsInline = true;
-      video.srcObject = peerStream;
-      div.appendChild(video);
-      streams.appendChild(div);
-      // await sortStreams();
-    } catch (err) {
-      console.error(err);
-    }
-  }
+  //   try {
+  //     const video = document.createElement("video");
+  //     video.className = "userVideo";
+  //     video.autoplay = true;
+  //     video.playsInline = true;
+  //     video.srcObject = peerStream;
+  //     div.appendChild(video);
+  //     streams.appendChild(div);
+  //     // await sortStreams();
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // }
 
-  // 영상 disconnect
-  function removePeerFace(id) {
-    const streams = document.querySelector("#streams");
-    const streamArr = streams.querySelectorAll("div");
-    // console.log("총 길이 " , streamArr.length);
-    streamArr.forEach((streamElement) => {
-      console.log(streamArr, streamElement.id, id);
-      if (streamElement.id === id) {
-        streams.removeChild(streamElement);
-      }
-    });
-    // console.log(streams);
-  }
+  // // 영상 disconnect
+  // function removePeerFace(id) {
+  //   const streams = document.querySelector("#streams");
+  //   const streamArr = streams.querySelectorAll("div");
+  //   // console.log("총 길이 " , streamArr.length);
+  //   streamArr.forEach((streamElement) => {
+  //     console.log(streamArr, streamElement.id, id);
+  //     if (streamElement.id === id) {
+  //       streams.removeChild(streamElement);
+  //     }
+  //   });
+  //   // console.log(streams);
+  // }
 
-  async function createConnection(remoteSocketId, remoteNickname) {
-    try {
-      const myPeerConnection = new RTCPeerConnection({
-        iceServers: [
-          {
-            urls: [
-              "stun:stun.l.google.com:19302",
-              "stun:stun1.l.google.com:19302",
-              "stun:stun2.l.google.com:19302",
-              "stun:stun3.l.google.com:19302",
-              "stun:stun4.l.google.com:19302",
-            ],
-          },
-        ],
-      });
-      myPeerConnection.addEventListener("icecandidate", async (event) => {
-        try {
-          await handleIce(event, remoteSocketId, remoteNickname);
-        } catch (e) {
-          console.log(e);
-        }
-        console.log("+------Ice------+");
-      });
-      myPeerConnection.addEventListener("addstream", async (event) => {
-        try {
-          await handleAddStream(event, remoteSocketId, remoteNickname);
-        } catch (err) {
-          console.error(err);
-        }
-        console.log("+------addstream------+");
-      });
+  // async function createConnection(remoteSocketId, remoteNickname) {
+  //   try {
+  //     const myPeerConnection = new RTCPeerConnection({
+  //       iceServers: [
+  //         {
+  //           urls: [
+  //             "stun:stun.l.google.com:19302",
+  //             "stun:stun1.l.google.com:19302",
+  //             "stun:stun2.l.google.com:19302",
+  //             "stun:stun3.l.google.com:19302",
+  //             "stun:stun4.l.google.com:19302",
+  //           ],
+  //         },
+  //       ],
+  //     });
+  //     myPeerConnection.addEventListener("icecandidate", async (event) => {
+  //       try {
+  //         await handleIce(event, remoteSocketId, remoteNickname);
+  //       } catch (e) {
+  //         console.log(e);
+  //       }
+  //       console.log("+------Ice------+");
+  //     });
+  //     myPeerConnection.addEventListener("addstream", async (event) => {
+  //       try {
+  //         await handleAddStream(event, remoteSocketId, remoteNickname);
+  //       } catch (err) {
+  //         console.error(err);
+  //       }
+  //       console.log("+------addstream------+");
+  //     });
 
-      console.log("+------before getTracks------+");
-      myStream
-        .getTracks()
-        .forEach((track) => myPeerConnection.addTrack(track, myStream));
-      console.log("+------getTracks------+", myStream);
+  //     console.log("+------before getTracks------+");
+  //     myStream
+  //       .getTracks()
+  //       .forEach((track) => myPeerConnection.addTrack(track, myStream));
+  //     console.log("+------getTracks------+", myStream);
 
-      pcObj[remoteSocketId] = myPeerConnection;
+  //     pcObj[remoteSocketId] = myPeerConnection;
 
-      ++peopleInRoom;
-      // sortStreams();
-      return myPeerConnection;
-    } catch (e) {
-      console.log(e);
-    }
-  }
+  //     ++peopleInRoom;
+  //     // sortStreams();
+  //     return myPeerConnection;
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
+  // }
 
-  function handleIce(event, remoteSocketId, remoteNickname) {
-    if (event.candidate) {
-      socket.emit("ice", event.candidate, remoteSocketId, remoteNickname);
-    }
-  }
+  // function handleIce(event, remoteSocketId, remoteNickname) {
+  //   if (event.candidate) {
+  //     socket.emit("ice", event.candidate, remoteSocketId, remoteNickname);
+  //   }
+  // }
 
-  function handleMuteClick() {
-    myStream //
-      .getAudioTracks()
-      .forEach((track) => (track.enabled = !track.enabled));
-    if (muted) {
-      muteBtn.innerText = 'Unmute';
-      //   unMuteIcon.classList.remove(HIDDEN_CN);
-      //   muteIcon.classList.add(HIDDEN_CN);
-      muted = false;
-    } else {
-      muteBtn.innerText = 'Mute';
-      //   muteIcon.classList.remove(HIDDEN_CN);
-      //   unMuteIcon.classList.add(HIDDEN_CN);
-      muted = true;
-    }
-  }
+  // function handleMuteClick() {
+  //   myStream //
+  //     .getAudioTracks()
+  //     .forEach((track) => (track.enabled = !track.enabled));
+  //   if (muted) {
+  //     muteBtn.innerText = 'Unmute';
+  //     //   unMuteIcon.classList.remove(HIDDEN_CN);
+  //     //   muteIcon.classList.add(HIDDEN_CN);
+  //     muted = false;
+  //   } else {
+  //     muteBtn.innerText = 'Mute';
+  //     //   muteIcon.classList.remove(HIDDEN_CN);
+  //     //   unMuteIcon.classList.add(HIDDEN_CN);
+  //     muted = true;
+  //   }
+  // }
 
-  function handleCameraClick() {
-    myStream
-      .getVideoTracks()
-      .forEach((track) => (track.enabled = !track.enabled));
-    if (cameraOff) {
-      // cameraIcon.classList.remove(HIDDEN_CN);
-      // unCameraIcon.classList.add(HIDDEN_CN);
-      cameraBtn.innerText = 'camera on';
-      cameraOff = false;
-    } else {
-      cameraBtn.innerText = 'camera off';
-      cameraOff = true;
-    }
-  }
+  // function handleCameraClick() {
+  //   myStream
+  //     .getVideoTracks()
+  //     .forEach((track) => (track.enabled = !track.enabled));
+  //   if (cameraOff) {
+  //     // cameraIcon.classList.remove(HIDDEN_CN);
+  //     // unCameraIcon.classList.add(HIDDEN_CN);
+  //     cameraBtn.innerText = 'camera on';
+  //     cameraOff = false;
+  //   } else {
+  //     cameraBtn.innerText = 'camera off';
+  //     cameraOff = true;
+  //   }
+  // }
 
-  const muteBtn = document.querySelector("#playerMute");
-  const cameraBtn = document.querySelector("#playerCamera");
-  muteBtn.addEventListener("click", handleMuteClick);
-  cameraBtn.addEventListener("click", handleCameraClick);
+  // const muteBtn = document.querySelector("#playerMute");
+  // const cameraBtn = document.querySelector("#playerCamera");
+  // muteBtn.addEventListener("click", handleMuteClick);
+  // cameraBtn.addEventListener("click", handleCameraClick);
 
 
-  async function getMedia() {
-    const myFace = document.querySelector("#myFace");
-    const camBtn = document.querySelector("#camBtn");
-    camBtn.style.display = "block";
+  // async function getMedia() {
+  //   const myFace = document.querySelector("#myFace");
+  //   const camBtn = document.querySelector("#camBtn");
+  //   camBtn.style.display = "block";
 
-    try {
-      myStream = await navigator.mediaDevices.getUserMedia(cameraConstraints);
-      console.log("mystream", myStream);
-      // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
-      myFace.srcObject = myStream;
-      myFace.muted = true;
+  //   try {
+  //     myStream = await navigator.mediaDevices.getUserMedia(cameraConstraints);
+  //     console.log("mystream", myStream);
+  //     // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
+  //     myFace.srcObject = myStream;
+  //     myFace.muted = true;
 
-      myStream // mute default
-        .getAudioTracks()
-        .forEach((track) => (track.enabled = false));
+  //     myStream // mute default
+  //       .getAudioTracks()
+  //       .forEach((track) => (track.enabled = false));
 
-    } catch (err) {
-      console.log(err);
-    }
-  }
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // }
 
-  async function initCall() {
-    // welcome.hidden = true;            // HTML 관련 코드
-    // call.classList.remove(HIDDEN_CN); // HTML 관련 코드
-    console.log("initCall 함수");
-    try {
-      await getMedia(); // Room.js에 들어있음
-    } catch (err) {
-      console.log(err);
-    }
-  }
+  // async function initCall() {
+  //   // welcome.hidden = true;            // HTML 관련 코드
+  //   // call.classList.remove(HIDDEN_CN); // HTML 관련 코드
+  //   console.log("initCall 함수");
+  //   try {
+  //     await getMedia(); // Room.js에 들어있음
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // }
 
-  // chat form
+  // // chat form
 
-  const chatForm = document.querySelector("#chatForm");
-  const chatBox = document.querySelector("#chatBox");
+  // const chatForm = document.querySelector("#chatForm");
+  // const chatBox = document.querySelector("#chatBox");
 
-  const MYCHAT_CN = "myChat";
-  const NOTICE_CN = "noticeChat";
+  // const MYCHAT_CN = "myChat";
+  // const NOTICE_CN = "noticeChat";
 
-  chatForm.addEventListener("submit", handleChatSubmit);
+  // // chatForm.addEventListener("submit", handleChatSubmit);
 
-  function handleChatSubmit(event) {
-    event.preventDefault();
-    const chatInput = chatForm.querySelector("input");
-    const message = chatInput.value;
-    chatInput.value = "";
+  // function handleChatSubmit(event) {
+  //   event.preventDefault();
+  //   const chatInput = chatForm.querySelector("input");
+  //   const message = chatInput.value;
+  //   chatInput.value = "";
 
-    let groupName = 1;
+  //   let groupName = 1;
 
-    socket.emit("chat", `${nickname}: ${message}`, groupName);
-    writeChat(`You: ${message}`, MYCHAT_CN);
-  }
+  //   socket.emit("chat", `${nickname}: ${message}`, groupName);
+  //   writeChat(`You: ${message}`, MYCHAT_CN);
+  // }
 
-  function writeChat(message, className = null) {
-    const li = document.createElement("li");
-    const span = document.createElement("span");
-    span.innerText = message;
-    li.appendChild(span);
-    li.classList.add(className);
-    li.classList.add("message-list");
-    chatBox.appendChild(li);
-  }
+  // function writeChat(message, className = null) {
+  //   const li = document.createElement("li");
+  //   const span = document.createElement("span");
+  //   span.innerText = message;
+  //   li.appendChild(span);
+  //   li.classList.add(className);
+  //   li.classList.add("message-list");
+  //   chatBox.appendChild(li);
+  // }
 
-  // 남는 사람 기준
-  socket.on("leave_succ", function (data) {
-    const user = charMap[data.removeSid];
-    user.isUserJoin = false;
-    removePeerFace(data.removeSid);
-  });
+  // // 남는 사람 기준
+  // socket.on("leave_succ", function (data) {
+  //   const user = charMap[data.removeSid];
+  //   user.isUserJoin = false;
+  //   removePeerFace(data.removeSid);
+  // });
 
-  socket.on("chat", (message) => {
-    writeChat(message);
-  });
+  // socket.on("chat", (message) => {
+  //   writeChat(message);
+  // });
 
-  socket.on("accept_join", async (userObjArr) => {
-    try {
-      await initCall();
+  // socket.on("accept_join", async (userObjArr) => {
+  //   try {
+  //     await initCall();
 
-      const length = userObjArr.length;
-      if (length === 1) {
-        return;
-      }
+  //     const length = userObjArr.length;
+  //     if (length === 1) {
+  //       return;
+  //     }
 
-      for (let i = 0; i < length - 1; ++i) {
-        const newPC = await createConnection(
-          userObjArr[i].socketId,
-          userObjArr[i].nickname
-        );
-        const offer = await newPC.createOffer();
-        await newPC.setLocalDescription(offer);
-        socket.emit(
-          "offer",
-          offer,
-          userObjArr[i].socketId,
-          userObjArr[i].nickname
-        );
-      }
-    } catch (err) {
-      console.error(err);
-    }
-    // writeChat("is in the room.", NOTICE_CN);
-  });
+  //     for (let i = 0; i < length - 1; ++i) {
+  //       const newPC = await createConnection(
+  //         userObjArr[i].socketId,
+  //         userObjArr[i].nickname
+  //       );
+  //       const offer = await newPC.createOffer();
+  //       await newPC.setLocalDescription(offer);
+  //       socket.emit(
+  //         "offer",
+  //         offer,
+  //         userObjArr[i].socketId,
+  //         userObjArr[i].nickname
+  //       );
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  //   // writeChat("is in the room.", NOTICE_CN);
+  // });
 
-  socket.on("offer", async (offer, remoteSocketId, remoteNickname) => {
-    try {
-      const newPC = await createConnection(remoteSocketId, remoteNickname);
-      await newPC.setRemoteDescription(offer);
-      const answer = await newPC.createAnswer();
-      await newPC.setLocalDescription(answer);
-      socket.emit("answer", answer, remoteSocketId);
-      // writeChat(`notice! __${remoteNickname}__ joined the room`, NOTICE_CN);
-    } catch (err) {
-      console.error(err);
-    }
-  });
+  // socket.on("offer", async (offer, remoteSocketId, remoteNickname) => {
+  //   try {
+  //     const newPC = await createConnection(remoteSocketId, remoteNickname);
+  //     await newPC.setRemoteDescription(offer);
+  //     const answer = await newPC.createAnswer();
+  //     await newPC.setLocalDescription(answer);
+  //     socket.emit("answer", answer, remoteSocketId);
+  //     // writeChat(`notice! __${remoteNickname}__ joined the room`, NOTICE_CN);
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // });
 
-  socket.on("answer", async (answer, remoteSocketId) => {
-    await pcObj[remoteSocketId].setRemoteDescription(answer);
+  // socket.on("answer", async (answer, remoteSocketId) => {
+  //   await pcObj[remoteSocketId].setRemoteDescription(answer);
 
-  });
+  // });
 
-  socket.on("ice", async (ice, remoteSocketId, remoteNickname) => {
-    await pcObj[remoteSocketId].addIceCandidate(ice);
-    const state = pcObj[remoteSocketId].iceConnectionState;
-    if (state === "failed" || state === "closed") {
-      const newPC = await createConnection(
-        remoteSocketId,
-        remoteNickname
-      );
-      const offer = await newPC.createOffer();
-      await newPC.setLocalDescription(offer);
-      socket.emit("offer", offer, remoteSocketId, remoteNickname);
-      console.log("iceCandidate 실패! 재연결 시도");
-    }
-  });
+  // socket.on("ice", async (ice, remoteSocketId, remoteNickname) => {
+  //   await pcObj[remoteSocketId].addIceCandidate(ice);
+  //   const state = pcObj[remoteSocketId].iceConnectionState;
+  //   if (state === "failed" || state === "closed") {
+  //     const newPC = await createConnection(
+  //       remoteSocketId,
+  //       remoteNickname
+  //     );
+  //     const offer = await newPC.createOffer();
+  //     await newPC.setLocalDescription(offer);
+  //     socket.emit("offer", offer, remoteSocketId, remoteNickname);
+  //     console.log("iceCandidate 실패! 재연결 시도");
+  //   }
+  // });
 
   socket.on("join_user", function (data) {
     //====================  비디오 추가 함수 =================//

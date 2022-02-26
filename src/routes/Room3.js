@@ -8,6 +8,8 @@ import styled from "styled-components";
 import LoadingComponent from "../components/Loading";
 import RoomSideBar from "../components/RoomSidebar";
 import { user } from "../config/api";
+import { io } from "socket.io-client";
+import _const from "../config/const";
 
 const pexel = (id) =>
   `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260`;
@@ -166,10 +168,11 @@ const ThreeCanvas = styled.div`
 const Room3 = ({ userData }) => {
   const params = useParams();
   const roomId = params.roomId;
+  const [socket, setSocket] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [cameraPosition, setCameraPosition] = useState(0);
   const [yCameraPosition, setYCameraPosition] = useState(0);
-  const url = `http://localhost:3000/room/${roomId}`
+  const url = `/room/${roomId}`
   const downHandler = (e) => {
     switch (e.key) {
       case "x" || "X" || "ㅌ":
@@ -177,9 +180,14 @@ const Room3 = ({ userData }) => {
       // navigator(`/room/${roomId}`);
     }
   }
-  // const upHandler = () => {
+  useEffect(() => {
+    userData.then((data) => {
+      setSocket(io(_const.HOST));
+    })
 
-  // }
+    return () => {
+    }
+  }, []);
   useEffect(() => {
     window.addEventListener("keydown", downHandler);
     // window.addEventListener("keyup", upHandler);
@@ -190,8 +198,9 @@ const Room3 = ({ userData }) => {
     };
   }, []);
   useEffect(() => {
-    userData.then((data) => {
+    socket && userData.then((data) => {
       Overworld3({
+        socket,
         config: document.querySelector(".game-container"),
         mainContainer: document.querySelector(".mainContainer"),
         nickname: data.nickname,
@@ -227,7 +236,7 @@ const Room3 = ({ userData }) => {
         ],
       });
     });
-  }, []);
+  }, [socket]);
 
   useEffect(() => {
     const loadingFn = () => {

@@ -416,7 +416,8 @@ const Lobby = ({ userData }) => {
   };
 
   const readyToGoIntoTheRoom = (item) => {
-    window.location.href = `/room/${item.id}`;
+    navigate(`/room/${item.id}`, {replace: false});
+    // window.location.href = `/room/${item.id}`;
   };
   return (
     <>

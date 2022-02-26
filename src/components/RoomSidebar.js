@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ProSidebar, Menu, SidebarFooter } from "react-pro-sidebar";
+import { ProSidebar } from "react-pro-sidebar";
 import { FaArrowLeft, FaArrowRight, FaShare } from "react-icons/fa";
 import { IoChatbubblesSharp } from "react-icons/io5";
 import { ImExit } from "react-icons/im";
@@ -7,9 +7,7 @@ import { IoSend } from "react-icons/io5";
 import "react-pro-sidebar/dist/css/styles.css";
 import styled from "styled-components";
 import ReactModal from "react-modal";
-import io from "socket.io-client";
-import { useSelector } from "react-redux";
-import CONST from "../config/const";
+import { useNavigate } from "react-router";
 
 const Layout = styled.div`
   position: fixed;
@@ -278,13 +276,14 @@ const RoomSideBar = ({
   setCollapsed,
   setOpenDraw,
   openDraw,
+  socket,
   setChatCollapsed,
   isChatCollapsed,
   setShareCollapsed,
   isShareCollapsed,
 }) => {
+  const navigate = useNavigate();
   const [exitModal, setExitModal] = useState(false);
-
   const onExitModal = () => setExitModal(!exitModal);
   const escExit = (e) => {
     if (e.key === "Escape") {
@@ -292,9 +291,10 @@ const RoomSideBar = ({
     }
   };
   const onExitRoom = () => {
-    window.location.href = url;
+    socket.close();
+    navigate(url);
   };
-
+  
   useEffect(() => {
     const addEvent = () => {
       window.addEventListener("keydown", escExit);

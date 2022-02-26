@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import Overworld from "../game/Overworld";
 import { Person } from "../game/Person";
 import React from "react";
@@ -17,9 +17,10 @@ import { connect } from "react-redux";
 import ScreenBottomBar from "../components/ScreenBottomBar";
 import PictureFrame from "../components/pictureFrame";
 import { user } from "../config/api";
-import { joinUser, leaveUser, updateLocation } from "../utils/game/character";
+import { joinUser, updateLocation } from "../utils/game/character";
 import { io } from "socket.io-client";
 import _const from "../config/const";
+import CharacterNickname from "../components/CharacterNickname";
 
 const StreamsContainer = styled.div`
   position: fixed;
@@ -110,12 +111,6 @@ const CamBtn = styled.div`
     left: 50%;
   }
 `;
-
-const CharacterNickname = styled.div`
-  span {
-    color: white;
-  }
-`;
 // const ShareArt = styled.div`
 //   div{
 //     position: fixed;
@@ -137,31 +132,29 @@ const CharacterNickname = styled.div`
 // `;
 
 const Room = ({ userData }) => {
-  const [socket, setSocket] = useState(null);
-  const characters = [];
   const charMap = {};
+  // const characters = [];
+  const [socket, setSocket] = useState(null);
+  const [characters, setCharacters] = useState([]);
   const params = useParams();
+  const navigate = useNavigate();
   const roomId = params.roomId;
-  const url = "http://localhost:3000/lobby";
-  const nicknameContainer = document.querySelector(".nickname");
-
-
+  const url = "/lobby";
+  const [nicknames, setNicknames] = useState([]);
   const [openDraw, setOpenDraw] = useState(false);
   const [collapsed, setCollapsed] = useState(true);
-
   const [isChatCollapsed, setChatCollapsed] = useState(false);
   const [isShareCollapsed, setShareCollapsed] = useState(false);
 
   const [isUser, setUser] = useState(null);
-
   useEffect(() => {
     userData.then((data) => {
       setUser(data);
       setSocket(io(_const.HOST));
     })
     return () => {
-      console.log("room leave!!");
-    };
+
+    }
   }, []);
 
   useEffect(() => {
@@ -178,66 +171,23 @@ const Room = ({ userData }) => {
       });
 
       socket.on("get_user_info", function (data) {
-        // console.log(data);
         const user = joinUser(data.id, data.x, data.y, data.nickname, data.src);
-        
-        characters.push(user);
+        setCharacters(prev => [...prev, user]);
         charMap[data.id] = user;
-
-        // const nicknameDiv = document.createElement("div");
-        // nicknameDiv.id = data.nickname;
-        // nicknameDiv.innerHTML = data.nickname;
-
-        // nicknameDiv.style.width = 100;
-        // nicknameDiv.style.transform = "translateX(-40%)";
-        // nicknameDiv.style.backgroundColor = "rgba(0, 0, 0, 0.6)";
-        // nicknameDiv.style.padding = "6px";
-        // nicknameDiv.style.borderRadius = "6px";
-        // nicknameDiv.style.color = "white";
-        // nicknameDiv.style.fontSize = "12px";
-        // nicknameDiv.style.textAlign = "center";
-        // nicknameDiv.style.position = "absolute";
-
-        // nicknameContainer.appendChild(nicknameDiv);
-
-        // user list
-        // if (data.isShareCollapsed) {
-        //   const userList = document.querySelector(".user-list");
-
-        //   userListItem = document.createElement("li");
-        //   userNicknameSpan = document.createElement("span");
-        //   userImg = document.createElement("img");
-        //   userInfoDiv = document.createElement("div");
-        //   shareInput = document.createElement("input");
-        //   onOffButton = document.createElement("p");
-
-        //   userImg.src = data.src;
-        //   userListItem.className = data.id;
-        //   userNicknameSpan.innerHTML = data.nickname;
-        //   shareInput.type = "checkbox";
-        //   shareInput.className = "share-checkbox";
-        //   shareInput.name = "share-checkbox-name";
-        //   shareInput.value = data.id;
-
-        // userInfoDiv.appendChild(userImg);
-        // userInfoDiv.appendChild(userNicknameSpan);
-        // userListItem.appendChild(userInfoDiv);
-        // userListItem.appendChild(onOffButton);
-
-        // if (socket.id !== data.id) {
-        //   // userListItem.appendChild(shareInput);
-        // }
-
-        // userList.appendChild(userListItem);
-        // }
+        setNicknames(prev => [...prev, data.nickname]);
       });
 
       socket.on("leave_user", function (data) {
-        leaveUser(data, charMap, characters);
+        const leaveUser = charMap[data.id];
+        setCharacters(prev => prev.filter((char) => char.id !== data.id));
+        setNicknames(prev => prev.filter((nickname)=> nickname !== leaveUser.nickname));
+        delete charMap[data.id];
       });
 
       socket.on("update_state", function (data) {
-        updateLocation(data, charMap, characters, socket.id);
+        Object.values(charMap).forEach((character, i) => {
+          updateLocation(data[i], character, socket.id);
+        })
       });
     }
   }, [isUser, socket])
@@ -267,40 +217,45 @@ const Room = ({ userData }) => {
     {
       x: 16,
       y: 448,
-      url: `http://localhost:3000/room3/${roomId}`,
+      url: `/room3/${roomId}`,
+      // url: `/room/27`,
       // url: "/room1",
     },
   ];
-
   return (
     <>
       <div id="Arts">
         {openDraw ? <PictureFrame collapsed={collapsed}></PictureFrame> : null}
       </div>
-      <div className="roomContainer" style={{ display: "flex" }}>
-        {socket ? <Overworld
-          setOpenDraw={setOpenDraw}
-          isChatCollapsed={isChatCollapsed}
-          isShareCollapsed={isShareCollapsed}
-          Room={room}
-          adjust={adjust}
-          otherMaps={otherMaps}
-          charMap={charMap}
-          characters={characters}
-          socket={socket}
-        /> : null}
-      </div>
-      <RoomSideBar
-        url={url}
-        collapsed={collapsed}
-        setCollapsed={setCollapsed}
-        setOpenDraw={setOpenDraw}
-        openDraw={openDraw}
-        setChatCollapsed={setChatCollapsed}
-        isChatCollapsed={isChatCollapsed}
-        setShareCollapsed={setShareCollapsed}
-        isShareCollapsed={isShareCollapsed}
-      />
+      {socket ?
+        <>
+          <div className="roomContainer" style={{ display: "flex" }}>
+            <Overworld
+              setOpenDraw={setOpenDraw}
+              isChatCollapsed={isChatCollapsed}
+              isShareCollapsed={isShareCollapsed}
+              Room={room}
+              otherMaps={otherMaps}
+              charMap={charMap}
+              socket={socket}
+            />
+            <CharacterNickname nicknames={nicknames} />
+          </div>
+          <RoomSideBar
+            url={url}
+            collapsed={collapsed}
+            setCollapsed={setCollapsed}
+            setOpenDraw={setOpenDraw}
+            openDraw={openDraw}
+            setChatCollapsed={setChatCollapsed}
+            isChatCollapsed={isChatCollapsed}
+            setShareCollapsed={setShareCollapsed}
+            isShareCollapsed={isShareCollapsed}
+            characters={characters}
+            socket={socket}
+          />
+        </>
+        : null}
       <StreamsContainer id="streams"></StreamsContainer>
       <MyVideoBox>
         <MyVideo id="myFace" autoPlay="autoplay"></MyVideo>
