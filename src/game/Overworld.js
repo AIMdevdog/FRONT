@@ -5,6 +5,7 @@ import { FaVideo } from "react-icons/fa";
 import utils from "./utils.js";
 import io from "socket.io-client";
 import _const from "../config/const.js";
+import { user } from "../config/api.js";
 // import mediasoupClient from "mediasoup-client";
 const mediasoupClient = require('mediasoup-client')
 
@@ -615,41 +616,43 @@ const Overworld = (data) => {
 
   socket.on("accept_join", async (userObjArr) => {
     try {
-
-      // const length = userObjArr.length;
-      // if (length === 1) {
-      //   return;
-      // }
-
-      // for (let i = 0; i < length - 1; ++i) {
-      //   const newPC = await createConnection(
-      //     userObjArr[i].socketId,
-      //     userObjArr[i].nickname
-      //   );
-      //   const offer = await newPC.createOffer();
-      //   await newPC.setLocalDescription(offer);
-      //   socket.emit(
-      //     "offer",
-      //     offer,
-      //     userObjArr[i].socketId,
-      //     userObjArr[i].nickname
-      //   );
-      // }
-      await initCall();
-      socket.emit('getRtpCapabilities', userObjArr.roomName, (data) => {
-        console.log(`Router RTP Capabilities... ${data.rtpCapabilities}`)
-        // we assign to local variable and will be used when
-        // loading the client Device (see createDevice above)
-        rtpCapabilities = data.rtpCapabilities
-    
-        // once we have rtpCapabilities from the Router, create Device
-        createDevice()
-      })
-    } catch (err) {
-      console.error(err);
-    }
-    // writeChat("is in the room.", NOTICE_CN);
-  });
+      if (userObjArr.length < 3) {
+        const length = userObjArr.length;
+        if (length === 1) {
+          return;
+        }
+  
+        for (let i = 0; i < length - 1; ++i) {
+          const newPC = await createConnection(
+            userObjArr[i].socketId,
+            userObjArr[i].nickname
+          );
+          const offer = await newPC.createOffer();
+          await newPC.setLocalDescription(offer);
+          socket.emit(
+            "offer",
+            offer,
+            userObjArr[i].socketId,
+            userObjArr[i].nickname
+          );
+        }
+      } else if (userObjArr.length >= 4) {
+        await initCall();
+        socket.emit('getRtpCapabilities', userObjArr.roomName, (data) => {
+          console.log(`Router RTP Capabilities... ${data.rtpCapabilities}`)
+          // we assign to local variable and will be used when
+          // loading the client Device (see createDevice above)
+          rtpCapabilities = data.rtpCapabilities
+          
+          // once we have rtpCapabilities from the Router, create Device
+          createDevice()
+        })
+      }
+      } catch (err) {
+        console.error(err);
+      }
+      // writeChat("is in the room.", NOTICE_CN);
+    });
 
   socket.on("offer", async (offer, remoteSocketId, remoteNickname) => {
     try {
