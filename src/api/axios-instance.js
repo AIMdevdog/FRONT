@@ -15,7 +15,12 @@ const cookies = new Cookies();
 instance.defaults.headers.common["Content-Type"] =
   "application/x-www-form-urlencoded";
 instance.defaults.headers.common["Access-Control-Allow-Origin"] =
-  "http://localhost:8000";
+  // "http://localhost:8000";
+  [
+    "https://d2ri7cyfi98bjj.cloudfront.net",
+    "http://localhost:8000",
+    "https://server.dev-team-aim.com",
+  ];
 instance.defaults.headers.common["Access-Control-Allow-Headers"] = "*";
 instance.defaults.headers.common["Access-Control-Allow-Credentials"] = true;
 
