@@ -102,7 +102,7 @@ const Overworld = (data) => {
   
   async function handleAddStream(event, remoteSocketId, remoteNickname) {
     const peerStream = event.stream;
-    console.log(peerStream);
+    console.log("*****", peerStream);
     const user = charMap[remoteSocketId]; // person.js에 있는 거랑 같이
 
     if (!user.isUserJoin) {
@@ -614,7 +614,8 @@ const Overworld = (data) => {
     writeChat(message);
   });
 
-  socket.on("accept_join", async (userObjArr) => {
+  socket.on("accept_join", async (userObjArr, groupName) => {
+    console.log("socket accept_join 실행, userObjArr.length", userObjArr.length)
     try {
       if (userObjArr.length < 3) {
         const length = userObjArr.length;
@@ -637,8 +638,8 @@ const Overworld = (data) => {
           );
         }
       } else if (userObjArr.length >= 4) {
-        await initCall();
-        socket.emit('getRtpCapabilities', userObjArr.roomName, (data) => {
+        // await initCall();
+        socket.emit('getRtpCapabilities', groupName, (data) => {
           console.log(`Router RTP Capabilities... ${data.rtpCapabilities}`)
           // we assign to local variable and will be used when
           // loading the client Device (see createDevice above)
@@ -656,6 +657,7 @@ const Overworld = (data) => {
 
   socket.on("offer", async (offer, remoteSocketId, remoteNickname) => {
     try {
+      console.log("offer 실행")
       const newPC = await createConnection(remoteSocketId, remoteNickname);
       await newPC.setRemoteDescription(offer);
       const answer = await newPC.createAnswer();
@@ -668,10 +670,12 @@ const Overworld = (data) => {
   });
 
   socket.on("answer", async (answer, remoteSocketId) => {
+    console.log("answer 실행");
     await pcObj[remoteSocketId].setRemoteDescription(answer);
   });
 
   socket.on("ice", async (ice, remoteSocketId, remoteNickname) => {
+    console.log("ice candidate실행");
     await pcObj[remoteSocketId].addIceCandidate(ice);
     // const state = pcObj[remoteSocketId].iceConnectionState;
     // if (state === "failed" || state === "closed") {
@@ -818,6 +822,8 @@ const Overworld = (data) => {
         // for (let remoteSocketId in pcObj){
         //   // console.log("-------- 커넥션 상태 --------", pcObj[remoteSocketId].iceConnectionState);
         // }
+
+        //group 인원이 3명 이하이면 
         socket.emit("leave_Group", player.id);
         player.isUserCalling = false;
         player.isUserJoin = false;
