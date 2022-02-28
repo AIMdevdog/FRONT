@@ -1,20 +1,25 @@
 import React, { useEffect, useState } from "react";
-import { ProSidebar, Menu, SidebarFooter } from "react-pro-sidebar";
-import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import { ProSidebar } from "react-pro-sidebar";
+import { FaArrowLeft, FaArrowRight, FaShare } from "react-icons/fa";
+import { IoChatbubblesSharp } from "react-icons/io5";
 import { ImExit } from "react-icons/im";
 import { IoSend } from "react-icons/io5";
 import "react-pro-sidebar/dist/css/styles.css";
 import styled from "styled-components";
 import ReactModal from "react-modal";
-import io from "socket.io-client";
-import { useSelector } from "react-redux";
-import CONST from "../config/const";
+import { RiCheckboxCircleFill, RiCheckboxCircleLine } from "react-icons/ri";
+import { useNavigate } from "react-router";
 
 const Layout = styled.div`
   position: fixed;
   left: 0;
   top: 0;
   height: 100vh;
+  z-index: 99;
+
+  aside {
+    position: relative;
+  }
 
   .layout {
     display: flex;
@@ -24,7 +29,14 @@ const Layout = styled.div`
   .layout .content {
     background-color: rgb(40, 45, 78);
     padding: 20px;
-    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .pro-sidebar {
+    width: 300px;
   }
 
   .pro-sidebar > .pro-sidebar-inner {
@@ -42,7 +54,13 @@ const Layout = styled.div`
   }
   div.exitBtn {
     display: inline-block;
-    margin-top: auto;
+    cursor: pointer;
+  }
+`;
+
+const IconActionContainer = styled.div`
+  div {
+    margin-top: 20px;
     cursor: pointer;
   }
 `;
@@ -85,7 +103,6 @@ const ChatContainer = styled.div`
   position: absolute;
   bottom: 20px;
   width: 100%;
-  opacity: ${(props) => (props.collapsed ? 0 : 1)};
 
   .chatSendBox {
     width: 100%;
@@ -95,7 +112,7 @@ const ChatContainer = styled.div`
     button {
       position: absolute;
       right: 30px;
-      top: 10px;
+      bottom: 10px;
       background: transparent;
       border: none;
       color: white;
@@ -239,6 +256,10 @@ const UserListContainer = styled.div`
         }
       }
 
+      input {
+        border: none;
+      }
+
       p {
         position: absolute;
         left: 20px;
@@ -254,17 +275,55 @@ const UserListContainer = styled.div`
 
 const SelcteShare = styled.button``;
 
-const RoomSideBar = ({ url, collapsed, setCollapsed }) => {
+const ShareButtonContainer = styled.div`
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+`;
+
+const ShareButton = styled.button`
+  margin-top: 10px;
+  border: none;
+  width: 80%;
+  background-color: rgb(6, 214, 160);
+  border-radius: 20px;
+  padding: 14px;
+  color: rgb(40, 45, 78);
+  font-weight: bold;
+`;
+
+const RoomSideBar = ({
+  collapsed,
+  setCollapsed,
+  openDraw,
+  setOpenDraw,
+  socket,
+  characters,
+}) => {
+  const navigate = useNavigate();
   const [exitModal, setExitModal] = useState(false);
 
+  const [isChatCollapsed, setChatCollapsed] = useState(false);
+  const [isShareCollapsed, setShareCollapsed] = useState(false);
+
+  const [isChatArr, setIsChatArr] = useState([]);
+  const [isChatValue, setIsChatValue] = useState("");
+
+  const [checkedArr, setCheckedArr] = useState([]);
+
   const onExitModal = () => setExitModal(!exitModal);
+
   const escExit = (e) => {
     if (e.key === "Escape") {
       setExitModal(!exitModal);
     }
   };
   const onExitRoom = () => {
-    window.location.href = url;
+    socket.close();
+    navigate('/lobby');
   };
 
   useEffect(() => {
@@ -277,35 +336,150 @@ const RoomSideBar = ({ url, collapsed, setCollapsed }) => {
     };
   });
 
+  const isChatIconAction = () => {
+    setChatCollapsed((prev) => !prev);
+    setShareCollapsed(false);
+  };
+
+  const onChatChange = (e) => {
+    const {
+      target: { value },
+    } = e;
+    setIsChatValue(value);
+  };
+
+  // chat socket
+  const onHandleChatSubmit = () => {
+    let groupName = 1;
+    setIsChatValue("");
+
+    socket.emit("chat", `${1}: ${isChatValue}`, groupName);
+    onChatWrite(isChatValue);
+  };
+
+  const onChatWrite = (message) => {
+    setIsChatArr((prev) => [...prev, message]);
+  };
+
+  useEffect(() => {
+    socket.on("chat", (isChatValue) => {
+      onChatWrite(isChatValue);
+    });
+
+    return () => {
+      socket.off("chat");
+    };
+  }, [socket]);
+  // chat socket
+
+  const isShareIconAction = () => {
+    // if (openDraw) return alert("이미 공유 중 입니다.");
+    setShareCollapsed((prev) => !prev);
+    setChatCollapsed(false);
+  };
+
+  const isHandleChecked = (charId) => {
+    let updatedList = [...checkedArr];
+    if (checkedArr.includes(charId)) {
+      updatedList.splice(checkedArr.indexOf(charId), 1);
+    } else {
+      updatedList = [...checkedArr, charId];
+    }
+    setCheckedArr(updatedList);
+  };
+
+  const isShareingArtWorks = () => {
+    socket.emit("ArtsAddr", socket?.id, checkedArr);
+    isShareIconAction();
+    setCheckedArr([]);
+  };
+
+  const openShareArtsWorks = () => {
+    setOpenDraw((prev) => !prev);
+  };
+
+  useEffect(() => {
+    socket.on("ShareAddr", (socketId) => {
+      setOpenDraw(true);
+    });
+  });
+
   return (
     <Layout>
       <div className="layout">
         <aside>
-          <ProSidebar collapsed={collapsed}>
-            <UserListContainer>
-              <SelcteShare>공유 선택</SelcteShare>
-              <ul className="user-list"></ul>
-              <button id="share">공유하기</button>
-            </UserListContainer>
-            <ChatContainer collapsed={collapsed}>
-              <MessageContainer id="chatRoom">
-                <ul id="chatBox"></ul>
-              </MessageContainer>
-              <form id="chatForm" className="chatSendBox">
-                <InputContainer>
-                  <input type="text" placeholder="Write your chat" required />
-                </InputContainer>
-                <button>
-                  <IoSend size="16" />
-                </button>
-              </form>
-            </ChatContainer>
-          </ProSidebar>
+          {isChatCollapsed && (
+            <ProSidebar collapsed={collapsed}>
+              <ChatContainer collapsed={collapsed}>
+                <div className="chatSendBox">
+                  <MessageContainer id="chatRoom">
+                    <ul id="chatBox">
+                      {isChatArr.map((chat, i) => {
+                        return <li key={i}>{chat}</li>;
+                      })}
+                    </ul>
+                  </MessageContainer>
+                  <InputContainer>
+                    <input
+                      onChange={onChatChange}
+                      name="chat"
+                      type="text"
+                      autoComplete="off"
+                      autofill="off"
+                      value={isChatValue}
+                      placeholder="Write your chat"
+                      required
+                    />
+                  </InputContainer>
+                  <button onClick={onHandleChatSubmit}>
+                    <IoSend size="16" />
+                  </button>
+                </div>
+              </ChatContainer>
+            </ProSidebar>
+          )}
+          {isShareCollapsed && (
+            <ProSidebar collapsed={collapsed}>
+              <UserListContainer>
+                <ul className="user-list">
+                  {characters?.map((char, i) => {
+                    return (
+                      <li key={i} onClick={() => isHandleChecked(char?.id)}>
+                        <div>
+                          <img
+                            src={char?.sprite?.image?.currentSrc}
+                            alt="currentSrc"
+                          />
+                          <span>{char?.nickname}</span>
+                        </div>
+                        <p></p>
+                        {checkedArr.includes(char?.id) ? (
+                          <RiCheckboxCircleFill
+                            color="rgb(6, 214, 160)"
+                            size={24}
+                          />
+                        ) : (
+                          <RiCheckboxCircleLine
+                            color="rgb(144,156,226)"
+                            size={24}
+                          />
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+                {checkedArr?.length > 0 && (
+                  <ShareButtonContainer>
+                    <ShareButton onClick={isShareingArtWorks} id="share">
+                      공유하기
+                    </ShareButton>
+                  </ShareButtonContainer>
+                )}
+              </UserListContainer>
+            </ProSidebar>
+          )}
         </aside>
-        <main
-          className="content"
-          style={{ display: "flex", flexDirection: "column" }}
-        >
+        <main className="content">
           <div className="btn" onClick={() => setCollapsed(!collapsed)}>
             {collapsed ? (
               <FaArrowRight size={24} color="white" />
@@ -313,9 +487,24 @@ const RoomSideBar = ({ url, collapsed, setCollapsed }) => {
               <FaArrowLeft size={24} color="white" />
             )}
           </div>
-          <div className="exitBtn" onClick={onExitModal}>
-            <ImExit color="white" size={32} />
-          </div>
+
+          <IconActionContainer>
+            <div onClick={isChatIconAction}>
+              <IoChatbubblesSharp color="white" size={24} />
+            </div>
+            <div
+              onClick={
+                openDraw
+                  ? isShareIconAction
+                  : () => alert("그림을 보고 있지 않습니다.")
+              }
+            >
+              <FaShare color={openDraw ? "white" : "grey"} size={24} />
+            </div>
+            <div className="exitBtn" onClick={onExitModal}>
+              <ImExit color="white" size={24} />
+            </div>
+          </IconActionContainer>
           <ReactModal
             style={customStyles}
             isOpen={exitModal}

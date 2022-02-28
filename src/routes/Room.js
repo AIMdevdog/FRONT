@@ -1,21 +1,19 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import Overworld from "../game/Overworld";
 import { Person } from "../game/Person";
 import React from "react";
-import {
-  FaVideoSlash,
-  FaVideo,
-  FaVolumeUp,
-  FaVolumeMute,
-  FaVolumeOff,
-} from "react-icons/fa";
 import RoomSideBar from "../components/RoomSidebar";
 import styled from "styled-components";
 import VideoButton from "../components/VideoButton";
 import { connect } from "react-redux";
 import ScreenBottomBar from "../components/ScreenBottomBar";
 import PictureFrame from "../components/pictureFrame";
+import { user } from "../config/api";
+import { joinUser, updateLocation } from "../utils/game/character";
+import { io } from "socket.io-client";
+import _const from "../config/const";
+import CharacterNickname from "../components/CharacterNickname";
 
 const StreamsContainer = styled.div`
   position: fixed;
@@ -107,97 +105,129 @@ const CamBtn = styled.div`
   }
 `;
 
-const CharacterNickname = styled.div`
-  span {
-    color: white;
-  }
-`;
-// const ShareArt = styled.div`
-//   div{
-//     position: fixed;
-//     width: 500px;
-//     height: 500px;
-//     background-color: red;
-//     left: 30%;
-//     top: 30%;
-//   }
-// `;
-
-// const Draw = styled.div`
-//   position: fixed;
-//   width: 500px;
-//   height: 500px;
-//   background-color: red;
-//   left: 30%;
-//   top: 30%;
-// `;
-
 const Room = ({ userData }) => {
+  const charMap = {};
+  const [socket, setSocket] = useState(null);
   const params = useParams();
+  const navigate = useNavigate();
   const roomId = params.roomId;
-  const url = "http://localhost:3000/lobby";
-
+  const url = "/lobby";
+  const [nicknames, setNicknames] = useState([]);
   const [openDraw, setOpenDraw] = useState(false);
   const [collapsed, setCollapsed] = useState(true);
 
+  const [isCharacter, setIsCharacter] = useState([]);
+
+  const [isUser, setUser] = useState(null);
   useEffect(() => {
     userData.then((data) => {
-      Overworld({
-        config: document.querySelector(".game-container"),
-        setOpenDraw,
-        nickname: data.nickname || "ANON",
-        Room: {
-          RoomSrc:
-            "https://aim-image-storage.s3.ap-northeast-2.amazonaws.com/map2.png",
-          roomId,
-          roomNum: 0,
-          gameObjects: {
-            player: new Person({
-              id: null,
-              isPlayerControlled: true,
-              x: 80,
-              y: 80,
-              src:
-                data.character ||
-                "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png",
-            }),
-          },
-        },
-        adjust: {
-          xaxios: 0,
-          yaxios: 0,
-          yratio: 1,
-        },
-        otherMaps: [
-          {
-            x: 16,
-            y: 448,
-            url: `http://localhost:3000/room3/${roomId}`,
-            // url: "/room1",
-          },
-        ],
-      });
+      setUser(data);
+      setSocket(io(_const.HOST));
     });
-    return () => {
-      console.log("room leave!!");
-    };
+    return () => {};
   }, []);
+
+  useEffect(() => {
+    if (isUser && socket) {
+      socket.on("join_user", function () {
+        console.log("새로운 유저 접속");
+        socket.emit("send_user_info", {
+          src: isUser.character,
+          x: 80,
+          y: 80,
+          nickname: isUser.nickname,
+          roomId: "room" + roomId,
+        });
+      });
+
+      socket.on("get_user_info", function (data) {
+        const user = joinUser(data.id, data.x, data.y, data.nickname, data.src);
+        setIsCharacter((prev) => [...prev, user]);
+
+        charMap[data.id] = user;
+        setNicknames((prev) => [...prev, data.nickname]);
+      });
+
+      socket.on("leave_user", function (data) {
+        const leaveUser = charMap[data.id];
+        setIsCharacter((prev) => prev.filter((char) => char.id !== data.id));
+        setNicknames((prev) =>
+          prev.filter((nickname) => nickname !== leaveUser.nickname)
+        );
+        delete charMap[data.id];
+      });
+
+      socket.on("update_state", function (data) {
+        Object.values(charMap).forEach((character, i) => {
+          updateLocation(data[i], character, socket.id);
+        });
+      });
+    }
+  }, [isUser, socket]);
+
+  const room = {
+    RoomSrc:
+      "https://aim-image-storage.s3.ap-northeast-2.amazonaws.com/map2.png",
+    roomNum: 0,
+    gameObjects: {
+      player: new Person({
+        id: null,
+        isPlayerControlled: true,
+        x: 80,
+        y: 80,
+        src:
+          isUser?.character ||
+          "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png",
+      }),
+    },
+  };
+  const adjust = {
+    xaxios: 0,
+    yaxios: 0,
+    yratio: 1,
+  };
+  const otherMaps = [
+    {
+      x: 16,
+      y: 448,
+      url: `/room1/${roomId}`,
+    },
+  ];
+
   return (
     <>
-      <div id="Arts">
-        {openDraw ? <PictureFrame collapsed={collapsed}></PictureFrame> : null}
-      </div>
       <div className="roomContainer" style={{ display: "flex" }}>
-        <div className="game-container" style={{ backgroundColor: "black" }}>
-          <canvas className="game-canvas"></canvas>
-          <CharacterNickname className="nickname"> </CharacterNickname>
-        </div>
+        {socket ? (
+          <>
+            {openDraw ? (
+              <div id="Arts">
+                <PictureFrame collapsed={collapsed} socket={socket} />
+              </div>
+            ) : null}
+            <Overworld
+              setOpenDraw={setOpenDraw}
+              Room={room}
+              adjust={adjust}
+              otherMaps={otherMaps}
+              charMap={charMap}
+              socket={socket}
+              openDraw={openDraw}
+            />
+            <CharacterNickname nicknames={nicknames} />
+            <RoomSideBar
+              url={url}
+              socket={socket}
+              collapsed={collapsed}
+              setCollapsed={setCollapsed}
+              setOpenDraw={setOpenDraw}
+              charMap={charMap}
+              characters={isCharacter}
+              openDraw={openDraw}
+            />
+          </>
+        ) : null}
       </div>
-      <RoomSideBar
-        url={url}
-        collapsed={collapsed}
-        setCollapsed={setCollapsed}
-      />
+
       <StreamsContainer id="streams"></StreamsContainer>
       <MyVideoBox>
         <MyVideo id="myFace" autoPlay="autoplay"></MyVideo>

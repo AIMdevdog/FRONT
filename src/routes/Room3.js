@@ -7,7 +7,8 @@ import Gallery3 from "../components/Gallery3";
 import styled from "styled-components";
 import LoadingComponent from "../components/Loading";
 import RoomSideBar from "../components/RoomSidebar";
-import { user } from "../config/api";
+import { io } from "socket.io-client";
+import _const from "../config/const";
 
 const pexel = (id) =>
   `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260`;
@@ -153,45 +154,30 @@ const ThreeCanvas = styled.div`
     padding: 0;
     overflow: hidden;
   }
-  //  .game-container{
-  //    position: fixed;
-  //    width: 500px;
-  //    height: 200px;
-  //    right:0;
-  //    left: 50%;
-  //    transform: translateX(-50%);
-  //  }
 `;
 
 const Room3 = ({ userData }) => {
   const params = useParams();
   const roomId = params.roomId;
+  const [socket, setSocket] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [cameraPosition, setCameraPosition] = useState(0);
   const [yCameraPosition, setYCameraPosition] = useState(0);
-  const url = `http://localhost:3000/room/${roomId}`
-  const downHandler = (e) => {
-    switch (e.key) {
-      case "x" || "X" || "ㅌ":
-        window.location.replace(`/room/${roomId}`);
-      // navigator(`/room/${roomId}`);
-    }
-  }
-  // const upHandler = () => {
+  const url = `/room/${roomId}`
 
-  // }
-  useEffect(() => {
-    window.addEventListener("keydown", downHandler);
-    // window.addEventListener("keyup", upHandler);
-    // Remove event listeners on cleanup
-    return () => {
-      window.removeEventListener("keydown", downHandler);
-      // window.removeEventListener("keyup", upHandler);
-    };
-  }, []);
   useEffect(() => {
     userData.then((data) => {
+      setSocket(io(_const.HOST));
+    })
+
+    return () => {
+    }
+  }, []);
+  
+  useEffect(() => {
+    socket && userData.then((data) => {
       Overworld3({
+        socket,
         config: document.querySelector(".game-container"),
         mainContainer: document.querySelector(".mainContainer"),
         nickname: data.nickname,
@@ -227,7 +213,7 @@ const Room3 = ({ userData }) => {
         ],
       });
     });
-  }, []);
+  }, [socket]);
 
   useEffect(() => {
     const loadingFn = () => {
@@ -240,9 +226,9 @@ const Room3 = ({ userData }) => {
     loadingFn();
   }, []);
   return (
-    <div className="mainContainer" style={{ display: "flex", backgroundColor: "#191920" }}>
+    <div className="mainContainer" style={{display: "flex", backgroundColor: "#191920" }}>
       {isLoading && <LoadingComponent background={true} />}
-      <ThreeCanvas className="gallery">
+      <ThreeCanvas className="gallery" style={{height: "100vh"}}>
         <Suspense fallback={null}>
           <Gallery3 images={images} roomId={roomId} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
         </Suspense>

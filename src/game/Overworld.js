@@ -1,9 +1,10 @@
 import { OverworldMap } from "./OverworldMap.js";
 import { DirectionInput } from "./DirectionInput.js";
-import { Person } from "./Person.js";
 import utils from "./utils.js";
-import io from "socket.io-client";
 import _const from "../config/const.js";
+import { useEffect, useRef, useState } from "react";
+import LoadingComponent from "../components/Loading.js";
+import { useNavigate } from "react-router";
 
 let myStream;
 let cameraOff = false;
@@ -19,62 +20,47 @@ var remoteConnection = []; // RTCPeerConnection for the "remote"
 
 let peopleInRoom = 1;
 
-const characters = [];
-const charMap = {};
+const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const containerEl = useRef();
+  const canvasRef = useRef();
+  const navigate = useNavigate();
+  const directionInput = new DirectionInput();
+  directionInput.init();
 
-const Overworld = (data) => {
-  const config = data.config;
-  const nickname = data.nickname;
-  const element = config;
-  const canvas = element.querySelector(".game-canvas");
-  const ctx = canvas.getContext("2d");
   const cameraConstraints = {
     audio: true,
     video: true,
   };
 
-  const nicknameContainer = document.querySelector(".nickname");
+  const map = new OverworldMap(Room);
 
-  const map = new OverworldMap(data.Room);
-  if (map.roomNum === 1) {
-    config.style.display = "relative";
-    // config.style.right = "100px";
-  }
-  const adjustValue = data.adjust;
-  const otherMaps = data.otherMaps;
-  const directionInput = new DirectionInput();
-  directionInput.init();
-  let roomId;
-  if (map.roomNum === 0) {
-    roomId = "room" + map.roomId;
-  } else if (map.roomNum === 1) {
-    roomId = "room1" + map.roomId;
-  }
-  const socket = io(_const.HOST);
   let closer = [];
-
-  const keydownHandler = (e) => {
-    const player = charMap[socket.id];
-    if (
-      (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
-      player.x === 48 &&
-      player.y === 48
-    ) {
-      data.setOpenDraw((prev) => !prev);
-    } else if (directionInput.direction) {
-      data.setOpenDraw(false);
-    }
+  const socketDisconnect = () => {
+    socket.close();
   };
-  document.addEventListener("keydown", keydownHandler);
-  // data 안에 소켓id, nickname 있음
-  // data for문 돌면서 isUserCalling checking 혹은..
-  // [PASS] 2명+3명 그룹 합쳐질 때 그룹 통화중이라는 것을 표시해둬야 함 / 변수 하나 더 추가 true, false 체크
 
-  // function sortStreams() {
-  //   const streams = document.querySelector("#streams");
-  //   const streamArr = streams.querySelectorAll("div");
-  //   streamArr.forEach((stream) => (stream.className = `people${peopleInRoom}`));
-  // }
+  useEffect(() => {
+    const keydownHandler = (e) => {
+      const player = charMap[socket.id];
+      if (
+        (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
+        player.x === 48 &&
+        player.y === 48
+      ) {
+        setOpenDraw((prev) => !prev);
+      } else if ((!openDraw && (e.key === "x" || e.key === "X" || e.key === "ㅌ"))
+        || directionInput.direction) {
+        setOpenDraw(false);
+      }
+    };
+    window.addEventListener("popstate", socketDisconnect);
+    window.addEventListener("keydown", keydownHandler);
+    return () => {
+      window.removeEventListener("popstate", socketDisconnect);
+      window.removeEventListener("keydown", keydownHandler);
+    };
+  }, []);
 
   const share = document.querySelector("#share");
   share.addEventListener("click", sendArtsAddr);
@@ -314,8 +300,6 @@ const Overworld = (data) => {
   }
 
   async function initCall() {
-    // welcome.hidden = true;            // HTML 관련 코드
-    // call.classList.remove(HIDDEN_CN); // HTML 관련 코드
     console.log("initCall 함수");
     try {
       await getMedia(false); // Room.js에 들어있음
@@ -559,181 +543,152 @@ const Overworld = (data) => {
   socket.on("update_state", function (data) {
     updateLocation(data);
   });
-
-  const startGameLoop = () => {
-    const step = () => {
-      //Clear off the canvas
-      if (map.roomNum === 0) {
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    let isLoop = true;
+    const startGameLoop = () => {
+      const step = () => {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-      } else if (map.roomNum === 1) {
-        canvas.width = window.innerWidth;
-        canvas.height = 200;
-      } else {
-        canvas.width = 70;
-        canvas.height = 80;
-        data.mainContainer.style.height = window.innerHeight + "px";
-      }
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+        //Clear off the canvas
+        ctx.clearRect(0, 0, canvas?.width, canvas?.height);
 
-      //Establish the camera person
-      const cameraPerson = charMap[socket.id] || map.gameObjects.player;
-      const player = charMap[socket.id];
+        //Establish the camera person
+        const cameraPerson = charMap[socket.id] || map.gameObjects.player;
+        const player = charMap[socket.id];
 
-      if (data.setCameraPosition) {
-        data.setYCameraPosition(-cameraPerson.y / 80 - 3.5);
-        data.setCameraPosition(-cameraPerson.x / 80 + 6);
-      }
-
-      //Update all objects
-      Object.values(charMap).forEach((object) => {
-        if (object.id === socket.id) {
-          for (let i = 0; i < otherMaps.length; i++) {
-            if (object.x === otherMaps[i].x && object.y === otherMaps[i].y) {
-              console.log("warp!!!");
-              window.location.href = `${otherMaps[i].url}`;
+        //Update all objects
+        Object.values(charMap).forEach((object) => {
+          if (object.id === socket.id) {
+            for (let i = 0; i < otherMaps.length; i++) {
+              if (object.x === otherMaps[i].x && object.y === otherMaps[i].y) {
+                // console.log("warp!!!");
+                socket.close();
+                navigate(otherMaps[i].url);
+                // window.location.href = `${otherMaps[i].url}`;
+              }
+            }
+            object.update({
+              arrow: directionInput.direction,
+              map: map,
+              // id: socket.id,
+            });
+          } else {
+            object.update({
+              arrow: object.nextDirection.shift(),
+              map: map,
+              // id: socket.id,
+            });
+            if (
+              !object.isUserCalling &&
+              Math.abs(player?.x - object.x) < 64 &&
+              Math.abs(player?.y - object.y) < 96
+            ) {
+              //화상 통화 연결
+              closer.push(object.id);
+              console.log("가까워짐");
+              player.isUserCalling = true;
+              object.isUserCalling = true;
+              socket.emit("user_call", {
+                caller: player.id,
+                callee: object.id,
+              });
+            }
+            if (
+              object.isUserCalling &&
+              (Math.abs(player.x - object.x) > 96 ||
+                Math.abs(player.y - object.y) > 128)
+            ) {
+              console.log("멀어짐");
+              closer = closer.filter((element) => element !== object.id);
+              object.isUserCalling = false;
+              object.isUserJoin = false;
             }
           }
-          object.update({
-            arrow: directionInput.direction,
-            map: map,
-            // id: socket.id,
-          });
-        } else {
-          object.update({
-            arrow: object.nextDirection.shift(),
-            map: map,
-            // id: socket.id,
-          });
-          if (
-            !object.isUserCalling &&
-            Math.abs(player?.x - object.x) < 64 &&
-            Math.abs(player?.y - object.y) < 96
-          ) {
-            //화상 통화 연결
-            closer.push(object.id);
-            console.log("가까워짐");
-            player.isUserCalling = true;
-            object.isUserCalling = true;
-            socket.emit("user_call", {
-              caller: player.id,
-              callee: object.id,
-            });
-          }
-          if (
-            object.isUserCalling &&
-            (Math.abs(player.x - object.x) > 96 ||
-              Math.abs(player.y - object.y) > 128)
-          ) {
-            console.log("멀어짐");
-            closer = closer.filter((element) => element !== object.id);
-            object.isUserCalling = false;
-            object.isUserJoin = false;
-          }
-        }
-      });
-      const playercheck = player ? player.isUserCalling : false;
-      if (playercheck && closer.length === 0) {
-        // 나가는 사람 기준
-        const stream = document.querySelector("#streams");
-        while (stream.hasChildNodes()) {
-          // 내가 가지고있는 다른 사람의 영상을 전부 삭제
-          stream.removeChild(stream.firstChild);
-        }
-
-        socket.emit("leave_Group", player.id);
-        player.isUserCalling = false;
-        player.isUserJoin = false;
-      }
-      //Draw Lower layer
-      map.drawLowerImage(ctx, cameraPerson);
-
-      //Draw Game Objects
-      Object.values(charMap)
-        .sort((a, b) => {
-          return a.y - b.y;
-        })
-        .forEach((object) => {
-          object.sprite.draw(ctx, cameraPerson);
-
-          const objectNicknameContainer = document.getElementById(
-            `${object.nickname}`
-          );
-          objectNicknameContainer.style.top =
-            object.y -
-            25 +
-            utils.withGrid(ctx.canvas.clientHeight / 16 / 2) -
-            cameraPerson.y +
-            "px";
-          objectNicknameContainer.style.left =
-            object.x +
-            utils.withGrid(ctx.canvas.clientWidth / 16 / 2) -
-            cameraPerson.x +
-            "px";
         });
-      if (player) {
-        const data = {
-          id: socket.id,
-          x: player.x,
-          y: player.y,
-          direction: directionInput.direction,
-        };
-        socket.emit("input", data);
-      }
-      requestAnimationFrame(() => {
-        step();
-      });
+        const playercheck = player ? player.isUserCalling : false;
+        if (playercheck && closer.length === 0) {
+          // 나가는 사람 기준
+          const stream = document.querySelector("#streams");
+          while (stream.hasChildNodes()) {
+            // 내가 가지고있는 다른 사람의 영상을 전부 삭제
+            stream.removeChild(stream.firstChild);
+          }
+
+          socket.emit("leave_Group", player.id);
+          player.isUserCalling = false;
+          player.isUserJoin = false;
+        }
+        //Draw Lower layer
+        map.drawLowerImage(ctx, cameraPerson);
+
+        //Draw Game Objects
+        Object.values(charMap)
+          .sort((a, b) => {
+            return a.y - b.y;
+          })
+          .forEach((object) => {
+            object.sprite.draw(ctx, cameraPerson, map.roomNum);
+
+            const objectNicknameContainer = document.getElementById(
+              `${object.nickname}`
+            );
+            // console.dir(objectNicknameContainer);
+            if (!objectNicknameContainer) {
+              return;
+            }
+            objectNicknameContainer.style.top =
+              object.y -
+              25 +
+              utils.withGrid(ctx.canvas.clientHeight / 16 / 2) -
+              cameraPerson.y +
+              "px";
+            objectNicknameContainer.style.left =
+              object.x +
+              utils.withGrid(ctx.canvas.clientWidth / 16 / 2) -
+              cameraPerson.x +
+              "px";
+          });
+        if (player) {
+          const data = {
+            id: socket.id,
+            x: player.x,
+            y: player.y,
+            direction: directionInput.direction,
+          };
+          socket.emit("input", data);
+        }
+        if (isLoop) {
+          requestAnimationFrame(() => {
+            step();
+          });
+        }
+      };
+      step();
     };
-    step();
-  };
+    setTimeout(() => {
+      setIsLoading(false);
+      startGameLoop();
+    }, 3000);
+    return () => {
+      isLoop = false;
+    };
+  }, []);
 
-  const updateLocation = (data) => {
-    let char;
-    for (let i = 0; i < characters.length; i++) {
-      char = charMap[data[i].id];
-      if (char.id === socket.id) {
-        continue;
-      }
-      char.nextDirection.unshift(data[i].direction);
-      char.x = data[i].x;
-      char.y = data[i].y;
-    }
-  };
-
-  const leaveUser = (data) => {
-    for (let i = 0; i < characters.length; i++) {
-      if (characters[i].id === data.id) {
-        characters.splice(i, 1);
-        break;
-      }
-    }
-    delete charMap[data.id];
-    const userNicknameContainer = document.querySelector(`.${data.id}`);
-    const parentDiv = userNicknameContainer.parentNode;
-    parentDiv.removeChild(userNicknameContainer);
-  };
-
-  const joinUser = (id, x, y, nickname, src) => {
-    let character = new Person({
-      x: 0,
-      y: 0,
-      id: id,
-    });
-    character.id = id;
-    character.x = x;
-    character.y = y;
-    character.nickname = nickname;
-    character.sprite.image.src = src;
-    character.sprite.xaxios = adjustValue.xaxios;
-    character.sprite.yaxios = adjustValue.yaxios;
-    character.sprite.yratio = adjustValue.yratio;
-    characters.push(character);
-    charMap[id] = character;
-    return character;
-  };
-
-  startGameLoop();
+  return (
+    <>
+      {isLoading && <LoadingComponent />}
+      <div
+        ref={containerEl}
+        className="game-container"
+        style={{ backgroundColor: "black", width: "100vw", height: "100vh" }}
+      >
+        <canvas ref={canvasRef} className="game-canvas"></canvas>
+      </div>
+    </>
+  );
 };
 
 export default Overworld;

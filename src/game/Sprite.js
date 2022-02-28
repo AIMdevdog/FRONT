@@ -1,5 +1,3 @@
-import { context } from "@react-three/fiber";
-import { FaThemeisle } from "react-icons/fa";
 import utils from "./utils.js";
 export class Sprite {
   constructor(config) {
@@ -8,20 +6,6 @@ export class Sprite {
     this.image.src = config.src;
     this.image.onload = () => {
       this.isLoaded = true;
-    };
-
-    // console.log(config);
-    // console.log(config.nickname);
-    // console.log(config.gameObject && config.gameObject.Person);
-
-    //Shadow
-    this.shadow = new Image();
-    this.useShadow = true; //config.useShadow || false
-    if (this.useShadow) {
-      this.shadow.src = "../../src/game/images/characters/shadow.png";
-    }
-    this.shadow.onload = () => {
-      this.isShadowLoaded = true;
     };
 
     //Configure Animation & Initial State
@@ -99,40 +83,60 @@ export class Sprite {
     }
   }
 
-  draw(ctx, cameraPerson) {
-    const x =
-      this.gameObject.x -
-      8 +
-      this.xaxios +
-      utils.withGrid(ctx.canvas.clientWidth / 16 / 2) -
-      cameraPerson.x;
-    const y =
-      this.gameObject.y -
-      18 +
-      this.yaxios +
-      utils.withGrid(ctx.canvas.clientHeight / 16 / 2) -
-      cameraPerson.y * this.yratio;
+  draw(ctx, cameraPerson, roomNum, isPlayer, angle) {
+    if (roomNum === 0) {
+      const x = this.gameObject.x - 8 + this.xaxios + utils.withGrid(ctx.canvas.clientWidth / 16 / 2) - cameraPerson.x;
+      const y = this.gameObject.y - 18 + this.yaxios + utils.withGrid(ctx.canvas.clientHeight / 16 / 2) - cameraPerson.y;
 
-    this.isShadowLoaded && ctx.drawImage(this.shadow, x, y);
+      const [frameX, frameY] = this.frame;
+      this.isLoaded && ctx.drawImage(this.image, frameX * 32, frameY * 64, 32, 64, x, y, 32, 64);
+    }
+    else {
+      if (this.gameObject.y <= cameraPerson.y && angle === 1) {
+        const dif = Math.abs(this.gameObject.y - cameraPerson.y);
+        const diff = - dif / 3000 + 1;
+        const x = (this.gameObject.x - cameraPerson.x) * (Math.exp(-dif / 1200)) - 8 + this.xaxios + utils.withGrid(ctx.canvas.clientWidth / 16 / 2);
+        const y = - 18.5 * Math.pow(Math.abs(this.gameObject.y - cameraPerson.y), 0.3) - 18 + this.yaxios + utils.withGrid(ctx.canvas.clientHeight / 16 / 2);
+        const [frameX, frameY] = this.frame;
+        this.isLoaded && ctx.drawImage(this.image, frameX * 32, frameY * 64, 32, 64, x, y - 20, 48 * diff, 96 * diff);
+      } else if (angle === 3) {
+        const dif = Math.abs(this.gameObject.y - cameraPerson.y);
+        const diff = - dif / 3000 + 1;
+        const x = -(this.gameObject.x - cameraPerson.x) * (Math.exp(-dif / 1200)) - 8 + utils.withGrid(ctx.canvas.clientWidth / 16 / 2);
+        const y = - 18.5 * Math.pow(Math.abs(this.gameObject.y - cameraPerson.y), 0.3) - 18 + this.yaxios + utils.withGrid(ctx.canvas.clientHeight / 16 / 2);
+        let [frameX, frameY] = this.frame;
+        if(!isPlayer){
+          frameX = (frameX + 6) % 12; 
+          console.log(frameX, frameY);
+        }
+        this.isLoaded && ctx.drawImage(this.image, frameX * 32, frameY * 64, 32, 64, x, y - 20, 48 * diff, 96 * diff);
+      }
+      else {
+        const x = this.gameObject.x - 8 + this.xaxios + utils.withGrid(ctx.canvas.clientWidth / 16 / 2) - cameraPerson.x;
+        const y = this.gameObject.y - 18 + this.yaxios + utils.withGrid(ctx.canvas.clientHeight / 16 / 2) - cameraPerson.y;
+        const [frameX, frameY] = this.frame;
+        this.isLoaded && ctx.drawImage(this.image, frameX * 32, frameY * 64, 32, 64, x, y, 48, 96);
+      }
+      // else if (angle === 4) {
+      //   // const x = this.gameObject.x - 18 + this.xaxios + utils.withGrid(ctx.canvas.clientWidth / 16 / 2) - cameraPerson.x;
+      //   // const y = this.gameObject.y - 8 + this.yaxios + utils.withGrid(ctx.canvas.clientHeight / 16 / 2) - cameraPerson.y;
+      //   // const [frameX, frameY] = this.frame;
+      //   // this.isLoaded && ctx.drawImage(this.image, frameX * 32, frameY * 64, 32, 64, y, x, 48, 96);
+      //   const dif = Math.abs(this.gameObject.y - cameraPerson.y);
+      //   const diff = - dif / 3000 + 1;
+      //   const x = (this.gameObject.x - cameraPerson.x) * (Math.exp(-dif / 1200)) - 8 + this.xaxios + utils.withGrid(ctx.canvas.clientWidth / 16 / 2);
+      //   const y = - 18.5 * Math.pow(Math.abs(this.gameObject.y - cameraPerson.y), 0.3) - 18 + this.yaxios + utils.withGrid(ctx.canvas.clientHeight / 16 / 2);
+      //   const [frameX, frameY] = this.frame;
+      //   this.isLoaded && ctx.drawImage(this.image, frameX * 32, frameY * 64, 32, 64, y, x - 20, 48 * diff, 96 * diff);
+      // } else if (angle === 2){
+      //   const x = this.gameObject.x - 18 + this.xaxios + utils.withGrid(ctx.canvas.clientWidth / 16 / 2) - cameraPerson.x;
+      //   const y = this.gameObject.y - 8 + this.yaxios + utils.withGrid(ctx.canvas.clientHeight / 16 / 2) - cameraPerson.y;
+      //   const [frameX, frameY] = this.frame;
+      //   this.isLoaded && ctx.drawImage(this.image, frameX * 32, frameY * 64, 32, 64, -y, x, 48, 96);
+      // }
+    }
 
-    // this.nickname = "asd" + this.gameObject.id;
 
-    // const div = document.querySelector(".nickname");
-    // const span = document.createElement("span");
-    // div.style.color = "white";
-    // div.style.textAlign = "center";
-    // div.style.position = "absolute";
-    // div.style.bottom = y + "px";
-    // div.style.right = x + "px";
-
-    // div.innerHTML = this.nickname;
-
-    // // div.appendChild(span);
-
-    const [frameX, frameY] = this.frame;
-    this.isLoaded && !this.isRotated &&
-      // ctx.drawImage(this.image, frameX * 32, frameY * 32, 32, 32, x, y, 32, 32);
-      ctx.drawImage(this.image, frameX * 32, frameY * 64, 32, 64, x, y, 32, 64);
 
     this.updateAnimationProgress();
   }
