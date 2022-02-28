@@ -5,6 +5,8 @@ import _const from "../config/const.js";
 import { useEffect, useRef, useState } from "react";
 import LoadingComponent from "../components/Loading.js";
 import { useNavigate } from "react-router";
+import styled from "styled-components";
+import { throttle } from "lodash";
 
 let myStream;
 let cameraOff = false;
@@ -20,12 +22,30 @@ var remoteConnection = []; // RTCPeerConnection for the "remote"
 
 let peopleInRoom = 1;
 
-const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) => {
+const GameLayout = styled.div`
+  display: flex; 
+  justify-content: center;
+  position: fixed;
+  align-items: center;
+  background-color: rgb(19,19,20, 1);
+`;
+
+const Overworld1 = ({
+  url,
+  Room,
+  otherMaps,
+  charMap,
+  socket,
+  setCameraPosition,
+  setYCameraPosition
+}) => {
   const [isLoading, setIsLoading] = useState(true);
   const containerEl = useRef();
   const canvasRef = useRef();
   const navigate = useNavigate();
   const directionInput = new DirectionInput();
+  let prevAngle = 1;
+  let rotationAngle = 1;
   directionInput.init();
 
   const cameraConstraints = {
@@ -36,30 +56,16 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) 
   const map = new OverworldMap(Room);
 
   let closer = [];
+
   const socketDisconnect = () => {
     socket.close();
   };
 
   useEffect(() => {
-    const keydownHandler = (e) => {
-      const player = charMap[socket.id];
-      if (
-        (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
-        player.x === 48 &&
-        player.y === 48
-      ) {
-        setOpenDraw((prev) => !prev);
-      } else if ((!openDraw && (e.key === "x" || e.key === "X" || e.key === "ㅌ"))
-        || directionInput.direction) {
-        setOpenDraw(false);
-      }
-    };
     window.addEventListener("popstate", socketDisconnect);
-    window.addEventListener("keydown", keydownHandler);
     return () => {
       window.removeEventListener("popstate", socketDisconnect);
-      window.removeEventListener("keydown", keydownHandler);
-    };
+    }
   }, []);
 
   // 안에 소켓id, nickname 있음
@@ -361,43 +367,6 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) 
   //   // chatBox.appendChild(li);
   // }
 
-  // //상대방의 마우스 커서 그리기
-  // socket.on("shareCursorPosition", (cursorX, cursorY, remoteSocketId) => {
-  //   //artsAddr로 작품을 그려주면 된다.
-  //   const draw = document.querySelector(".draw");
-  //   if (!draw) {
-  //     return;
-  //   } else if (draw?.firstChild) {
-  //     draw.removeChild(draw?.firstChild);
-  //   }
-  //   const img = document.createElement("img");
-  //   img.src = "https://img.icons8.com/ios-glyphs/344/cursor--v1.png";
-  //   // console.log(cursorX, cursorY, remoteSocketId);
-  //   img.style.top = cursorY - 240 + "px";
-  //   img.style.left = cursorX - 165 + "px";
-  //   // draw.appendChild(img);
-  //   // console.dir(img);
-  // });
-
-  // function updateDisplay(event) {
-  //   socket.emit("cursorPosition", event.pageX, event.pageY, socket.id);
-  // }
-
-  // var SharedArts = document.querySelector("#Arts");
-  // SharedArts.addEventListener("mousemove", updateDisplay, false);
-  // SharedArts.addEventListener("mouseenter", updateDisplay, false);
-  // SharedArts.addEventListener("mouseleave", updateDisplay, false);
-
-  // function popupArts() {
-  //   setOpenDraw((prev) => !prev);
-  // }
-
-  // //미술작품 공유
-  // socket.on("ShareAddr", (SocketId) => {
-  //   //artsAddr로 작품을 그려주면 된다.
-  //   console.log("Other browser check", SocketId);
-  //   popupArts();
-  // });
 
   // // 남는 사람 기준
   // socket.on("leave_succ", function (data) {
@@ -497,17 +466,22 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) 
         ctx.clearRect(0, 0, canvas?.width, canvas?.height);
 
         //Establish the camera person
-        const cameraPerson = charMap[socket.id] || map.gameObjects.player;
-        const player = charMap[socket.id];
+        const player = charMap[socket.id] || map.gameObjects.player;
+
+        if (setCameraPosition) {
+          setYCameraPosition(-player.y / 80);
+          setCameraPosition(-player.x / 80);
+        }
+
 
         //Update all objects
         Object.values(charMap).forEach((object) => {
           if (object.id === socket.id) {
             for (let i = 0; i < otherMaps.length; i++) {
-              if (object.x === otherMaps[i].x && object.y === otherMaps[i].y) {
+              if (object.y > 400 || (object.y < -1250 && object.x > 1232)) {
                 // console.log("warp!!!");
                 socket.close();
-                navigate(otherMaps[i].url);
+                navigate(url);
                 // window.location.href = `${otherMaps[i].url}`;
               }
             }
@@ -532,10 +506,10 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) 
               console.log("가까워짐");
               player.isUserCalling = true;
               object.isUserCalling = true;
-              socket.emit("user_call", {
-                caller: player.id,
-                callee: object.id,
-              });
+              // socket.emit("user_call", {
+              //   caller: player.id,
+              //   callee: object.id,
+              // });
             }
             if (
               object.isUserCalling &&
@@ -563,7 +537,7 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) 
           player.isUserJoin = false;
         }
         //Draw Lower layer
-        map.drawLowerImage(ctx, cameraPerson);
+        map.drawLowerImage(ctx, player);
 
         //Draw Game Objects
         Object.values(charMap)
@@ -571,7 +545,11 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) 
             return a.y - b.y;
           })
           .forEach((object) => {
-            object.sprite.draw(ctx, cameraPerson, map.roomNum);
+            if (object.id === player.id) {
+              object.sprite.draw(ctx, player, map.roomNum, true, rotationAngle);
+            } else {
+              object.sprite.draw(ctx, player, map.roomNum, false, rotationAngle);
+            }
 
             const objectNicknameContainer = document.getElementById(
               `${object.nickname}`
@@ -581,15 +559,14 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) 
               return;
             }
             objectNicknameContainer.style.top =
-              object.y -
-              25 +
+              object.y + 225 +
               utils.withGrid(ctx.canvas.clientHeight / 16 / 2) -
-              cameraPerson.y +
+              player.y +
               "px";
             objectNicknameContainer.style.left =
               object.x +
               utils.withGrid(ctx.canvas.clientWidth / 16 / 2) -
-              cameraPerson.x +
+              player.x +
               "px";
           });
         if (player) {
@@ -609,11 +586,84 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) 
       };
       step();
     };
+
+
+    const cameraRotate = (e) => {
+      switch (e.key) {
+        case "e": case "E": case "ㄷ":
+          rotationAngle += 1;
+          if (rotationAngle > 4) {
+            rotationAngle = 1;
+          }
+          characterRotate(rotationAngle);
+          break;
+        case "q": case "Q": case "ㅂ":
+          rotationAngle -= 1;
+          if (rotationAngle < 1) {
+            rotationAngle = 4;
+          }
+          characterRotate(rotationAngle);
+          break;
+      }
+    };
+
+    const characterRotate = (angle) => {
+      const player = charMap[socket.id];
+      switch (angle) {
+        case 1:
+          player.angle = 1;
+          directionInput.heldDirections = [];
+          directionInput.map = {
+            ArrowUp: "up",
+            ArrowDown: "down",
+            ArrowLeft: "left",
+            ArrowRight: "right",
+          };
+          prevAngle = angle;
+          break;
+        case 2:
+          player.angle = 2;
+          directionInput.heldDirections = [];
+          directionInput.map = {
+            ArrowUp: "right",
+            ArrowDown: "left",
+            ArrowLeft: "up",
+            ArrowRight: "down",
+          };
+          prevAngle = angle;
+          break;
+        case 3:
+          player.angle = 3;
+          directionInput.heldDirections = [];
+          directionInput.map = {
+            ArrowUp: "down",
+            ArrowDown: "up",
+            ArrowLeft: "right",
+            ArrowRight: "left",
+          };
+          prevAngle = angle;
+          break;
+        case 4:
+          player.angle = 4;
+          directionInput.heldDirections = [];
+          directionInput.map = {
+            ArrowUp: "left",
+            ArrowDown: "right",
+            ArrowLeft: "down",
+            ArrowRight: "up",
+          };
+          prevAngle = angle;
+          break;
+      }
+    }
+    document.addEventListener("keydown", cameraRotate);
+
     setTimeout(() => {
       setIsLoading(false);
       startGameLoop();
     }, 3000);
     return () => {
+      document.removeEventListener("keydown", cameraRotate);
       isLoop = false;
     };
   }, []);
@@ -621,15 +671,17 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) 
   return (
     <>
       {isLoading && <LoadingComponent />}
-      <div
-        ref={containerEl}
-        className="game-container"
-        style={{ backgroundColor: "black", width: "100vw", height: "100vh" }}
-      >
-        <canvas ref={canvasRef} className="game-canvas"></canvas>
-      </div>
+      <GameLayout>
+        <div
+          ref={containerEl}
+          className="game-container"
+        >
+          <canvas ref={canvasRef} className="game-canvas">
+          </canvas>
+        </div>
+      </GameLayout>
     </>
   );
 };
 
-export default Overworld;
+export default Overworld1;

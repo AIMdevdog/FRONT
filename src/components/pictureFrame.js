@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from "react";
+import { throttle } from "lodash";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 
 const PictureContainer = styled.div`
-  position: fixed;
-  overflow-y: scroll;
+  display:flex;
+  position: absolute;
   z-index: 60;
   width: 100vw;
   height: 100vh;
   margin: 0px;
   padding: 20px;
-
   background-color: rgb(0, 0, 0, 0.6);
   .layout {
     margin-left: 152px;
@@ -34,7 +34,7 @@ const Frame = styled.div`
   height: 100vh;
   background-color: rgb(255, 235, 205, 1);
   border-radius: 5px;
-  img {
+  .picture {
     position: relative;
     display: block;
     top: 50%;
@@ -52,70 +52,86 @@ const PictureInfoContainer = styled.div`
   background-color: #ffebcd;
   border-radius: 5px;
 `;
-const Cursor = styled.div`
-  img {
-    z-index: 99;
-    width: 24px;
-    height: 24px;
-    outline: none;
-    position: absolute;
-    top: ${(props) => props.isCursorY} + "px";
-    left: ${(props) => props.isCursorx} + "px";
-  }
+
+// const Comp = styled.div.attrs({
+//   style: ({ background }) => ({
+//     background
+//   }),
+// })``
+
+
+const Cursor = styled.img.attrs(props => ({
+  style:{
+    opacity: props.isCursor,
+    left: props.isCursorX + "px",
+    top: props.isCursorY + "px",
+  },
+}))
+`
+  z-index: 99;
+  width: 24px;
+  height: 24px;
+  outline: none;
+  position: fixed;
 `;
 
 const PictureFrame = ({ collapsed, socket }) => {
+  const ref = useRef();
+  const [isCursor, setIsCursor] = useState(0);
   const [isCursorX, setIsCursorX] = useState(0);
   const [isCursorY, setIsCursorY] = useState(0);
 
   function updateDisplay(event) {
-    console.log(event);
-    socket.emit("cursorPosition", event.pageX, event.pageY, socket.id);
+    // console.dir(ref)
+    console.log(ref.current.clientWidth, ref.current.clientHeight, ref.current.offsetLeft);
+    const xRatio = (event.pageX - ref.current.offsetLeft) / ref.current.clientWidth;
+    const yRatio = (event.pageY) / ref.current.clientHeight;
+    // // console.log(xRatio, yRatio);
+    socket.emit("cursorPosition", xRatio, yRatio, socket.id);
   }
+  const throttleUpdateDisplay = throttle(updateDisplay, 16);
 
-  useEffect(() => {
-    socket.on("shareCursorPosition", (cursorX, cursorY, remoteSocketId) => {
-      //artsAddr로 작품을 그려주면 된다.
-      // const draw = document.querySelector(".draw");
-      // if (!draw) {
-      //   return;
-      // } else if (draw?.firstChild) {
-      //   draw.removeChild(draw?.firstChild);
-      // }
-      // const img = document.createElement("img");
-      // img.src = "https://img.icons8.com/ios-glyphs/344/cursor--v1.png";
-      // console.log(cursorX, cursorY, remoteSocketId);
-      setIsCursorY(cursorY - 240);
-      setIsCursorX(cursorX - 165);
-      // img.style.top = cursorY - 240 + "px";
-      // img.style.left = cursorX - 165 + "px";
-      // draw.appendChild(img);
-      // console.dir(img);
-    });
-  }, []);
-
+  socket.on("shareCursorPosition", (xRatio, yRatio, remoteSocketId) => {
+    setIsCursor(1);
+    const ref = document.querySelector(".frame");
+    setIsCursorX(ref.offsetLeft + xRatio * ref.clientWidth);
+    setIsCursorY(yRatio * ref.clientHeight);    
+    // console.dir(ref.current.clientWidth, ref.current.clientHeight);
+    // setIsCursorX(ref.current.offsetLeft + xRatio * ref.current.clientWidth);
+    // setIsCursorY(yRatio * ref.current.clientHeight);
+  });
   return (
     <PictureContainer
-      onMouseEnter={updateDisplay}
-      onMouseLeave={updateDisplay}
-      onMouseMove={updateDisplay}
+      onMouseEnter={throttleUpdateDisplay}
+      onMouseLeave={throttleUpdateDisplay}
+      onMouseMove={throttleUpdateDisplay}
       className="share-arts-container"
     >
-      <div className={collapsed ? "layout" : "layout2"}>
-        <Frame>
+      <div
+        className="layout"
+      >
+        <Frame
+          className="frame"
+          ref={ref}
+        >
           <img
+            className="picture"
             src="https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1672&q=80"
             alt="image1"
           />
-          <Cursor isCursorY={isCursorY} isCursorX={isCursorX} className="draw">
-            <img
-              src="https://img.icons8.com/ios-glyphs/344/cursor--v1.png"
-              alt="img"
-            />
-          </Cursor>
+          <Cursor
+            isCursor={isCursor}
+            isCursorX={isCursorX}
+            isCursorY={isCursorY}
+            className="cursor"
+            src="https://img.icons8.com/ios-glyphs/344/cursor--v1.png"
+            alt="img"
+          />
         </Frame>
         <PictureInfoContainer> hello </PictureInfoContainer>
       </div>
+      {/* <Cursor isCursorX={isCursorX} isCursorY={isCursorY} className="draw">
+      </Cursor> */}
     </PictureContainer>
   );
 };

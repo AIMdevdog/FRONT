@@ -3,13 +3,6 @@ import { useNavigate, useParams } from "react-router";
 import Overworld from "../game/Overworld";
 import { Person } from "../game/Person";
 import React from "react";
-import {
-  FaVideoSlash,
-  FaVideo,
-  FaVolumeUp,
-  FaVolumeMute,
-  FaVolumeOff,
-} from "react-icons/fa";
 import RoomSideBar from "../components/RoomSidebar";
 import styled from "styled-components";
 import VideoButton from "../components/VideoButton";
@@ -111,28 +104,8 @@ const CamBtn = styled.div`
     left: 50%;
   }
 `;
-// const ShareArt = styled.div`
-//   div{
-//     position: fixed;
-//     width: 500px;
-//     height: 500px;
-//     background-color: red;
-//     left: 30%;
-//     top: 30%;
-//   }
-// `;
-
-// const Draw = styled.div`
-//   position: fixed;
-//   width: 500px;
-//   height: 500px;
-//   background-color: red;
-//   left: 30%;
-//   top: 30%;
-// `;
 
 const Room = ({ userData }) => {
-  const characters = [];
   const charMap = {};
   const [socket, setSocket] = useState(null);
   const params = useParams();
@@ -169,8 +142,6 @@ const Room = ({ userData }) => {
 
       socket.on("get_user_info", function (data) {
         const user = joinUser(data.id, data.x, data.y, data.nickname, data.src);
-        // characters.push(user);
-        // setIsCharacter([...isCharacter, user]);
         setIsCharacter((prev) => [...prev, user]);
 
         charMap[data.id] = user;
@@ -219,9 +190,7 @@ const Room = ({ userData }) => {
     {
       x: 16,
       y: 448,
-      url: `/room3/${roomId}`,
-      // url: `/room/27`,
-      // url: "/room1",
+      url: `/room1/${roomId}`,
     },
   ];
 
@@ -241,7 +210,6 @@ const Room = ({ userData }) => {
               adjust={adjust}
               otherMaps={otherMaps}
               charMap={charMap}
-              characters={characters}
               socket={socket}
               openDraw={openDraw}
             />

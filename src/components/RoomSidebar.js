@@ -296,13 +296,11 @@ const ShareButton = styled.button`
 `;
 
 const RoomSideBar = ({
-  url,
   collapsed,
   setCollapsed,
   openDraw,
   setOpenDraw,
   socket,
-  charMap,
   characters,
 }) => {
   const navigate = useNavigate();
@@ -325,7 +323,7 @@ const RoomSideBar = ({
   };
   const onExitRoom = () => {
     socket.close();
-    navigate(url);
+    navigate('/lobby');
   };
 
   useEffect(() => {
