@@ -65,7 +65,7 @@ const images = [
     position: [3.5 * GOLDENRATIO + 2, 0, -3.6 * GOLDENRATIO],
     rotation: [0, Math.PI / 2, 0],
     url: pexel(358574),
-    half:"half",
+    half: "half",
   },
   // BACK left
   {
@@ -79,7 +79,7 @@ const images = [
     url: "https://images.pexels.com/photos/8152335/pexels-photo-8152335.png?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
   },
   {
-    position: [8 * GOLDENRATIO-0.5, 0, -11 * GOLDENRATIO - 3.4],
+    position: [8 * GOLDENRATIO - 0.5, 0, -11 * GOLDENRATIO - 3.4],
     rotation: [0, Math.PI, 0],
     url: pexel(3156125),
     half: "half",
@@ -329,6 +329,7 @@ const Room = ({ userData }) => {
           <VideoButton />
         </CamBtn>
       </MyVideoBox>
+      <ScreenBottomBar />
     </>
   );
 };

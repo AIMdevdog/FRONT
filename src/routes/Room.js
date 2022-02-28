@@ -236,7 +236,6 @@ const Room = ({ userData }) => {
         </CamBtn>
       </MyVideoBox>
       <ScreenBottomBar />
-      <ScreenBottomBar />
       {/* <div id="share" style={{position: 'absolute', top: 0, right: 0}}>
           <button>share</button>
         </div> */}
