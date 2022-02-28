@@ -20,6 +20,7 @@ instance.defaults.headers.common["Access-Control-Allow-Origin"] =
     "https://d2ri7cyfi98bjj.cloudfront.net",
     "http://localhost:8000",
     "https://server.dev-team-aim.com",
+    "https://test-server.dev-team-aim.com",
   ];
 instance.defaults.headers.common["Access-Control-Allow-Headers"] = "*";
 instance.defaults.headers.common["Access-Control-Allow-Credentials"] = true;
