@@ -62,24 +62,7 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) 
     };
   }, []);
 
-  const share = document.querySelector("#share");
-  share.addEventListener("click", sendArtsAddr);
-
-  async function sendArtsAddr() {
-    const shareChecked = document.querySelectorAll(
-      "input[name='share-checkbox-name']:checked"
-    );
-    const sender = socket.id;
-    let receivers = [];
-
-    shareChecked.forEach((shareSocketId) => {
-      receivers.push(shareSocketId.value);
-    });
-
-    const artsAddr =
-      "https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1672&q=80";
-    socket.emit("ArtsAddr", artsAddr, sender, receivers);
-  }
+  useEffect(()=>{
 
   initCall();
 
@@ -308,94 +291,11 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) 
     }
   }
 
-  // chat form
-
-  const chatForm = document.querySelector("#chatForm");
-  const chatBox = document.querySelector("#chatBox");
-
-  const MYCHAT_CN = "myChat";
-  const NOTICE_CN = "noticeChat";
-
-  chatForm.addEventListener("submit", handleChatSubmit);
-
-  function handleChatSubmit(event) {
-    event.preventDefault();
-    const chatInput = chatForm.querySelector("input");
-    const message = chatInput.value;
-    chatInput.value = "";
-
-    let groupName = 1;
-
-    socket.emit("chat", `${nickname}: ${message}`, groupName);
-    writeChat(`You: ${message}`, MYCHAT_CN);
-  }
-
-  function writeChat(message, className = null) {
-    const li = document.createElement("li");
-    const span = document.createElement("span");
-    span.innerText = message;
-    li.appendChild(span);
-    li.classList.add(className);
-    li.classList.add("message-list");
-    chatBox.appendChild(li);
-  }
-
-  //상대방의 마우스 커서 그리기
-  socket.on("shareCursorPosition", (cursorX, cursorY, remoteSocketId) => {
-    //artsAddr로 작품을 그려주면 된다.
-    const draw = document.querySelector(".draw");
-    if (!draw) {
-      return;
-    } else if (draw?.firstChild) {
-      draw.removeChild(draw?.firstChild);
-    }
-    const img = document.createElement("img");
-    img.src = "https://img.icons8.com/ios-glyphs/344/cursor--v1.png";
-    // console.log(cursorX, cursorY, remoteSocketId);
-    img.style.top = cursorY - 240 + "px";
-    img.style.left = cursorX - 165 + "px";
-    draw.appendChild(img);
-    // console.dir(img);
-  });
-
-  function updateDisplay(event) {
-    socket.emit("cursorPosition", event.pageX, event.pageY, socket.id);
-  }
-
-  var SharedArts = document.querySelector("#Arts");
-  SharedArts.addEventListener("mousemove", updateDisplay, false);
-  SharedArts.addEventListener("mouseenter", updateDisplay, false);
-  SharedArts.addEventListener("mouseleave", updateDisplay, false);
-
-  function popupArts(artsAddr) {
-    const div = document.createElement("div");
-    try {
-      const artsImg = document.createElement("img");
-      artsImg.src = `${artsAddr}`;
-      div.appendChild(artsImg);
-      SharedArts.appendChild(div);
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  //미술작품 공유
-  socket.on("ShareAddr", (artsAddr, SocketId) => {
-    //artsAddr로 작품을 그려주면 된다.
-    console.log("Other browser check", artsAddr, SocketId);
-    //true, false로 그리고 안그리고 
-    popupArts(artsAddr);
-  });
-
   // 남는 사람 기준
   socket.on("leave_succ", function (data) {
     const user = charMap[data.removeSid];
     user.isUserJoin = false;
     removePeerFace(data.removeSid);
-  });
-
-  socket.on("chat", (message) => {
-    writeChat(message);
   });
 
   socket.on("accept_join", async (userObjArr) => {
@@ -464,85 +364,7 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) 
     //   console.log("iceCandidate 실패! 재연결 시도");
     // }
   });
-
-  let nicknameDiv;
-  let userListItem;
-  let userImg;
-  let userNicknameSpan;
-  let onOffButton;
-  let shareInput;
-  let userInfoDiv;
-
-  socket.on("join_user", function (data) {
-    //====================  비디오 추가 함수 =================//
-    console.log("새로운 유저 접속");
-
-    socket.emit("send_user_info", {
-      src: map.gameObjects.player.sprite.image.src,
-      x: map.gameObjects.player.x,
-      y: map.gameObjects.player.y,
-      nickname: nickname,
-      roomId,
-    });
-  });
-
-  socket.on("get_user_info", function (data) {
-    // console.log(data);
-    joinUser(data.id, data.x, data.y, data.nickname, data.src);
-
-    nicknameDiv = document.createElement("div");
-    nicknameDiv.id = data.nickname;
-    nicknameDiv.innerHTML = data.nickname;
-
-    nicknameDiv.style.width = 100;
-    nicknameDiv.style.transform = "translateX(-40%)";
-    nicknameDiv.style.backgroundColor = "rgba(0, 0, 0, 0.6)";
-    nicknameDiv.style.padding = "6px";
-    nicknameDiv.style.borderRadius = "6px";
-    nicknameDiv.style.color = "white";
-    nicknameDiv.style.fontSize = "12px";
-    nicknameDiv.style.textAlign = "center";
-    nicknameDiv.style.position = "absolute";
-
-    nicknameContainer.appendChild(nicknameDiv);
-
-    // user list
-    const userList = document.querySelector(".user-list");
-
-    // for (let i = 0; i < data?.length; i ++) {
-    // }
-
-    userListItem = document.createElement("li");
-    userNicknameSpan = document.createElement("span");
-    userImg = document.createElement("img");
-    userInfoDiv = document.createElement("div");
-    shareInput = document.createElement("input");
-    onOffButton = document.createElement("p");
-
-    userImg.src = data.src;
-    userListItem.className = data.id;
-    userNicknameSpan.innerHTML = data.nickname;
-    shareInput.type = "checkbox";
-    shareInput.className = "share-checkbox";
-    shareInput.name = "share-checkbox-name";
-    shareInput.value = data.id;
-
-    userInfoDiv.appendChild(userImg);
-    userInfoDiv.appendChild(userNicknameSpan);
-    userListItem.appendChild(userInfoDiv);
-    userListItem.appendChild(onOffButton);
-    userListItem.appendChild(shareInput);
-
-    userList.appendChild(userListItem);
-  });
-
-  socket.on("leave_user", function (data) {
-    leaveUser(data);
-  });
-
-  socket.on("update_state", function (data) {
-    updateLocation(data);
-  });
+  },[])
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
