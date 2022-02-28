@@ -281,7 +281,7 @@ const Overworld = (data) => {
     video: {
       cursor: "always",
     },
-    audio: false,
+    audio: true,
   };
 
   async function getMedia(sharing) {
@@ -293,7 +293,7 @@ const Overworld = (data) => {
       // console.log("mystream", myStream);
       // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
       myFace.srcObject = myStream;
-      myFace.muted = true;
+      myFace.muted = false;
 
       myStream // mute default
         .getAudioTracks()
@@ -311,11 +311,11 @@ const Overworld = (data) => {
       console.log("mystream", myStream);
       // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
       myFace.srcObject = myStream;
-      myFace.muted = true;
+      myFace.muted = false;
 
       myStream // mute default
         .getAudioTracks()
-        .forEach((track) => (track.enabled = false));
+        .forEach((track) => (track.enabled = true));
     }
   }
 
