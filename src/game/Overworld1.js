@@ -214,49 +214,6 @@ const Overworld1 = ({
       }
     }
 
-    async function handleScreenSharing() {
-      try {
-        console.log("handleScreenSharing 실행");
-        await getMedia(true);
-        const peerConnectionObjArr = Object.values(pcObj);
-        if (peerConnectionObjArr.length > 0) {
-          const newVideoTrack = myStream.getVideoTracks()[0];
-          peerConnectionObjArr.forEach((peerConnection) => {
-            console.log("peerConnection", peerConnection);
-            const peerVideoSender = peerConnection
-              .getSenders()
-              .find((sender) => sender.track.kind === "video");
-            peerVideoSender.replaceTrack(newVideoTrack);
-          });
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    }
-    async function closeScreenSharing() {
-      try {
-        console.log("closeScreenSharing 실행");
-        await getMedia(false);
-        const peerConnectionObjArr = Object.values(pcObj);
-        if (peerConnectionObjArr.length > 0) {
-          const newVideoTrack = myStream.getVideoTracks()[0];
-          peerConnectionObjArr.forEach((peerConnection) => {
-            console.log("peerConnection", peerConnection);
-            const peerVideoSender = peerConnection
-              .getSenders()
-              .find((sender) => sender.track.kind === "video");
-            peerVideoSender.replaceTrack(newVideoTrack);
-          });
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    }
-    const shareBtn = document.querySelector("#shareBtn");
-    const myFaceBtn = document.querySelector("#myFaceBtn");
-    shareBtn.addEventListener("click", handleScreenSharing);
-    myFaceBtn.addEventListener("click", closeScreenSharing);
-
     function handleMuteClick() {
       myStream
         .getAudioTracks()

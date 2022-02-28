@@ -329,7 +329,7 @@ const Room = ({ userData }) => {
           <VideoButton />
         </CamBtn>
       </MyVideoBox>
-      <ScreenBottomBar />
+      {/* <ScreenBottomBar /> */}
     </>
   );
 };
