@@ -692,4 +692,3 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) 
 };
 
 export default Overworld;
-
