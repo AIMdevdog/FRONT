@@ -92,7 +92,7 @@ const PictureFrame = ({ collapsed, socket }) => {
     // // console.log(xRatio, yRatio);
     socket.emit("cursorPosition", xRatio, yRatio, socket.id);
   }
-  const throttleUpdateDisplay = throttle(updateDisplay, 50);
+  const throttleUpdateDisplay = throttle(updateDisplay, 16);
 
   socket.on("shareCursorPosition", (xRatio, yRatio, remoteSocketId) => {
     setIsCursor(1);
