@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 
 const PictureContainer = styled.div`
-  display:flex;
+  display: flex;
   position: absolute;
   z-index: 60;
   width: 100vw;
@@ -59,15 +59,13 @@ const PictureInfoContainer = styled.div`
 //   }),
 // })``
 
-
-const Cursor = styled.img.attrs(props => ({
-  style:{
+const Cursor = styled.img.attrs((props) => ({
+  style: {
     opacity: props.isCursor,
     left: props.isCursorX + "px",
     top: props.isCursorY + "px",
   },
-}))
-`
+}))`
   z-index: 99;
   width: 24px;
   height: 24px;
@@ -83,9 +81,14 @@ const PictureFrame = ({ collapsed, socket }) => {
 
   function updateDisplay(event) {
     // console.dir(ref)
-    console.log(ref.current.clientWidth, ref.current.clientHeight, ref.current.offsetLeft);
-    const xRatio = (event.pageX - ref.current.offsetLeft) / ref.current.clientWidth;
-    const yRatio = (event.pageY) / ref.current.clientHeight;
+    console.log(
+      ref.current.clientWidth,
+      ref.current.clientHeight,
+      ref.current.offsetLeft
+    );
+    const xRatio =
+      (event.pageX - ref.current.offsetLeft) / ref.current.clientWidth;
+    const yRatio = event.pageY / ref.current.clientHeight;
     // // console.log(xRatio, yRatio);
     socket.emit("cursorPosition", xRatio, yRatio, socket.id);
   }
@@ -95,7 +98,7 @@ const PictureFrame = ({ collapsed, socket }) => {
     setIsCursor(1);
     const ref = document.querySelector(".frame");
     setIsCursorX(ref.offsetLeft + xRatio * ref.clientWidth);
-    setIsCursorY(yRatio * ref.clientHeight);    
+    setIsCursorY(yRatio * ref.clientHeight);
     // console.dir(ref.current.clientWidth, ref.current.clientHeight);
     // setIsCursorX(ref.current.offsetLeft + xRatio * ref.current.clientWidth);
     // setIsCursorY(yRatio * ref.current.clientHeight);
@@ -107,13 +110,8 @@ const PictureFrame = ({ collapsed, socket }) => {
       onMouseMove={throttleUpdateDisplay}
       className="share-arts-container"
     >
-      <div
-        className="layout"
-      >
-        <Frame
-          className="frame"
-          ref={ref}
-        >
+      <div className="layout">
+        <Frame className="frame" ref={ref}>
           <img
             className="picture"
             src="https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1672&q=80"
