@@ -297,7 +297,7 @@ const Overworld = (data) => {
 
       myStream // mute default
         .getAudioTracks()
-        .forEach((track) => (track.enabled = false));
+        .forEach((track) => (track.enabled = true));
       const track = myStream.getVideoTracks()[0];
       params = {
         track,
