@@ -663,6 +663,7 @@ const Overworld1 = ({
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
+    let dataBuffer = [];
     let isLoop = true;
     const bufferSend = (player, data) => {
       dataBuffer.push(data);
