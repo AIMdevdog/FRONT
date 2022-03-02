@@ -201,6 +201,7 @@ const Room = ({ userData }) => {
             />
             <Overworld
               setOpenDraw={setOpenDraw}
+              roomId={roomId}
               Room={room}
               charMap={charMap}
               socket={socket}
