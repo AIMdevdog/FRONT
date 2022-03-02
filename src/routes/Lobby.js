@@ -1,6 +1,6 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import styled from "styled-components";
 // import RoomItemComponent from "../components/RoomItem";
 import { user, room } from "../config/api";
@@ -15,12 +15,9 @@ import LoadingComponent from "../components/Loading";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import moment from "moment";
-import { Cookies } from "react-cookie";
+import "moment/locale/ko";
 import { connect } from "react-redux";
 import ReactModal from "react-modal";
-import { actionCreators } from "../store";
-
-const cookies = new Cookies();
 
 const LobbyContainer = styled.div`
   display: flex;
