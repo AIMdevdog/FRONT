@@ -57,7 +57,14 @@ let isProducer = false;
 
 let peopleInRoom = 1;
 
-const Overworld = ({ setOpenDraw, Room, roomId, charMap, socket, openDraw }) => {
+const Overworld = ({
+  setOpenDraw,
+  Room,
+  roomId,
+  charMap,
+  socket,
+  openDraw,
+}) => {
   const [isLoading, setIsLoading] = useState(true);
   const containerEl = useRef();
   const canvasRef = useRef();
@@ -728,7 +735,7 @@ const Overworld = ({ setOpenDraw, Room, roomId, charMap, socket, openDraw }) => 
     let isLoop = true;
     const startGameLoop = () => {
       const step = () => {
-        canvas.width = window.innerWidth - 64;
+        canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
         //Clear off the canvas
@@ -748,7 +755,11 @@ const Overworld = ({ setOpenDraw, Room, roomId, charMap, socket, openDraw }) => 
               socket.close();
               navigate(`/room1/${roomId}`);
               // window.location.href = `${otherMaps[i].url}`;
-            } else if (object.x >= 976 && object.x <= 1040 && object.y >= 1136) {
+            } else if (
+              object.x >= 976 &&
+              object.x <= 1040 &&
+              object.y >= 1136
+            ) {
               // console.log("warp!!!");
               socket.close();
               navigate(`/room2/${roomId}`);
@@ -831,8 +842,7 @@ const Overworld = ({ setOpenDraw, Room, roomId, charMap, socket, openDraw }) => 
               "px";
             objectNicknameContainer.style.left =
               object.x +
-              utils.withGrid(ctx.canvas.clientWidth / 16 / 2) +
-              64 -
+              utils.withGrid(ctx.canvas.clientWidth / 16 / 2) -
               cameraPerson.x +
               "px";
           });

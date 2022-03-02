@@ -8,7 +8,7 @@ import styled from "styled-components";
 import VideoButton from "../components/VideoButton";
 import { connect } from "react-redux";
 import ScreenBottomBar from "../components/ScreenBottomBar";
-import PictureFrame from "../components/pictureFrame"
+import PictureFrame from "../components/pictureFrame";
 import { joinUser, updateLocation } from "../utils/game/character";
 import { io } from "socket.io-client";
 import _const from "../config/const";
@@ -163,8 +163,7 @@ const Room = ({ userData }) => {
   }, [isUser, socket]);
 
   const room = {
-    RoomSrc:
-      "https://aim-front.s3.ap-northeast-2.amazonaws.com/aim-map.png",
+    RoomSrc: "https://aim-front.s3.ap-northeast-2.amazonaws.com/aim-map.png",
     roomNum: 0,
     gameObjects: {
       player: new Person({
@@ -189,14 +188,6 @@ const Room = ({ userData }) => {
                 <PictureFrame collapsed={collapsed} socket={socket} />
               </div>
             ) : null}
-            <Overworld
-              setOpenDraw={setOpenDraw}
-              Room={room}
-              roomId={roomId}
-              charMap={charMap}
-              socket={socket}
-              openDraw={openDraw}
-            />
             <CharacterNickname nicknames={nicknames} />
             <RoomSideBar
               url={url}
@@ -211,13 +202,10 @@ const Room = ({ userData }) => {
             <Overworld
               setOpenDraw={setOpenDraw}
               Room={room}
-              adjust={adjust}
-              otherMaps={otherMaps}
               charMap={charMap}
               socket={socket}
               openDraw={openDraw}
             />
-            <CharacterNickname nicknames={nicknames} />
           </>
         ) : null}
       </div>
@@ -242,6 +230,5 @@ function mapStateProps(state) {
     userData: state,
   };
 }
-
 
 export default connect(mapStateProps)(Room);
