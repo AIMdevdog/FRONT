@@ -320,7 +320,7 @@ const RoomItemComponent = (props) => {
         const {
           data: { data },
         } = result;
-        console.log(result);
+        // console.log(result);
         setIsSaveUserData(data);
       } catch (e) {
         console.log(e);

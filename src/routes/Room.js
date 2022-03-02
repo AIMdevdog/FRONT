@@ -163,7 +163,9 @@ const Room = ({ userData }) => {
   }, [isUser, socket]);
 
   const room = {
-    RoomSrc: "https://aim-front.s3.ap-northeast-2.amazonaws.com/aim-map.png",
+    // RoomSrc: "https://aim-front.s3.ap-northeast-2.amazonaws.com/aim-map.png",
+    RoomSrc:
+      "https://aim-front.s3.ap-northeast-2.amazonaws.com/KakaoTalk_Photo_2022-03-02-22-46-03-1.png",
     roomNum: 0,
     gameObjects: {
       player: new Person({

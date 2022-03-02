@@ -432,7 +432,7 @@ const RoomSideBar = ({
     setSharePrompt(false);
   };
 
-  console.log(checkedArr, "----");
+  // console.log(checkedArr, "----");
 
   return (
     <Layout>
