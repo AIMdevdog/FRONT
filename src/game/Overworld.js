@@ -111,16 +111,16 @@ const Overworld = ({
   useEffect(() => {
     initCall();
 
-    async function handleAddStream(event, remoteSocketId, remoteNickname) {
+    async function handleAddStream(event, remoteSocketId) {
       const peerStream = event.stream;
       console.log(peerStream);
       const user = charMap[remoteSocketId]; // person.js에 있는 거랑 같이
-
+      console.log("haddleAddStream USER: ", user);
       if (!user.isUserJoin) {
         // 유저가 어떤 그룹에도 속하지 않을 때 영상을 키겠다
         user.isUserJoin = true;
         try {
-          await paintPeerFace(peerStream, remoteSocketId, remoteNickname);
+          await paintPeerFace(peerStream, remoteSocketId);
         } catch (err) {
           console.error(err);
         }
@@ -128,7 +128,9 @@ const Overworld = ({
     }
 
     // 영상 connect
-    async function paintPeerFace(peerStream, remoteProducerId, remoteNickname) {
+    async function paintPeerFace(peerStream, remoteProducerId, socketId) {
+      // console.log("charMap: ", charMap);
+      // console.log("socketId: ", socketId);
       const streams = document.querySelector("#streams");
       const div = document.createElement("div");
       // div.classList.add("userVideoContainer");
@@ -484,8 +486,8 @@ const Overworld = ({
     };
 
     // server informs the client of a new producer just joined
-    socket.on("new-producer", ({ producerId }) =>
-      signalNewConsumerTransport(producerId)
+    socket.on("new-producer", ({ producerId, socketId }) =>
+      signalNewConsumerTransport(producerId, socketId)
     );
 
     const getProducers = () => {
@@ -501,9 +503,8 @@ const Overworld = ({
       });
     };
 
-    const signalNewConsumerTransport = async (remoteProducerId) => {
+    const signalNewConsumerTransport = async (remoteProducerId, socketId) => {
       console.log("signalNewConsumerTransport 실행");
-
       await socket.emit(
         "createWebRtcTransport",
         { consumer: true },
@@ -551,7 +552,7 @@ const Overworld = ({
               }
             }
           );
-          connectRecvTransport(consumerTransport, remoteProducerId, params.id);
+          connectRecvTransport(consumerTransport, remoteProducerId, params.id, socketId);
         }
       );
     };
@@ -559,7 +560,8 @@ const Overworld = ({
     const connectRecvTransport = async (
       consumerTransport,
       remoteProducerId,
-      serverConsumerTransportId
+      serverConsumerTransportId, 
+      socketId,
     ) => {
       console.log("connectRecvTransport 실행");
 
@@ -578,7 +580,7 @@ const Overworld = ({
             console.log("******Cannot Consume******");
             return;
           }
-
+          console.log(params.socketId);
           console.log(`******Consumer Params ${params}*******`);
           // then consume with the local consumer transport
           // which creates a consumer
@@ -598,24 +600,13 @@ const Overworld = ({
               consumer,
             },
           ];
-
-          // create a new div element for the new consumer media
-          // and append to the video container
-          // const newElem = document.createElement("div")
-          // newElem.setAttribute('id', `td-${remoteProducerId}`)
-          // newElem.setAttribute('class', 'remoteVideo')
-          // newElem.innerHTML = '<video id="' + remoteProducerId + '" autoplay class="video" ></video>'
-          // videoContainer.appendChild(newElem)
-
           // destructure and retrieve the video track from the producer
           const { track } = consumer;
           console.log("---------------- consumer : ", consumer);
           console.log("---------------- params : ", params);
           const peerStream = new MediaStream([track]);
-          // console.log("----------- peer's Track : ", track)
-          // console.log('**************', peerStream);
           try {
-            await paintPeerFace(peerStream, remoteProducerId, "nickname");
+            await paintPeerFace(peerStream, remoteProducerId, params.socketId);
           } catch (e) {
             console.log(e);
           }

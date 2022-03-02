@@ -688,11 +688,11 @@ const Overworld1 = ({
             for (let i = 0; i < otherMaps.length; i++) {
               if (map.roomNum === 3 && object.y > 656 || (object.y < -1250 && object.x > 1232)) {
                 socket.close();
-                navigate(url);
+                navigate(url, {state: {x: 1584, y: 784}});
               }
               else if (map.roomNum === 2 && object.y > 208){
                 socket.close();
-                navigate(url);
+                navigate(url, {state: {x: 1008, y: 1072}});
               }
             }
             object.update({

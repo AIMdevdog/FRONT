@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useLocation, useNavigate, useParams } from "react-router";
 import Overworld from "../game/Overworld";
 import { Person } from "../game/Person";
 import React from "react";
@@ -108,7 +108,7 @@ const Room = ({ userData }) => {
   const charMap = {};
   const [socket, setSocket] = useState(null);
   const params = useParams();
-  const navigate = useNavigate();
+  const location = useLocation();
   const roomId = params.roomId;
   const url = "/lobby";
   const [nicknames, setNicknames] = useState([]);
@@ -131,8 +131,8 @@ const Room = ({ userData }) => {
         console.log("새로운 유저 접속");
         socket.emit("send_user_info", {
           src: isUser.character,
-          x: 1552,
-          y: 1424,
+          x: location.state.x,
+          y: location.state.y,
           nickname: isUser.nickname,
           roomId: "room" + roomId,
         });
