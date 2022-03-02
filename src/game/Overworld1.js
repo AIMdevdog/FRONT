@@ -663,6 +663,7 @@ const Overworld1 = ({
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
+    let dataBuffer = [];
     let isLoop = true;
     const bufferSend = (player, data) => {
       dataBuffer.push(data);
@@ -672,7 +673,7 @@ const Overworld1 = ({
           && element.x === player.x 
           && element.y === player.y
       ).length;
-      if (stay_num > 5){
+      if (stay_num > 4){
         dataBuffer = [];
       }
       if(dataBuffer.length > 4){

@@ -459,13 +459,14 @@ const Header = ({ userData, loadUserData }) => {
     setIsPath(pathname);
     isLogged();
   }, [isPath]);
-
   useEffect(() => {
-    loadUserData();
-
     userData.then((data) => {
       setIsSaveUserData(data)
     })
+  }, userData)
+
+  useEffect(() => {
+    loadUserData();
     // const getUser = async () => {
     //   try {
     //     const requestUserData = await user.getUserInfo();
@@ -479,7 +480,6 @@ const Header = ({ userData, loadUserData }) => {
     //     console.log(e);
     //   }
     // };
-
     // getUser();
   }, []);
 
