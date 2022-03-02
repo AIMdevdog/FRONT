@@ -42,6 +42,16 @@ const StreamsContainer = styled.div`
         cursor: pointer;
       }
     }
+
+    .videoNickname{
+      display: inline;
+      position: absolute;
+      background-color: rgb(0, 0, 0, 0.6);
+      padding: 5px;
+      border-radius: 10px;
+      color: white;
+    }
+
   }
 `;
 
