@@ -64,6 +64,8 @@ const Overworld = ({
   charMap,
   socket,
   openDraw,
+  setOpenPPT,
+  setOpenPPT2
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   const containerEl = useRef();
@@ -88,9 +90,9 @@ const Overworld = ({
     const keydownHandler = (e) => {
       const player = charMap[socket.id];
       if (
-        (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
-        player.x === 720 &&
-        player.y === 912
+        (e.key === "x" || e.key === "X" || e.key === "ㅌ")
+        && (player.x === 720 || player.x === 752)
+        && player.y === 880
       ) {
         setOpenDraw((prev) => !prev);
       } else if (
@@ -98,6 +100,32 @@ const Overworld = ({
         directionInput.direction
       ) {
         setOpenDraw(false);
+      }
+
+      if (
+        (e.key === "x" || e.key === "X" || e.key === "ㅌ")
+        && player.x === 1680
+        && player.y === 1328
+      ) {
+        setOpenPPT((prev) => !prev);
+      } else if (
+        (!openDraw && (e.key === "x" || e.key === "X" || e.key === "ㅌ")) ||
+        directionInput.direction
+      ) {
+        setOpenPPT(false);
+      }
+
+      if (
+        (e.key === "x" || e.key === "X" || e.key === "ㅌ")
+        && player.x === 1456
+        && player.y === 784
+      ) {
+        setOpenPPT2((prev) => !prev);
+      } else if (
+        (!openDraw && (e.key === "x" || e.key === "X" || e.key === "ㅌ")) ||
+        directionInput.direction
+      ) {
+        setOpenPPT2(false);
       }
     };
     window.addEventListener("popstate", socketDisconnect);
@@ -504,7 +532,7 @@ const Overworld = ({
         // for each of the producer create a consumer
         producerIds.forEach(ids => signalNewConsumerTransport(ids.producerId, ids.socketId))
         // producerIds.forEach(signalNewConsumerTransport);
-        
+
       });
     };
 
@@ -565,7 +593,7 @@ const Overworld = ({
     const connectRecvTransport = async (
       consumerTransport,
       remoteProducerId,
-      serverConsumerTransportId, 
+      serverConsumerTransportId,
       remoteSocketID,
     ) => {
       console.log("connectRecvTransport 실행");
@@ -727,24 +755,24 @@ const Overworld = ({
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d", {alpha: false});
+    const ctx = canvas.getContext("2d", { alpha: false });
     let dataBuffer = [];
     let isLoop = true;
     const bufferSend = (player, data) => {
       dataBuffer.push(data);
       let stay_num = dataBuffer.filter(
         (element) =>
-          element.direction === undefined 
-          && element.x === player.x 
+          element.direction === undefined
+          && element.x === player.x
           && element.y === player.y
       ).length;
-      if (stay_num > 4){
+      if (stay_num > 4) {
         dataBuffer = [];
       }
-      if(dataBuffer.length > 4){
+      if (dataBuffer.length > 4) {
         socket.emit("input", dataBuffer);
         dataBuffer = [];
-      } 
+      }
     }
     const startGameLoop = () => {
       const step = () => {
@@ -761,33 +789,26 @@ const Overworld = ({
         //Update all objects
         Object.values(charMap).forEach((object) => {
           if (object.id === socket.id) {
-            // for (let i = 0; i < otherMaps.length; i++) {
+            console.log(object.x, object.y);
             if (object.x >= 1552 && object.x <= 1616 && object.y <= 720) {
-              // console.log("warp!!!");
               socket.close();
               navigate(`/room1/${roomId}`);
-              // window.location.href = `${otherMaps[i].url}`;
             } else if (
               object.x >= 976 &&
               object.x <= 1040 &&
               object.y >= 1136
             ) {
-              // console.log("warp!!!");
               socket.close();
               navigate(`/room2/${roomId}`);
-              // window.location.href = `${otherMaps[i].url}`;
             }
-            // }
             object.update({
               arrow: directionInput.direction,
               map: map,
-              // id: socket.id,
             });
           } else {
             object.update({
               arrow: object.nextDirection.shift(),
               map: map,
-              // id: socket.id,
             });
             if (
               !object.isUserCalling &&
