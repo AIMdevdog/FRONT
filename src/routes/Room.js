@@ -167,7 +167,7 @@ const Room = ({ userData }) => {
 
   const room = {
     RoomSrc:
-      "https://aim-image-storage.s3.ap-northeast-2.amazonaws.com/map2.png",
+      "https://aim-front.s3.ap-northeast-2.amazonaws.com/room_images.png",
     roomNum: 0,
     gameObjects: {
       player: new Person({
@@ -204,16 +204,6 @@ const Room = ({ userData }) => {
                 <PictureFrame collapsed={collapsed} socket={socket} />
               </div>
             ) : null}
-            <Overworld
-              setOpenDraw={setOpenDraw}
-              Room={room}
-              adjust={adjust}
-              otherMaps={otherMaps}
-              charMap={charMap}
-              socket={socket}
-              openDraw={openDraw}
-            />
-            <CharacterNickname nicknames={nicknames} />
             <RoomSideBar
               url={url}
               socket={socket}
@@ -224,6 +214,16 @@ const Room = ({ userData }) => {
               characters={isCharacter}
               openDraw={openDraw}
             />
+            <Overworld
+              setOpenDraw={setOpenDraw}
+              Room={room}
+              adjust={adjust}
+              otherMaps={otherMaps}
+              charMap={charMap}
+              socket={socket}
+              openDraw={openDraw}
+            />
+            <CharacterNickname nicknames={nicknames} />
           </>
         ) : null}
       </div>

@@ -12,8 +12,11 @@ const PictureContainer = styled.div`
   padding: 20px;
   background-color: rgb(0, 0, 0, 0.6);
   .layout {
-    margin-left: 152px;
     height: 100%;
+    margin-left: 64px;
+    min-width: 1440px;
+    max-width: 100vw;
+    width: 100vw;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -34,6 +37,8 @@ const Frame = styled.div`
   height: 100vh;
   background-color: rgb(255, 235, 205, 1);
   border-radius: 5px;
+  overflow-y: scroll;
+
   .picture {
     position: relative;
     display: block;
@@ -81,11 +86,11 @@ const PictureFrame = ({ collapsed, socket }) => {
 
   function updateDisplay(event) {
     // console.dir(ref)
-    console.log(
-      ref.current.clientWidth,
-      ref.current.clientHeight,
-      ref.current.offsetLeft
-    );
+    // console.log(
+    //   ref.current.clientWidth,
+    //   ref.current.clientHeight,
+    //   ref.current.offsetLeft
+    // );
     const xRatio =
       (event.pageX - ref.current.offsetLeft) / ref.current.clientWidth;
     const yRatio = event.pageY / ref.current.clientHeight;
@@ -112,6 +117,11 @@ const PictureFrame = ({ collapsed, socket }) => {
     >
       <div className="layout">
         <Frame className="frame" ref={ref}>
+          <img
+            className="picture"
+            src="https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1672&q=80"
+            alt="image1"
+          />
           <img
             className="picture"
             src="https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1672&q=80"

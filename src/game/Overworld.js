@@ -57,7 +57,14 @@ let isProducer = false;
 
 let peopleInRoom = 1;
 
-const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) => {
+const Overworld = ({
+  setOpenDraw,
+  Room,
+  otherMaps,
+  charMap,
+  socket,
+  openDraw,
+}) => {
   const [isLoading, setIsLoading] = useState(true);
   const containerEl = useRef();
   const canvasRef = useRef();
@@ -86,8 +93,10 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) 
         player.y === 48
       ) {
         setOpenDraw((prev) => !prev);
-      } else if ((!openDraw && (e.key === "x" || e.key === "X" || e.key === "ㅌ"))
-        || directionInput.direction) {
+      } else if (
+        (!openDraw && (e.key === "x" || e.key === "X" || e.key === "ㅌ")) ||
+        directionInput.direction
+      ) {
         setOpenDraw(false);
       }
     };
@@ -98,7 +107,6 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) 
       window.removeEventListener("keydown", keydownHandler);
     };
   }, []);
-
 
   useEffect(() => {
     initCall();
@@ -368,71 +376,83 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) 
 
       // see server's socket.on('createWebRtcTransport', sender?, ...)
       // this is a call from Producer, so sender = true
-      socket.emit("createWebRtcTransport", { consumer: false }, ({ params }) => {
-        console.log("createSendTransport에서 createWebRtcTransport 콜백 실행");
+      socket.emit(
+        "createWebRtcTransport",
+        { consumer: false },
+        ({ params }) => {
+          console.log(
+            "createSendTransport에서 createWebRtcTransport 콜백 실행"
+          );
 
-        // The server sends back params needed
-        // to create Send Transport on the client side
-        if (params.error) {
-          console.log(params.error);
-          return;
-        }
-
-        // creates a new WebRTC Transport to send media
-        // based on the server's producer transport params
-        producerTransport = device.createSendTransport(params);
-
-        // see connectSendTransport() below
-        // this event is raised when a first call to transport.produce() is made
-        producerTransport.on(
-          "connect",
-          async ({ dtlsParameters }, callback, errback) => {
-            try {
-              // see server's socket.on('transport-dconnect', ...)
-              // Signal local DTLS parameters to the server side transport
-              await socket.emit("transport-connect", {
-                dtlsParameters,
-              });
-              // Tell the transport that parameters were transmitted.
-              callback();
-            } catch (error) {
-              errback(error);
-            }
+          // The server sends back params needed
+          // to create Send Transport on the client side
+          if (params.error) {
+            console.log(params.error);
+            return;
           }
-        );
 
-        producerTransport.on("produce", async (parameters, callback, errback) => {
-          console.log("producerTransport의 produce 이벤트 실행");
-          try {
-            // tell the server to create a Producer
-            // with the following parameters and produce
-            // and expect back a server side producer id
-            // see server's socket.on('transport-produce', ...)
-            await socket.emit(
-              "transport-produce",
-              {
-                kind: parameters.kind,
-                rtpParameters: parameters.rtpParameters,
-                appData: parameters.appData,
-                track: myStream.getVideoTracks()[0],
-              },
-              ({ id, producersExist }) => {
-                // Tell the transport that parameters were transmitted and provide it with the
-                // server side producer's id.
-                callback({ id });
+          // creates a new WebRTC Transport to send media
+          // based on the server's producer transport params
+          producerTransport = device.createSendTransport(params);
 
-                // if producers exist, then join room
-                console.log("############# producersExist : ", producersExist);
-                if (producersExist) getProducers();
+          // see connectSendTransport() below
+          // this event is raised when a first call to transport.produce() is made
+          producerTransport.on(
+            "connect",
+            async ({ dtlsParameters }, callback, errback) => {
+              try {
+                // see server's socket.on('transport-dconnect', ...)
+                // Signal local DTLS parameters to the server side transport
+                await socket.emit("transport-connect", {
+                  dtlsParameters,
+                });
+                // Tell the transport that parameters were transmitted.
+                callback();
+              } catch (error) {
+                errback(error);
               }
-            );
-          } catch (error) {
-            errback(error);
-          }
-        });
+            }
+          );
 
-        connectSendTransport();
-      });
+          producerTransport.on(
+            "produce",
+            async (parameters, callback, errback) => {
+              console.log("producerTransport의 produce 이벤트 실행");
+              try {
+                // tell the server to create a Producer
+                // with the following parameters and produce
+                // and expect back a server side producer id
+                // see server's socket.on('transport-produce', ...)
+                await socket.emit(
+                  "transport-produce",
+                  {
+                    kind: parameters.kind,
+                    rtpParameters: parameters.rtpParameters,
+                    appData: parameters.appData,
+                    track: myStream.getVideoTracks()[0],
+                  },
+                  ({ id, producersExist }) => {
+                    // Tell the transport that parameters were transmitted and provide it with the
+                    // server side producer's id.
+                    callback({ id });
+
+                    // if producers exist, then join room
+                    console.log(
+                      "############# producersExist : ",
+                      producersExist
+                    );
+                    if (producersExist) getProducers();
+                  }
+                );
+              } catch (error) {
+                errback(error);
+              }
+            }
+          );
+
+          connectSendTransport();
+        }
+      );
     };
 
     const connectSendTransport = async () => {
@@ -707,13 +727,7 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) 
       //   console.log("iceCandidate 실패! 재연결 시도");
       // }
     });
-
-
-
-
-  }, [])
-
-
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -721,7 +735,7 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) 
     let isLoop = true;
     const startGameLoop = () => {
       const step = () => {
-        canvas.width = window.innerWidth;
+        canvas.width = window.innerWidth - 64;
         canvas.height = window.innerHeight;
 
         //Clear off the canvas
@@ -818,7 +832,8 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) 
               "px";
             objectNicknameContainer.style.left =
               object.x +
-              utils.withGrid(ctx.canvas.clientWidth / 16 / 2) -
+              utils.withGrid(ctx.canvas.clientWidth / 16 / 2) +
+              64 -
               cameraPerson.x +
               "px";
           });
