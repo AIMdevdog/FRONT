@@ -57,7 +57,7 @@ let isProducer = false;
 
 let peopleInRoom = 1;
 
-const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) => {
+const Overworld = ({ setOpenDraw, Room, roomId, charMap, socket, openDraw }) => {
   const [isLoading, setIsLoading] = useState(true);
   const containerEl = useRef();
   const canvasRef = useRef();
@@ -82,8 +82,8 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) 
       const player = charMap[socket.id];
       if (
         (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
-        player.x === 48 &&
-        player.y === 48
+        player.x === 720 &&
+        player.y === 912
       ) {
         setOpenDraw((prev) => !prev);
       } else if ((!openDraw && (e.key === "x" || e.key === "X" || e.key === "ㅌ"))
@@ -211,48 +211,48 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) 
       }
     }
 
-    async function handleScreenSharing() {
-      try {
-        console.log("handleScreenSharing 실행");
-        await getMedia(true);
-        const peerConnectionObjArr = Object.values(pcObj);
-        if (peerConnectionObjArr.length > 0) {
-          const newVideoTrack = myStream.getVideoTracks()[0];
-          peerConnectionObjArr.forEach((peerConnection) => {
-            console.log("peerConnection", peerConnection);
-            const peerVideoSender = peerConnection
-              .getSenders()
-              .find((sender) => sender.track.kind === "video");
-            peerVideoSender.replaceTrack(newVideoTrack);
-          });
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    }
-    async function closeScreenSharing() {
-      try {
-        console.log("closeScreenSharing 실행");
-        await getMedia(false);
-        const peerConnectionObjArr = Object.values(pcObj);
-        if (peerConnectionObjArr.length > 0) {
-          const newVideoTrack = myStream.getVideoTracks()[0];
-          peerConnectionObjArr.forEach((peerConnection) => {
-            console.log("peerConnection", peerConnection);
-            const peerVideoSender = peerConnection
-              .getSenders()
-              .find((sender) => sender.track.kind === "video");
-            peerVideoSender.replaceTrack(newVideoTrack);
-          });
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    }
-    const shareBtn = document.querySelector("#shareBtn");
-    const myFaceBtn = document.querySelector("#myFaceBtn");
-    shareBtn.addEventListener("click", handleScreenSharing);
-    myFaceBtn.addEventListener("click", closeScreenSharing);
+    // async function handleScreenSharing() {
+    //   try {
+    //     console.log("handleScreenSharing 실행");
+    //     await getMedia(true);
+    //     const peerConnectionObjArr = Object.values(pcObj);
+    //     if (peerConnectionObjArr.length > 0) {
+    //       const newVideoTrack = myStream.getVideoTracks()[0];
+    //       peerConnectionObjArr.forEach((peerConnection) => {
+    //         console.log("peerConnection", peerConnection);
+    //         const peerVideoSender = peerConnection
+    //           .getSenders()
+    //           .find((sender) => sender.track.kind === "video");
+    //         peerVideoSender.replaceTrack(newVideoTrack);
+    //       });
+    //     }
+    //   } catch (error) {
+    //     console.log(error);
+    //   }
+    // }
+    // async function closeScreenSharing() {
+    //   try {
+    //     console.log("closeScreenSharing 실행");
+    //     await getMedia(false);
+    //     const peerConnectionObjArr = Object.values(pcObj);
+    //     if (peerConnectionObjArr.length > 0) {
+    //       const newVideoTrack = myStream.getVideoTracks()[0];
+    //       peerConnectionObjArr.forEach((peerConnection) => {
+    //         console.log("peerConnection", peerConnection);
+    //         const peerVideoSender = peerConnection
+    //           .getSenders()
+    //           .find((sender) => sender.track.kind === "video");
+    //         peerVideoSender.replaceTrack(newVideoTrack);
+    //       });
+    //     }
+    //   } catch (error) {
+    //     console.log(error);
+    //   }
+    // }
+    // const shareBtn = document.querySelector("#shareBtn");
+    // const myFaceBtn = document.querySelector("#myFaceBtn");
+    // shareBtn.addEventListener("click", handleScreenSharing);
+    // myFaceBtn.addEventListener("click", closeScreenSharing);
 
     function handleMuteClick() {
       myStream
@@ -734,14 +734,20 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) 
         //Update all objects
         Object.values(charMap).forEach((object) => {
           if (object.id === socket.id) {
-            for (let i = 0; i < otherMaps.length; i++) {
-              if (object.x === otherMaps[i].x && object.y === otherMaps[i].y) {
-                // console.log("warp!!!");
-                socket.close();
-                navigate(otherMaps[i].url);
-                // window.location.href = `${otherMaps[i].url}`;
-              }
+            console.log(object.x, object.y);
+            // for (let i = 0; i < otherMaps.length; i++) {
+            if (object.x >= 1552 && object.x <= 1616 && object.y <= 720) {
+              // console.log("warp!!!");
+              socket.close();
+              navigate(`/room1/${roomId}`);
+              // window.location.href = `${otherMaps[i].url}`;
+            } else if (object.x >= 976 && object.x <= 1040 && object.y >= 1136) {
+              // console.log("warp!!!");
+              socket.close();
+              navigate(`/room2/${roomId}`);
+              // window.location.href = `${otherMaps[i].url}`;
             }
+            // }
             object.update({
               arrow: directionInput.direction,
               map: map,

@@ -31,7 +31,7 @@ export default function Gallery3({ images, roomId, cameraPosition, yCameraPositi
       {/* <color attach="background" args={['rgb(19,19,20,0)']} /> */}
       {/* <fog attach="fog" args={['#191920', 0, 15]} />
       <Environment preset="city" /> */}
-      <group position={[cameraPosition + xRotation, -0.3, yCameraPosition + yRotation - 8]}>
+      <group position={[cameraPosition + xRotation, -1.5, yCameraPosition + yRotation - 4]}>
         <Frames images={images} roomId={roomId} yCameraPosition={yCameraPosition} setXRotation={setXRotation}  setYRotation={setYRotation}/>
         {/* <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
           <planeGeometry args={[50, 50]} />
@@ -59,17 +59,7 @@ function Frames({ images, roomId, yCameraPosition, setXRotation, setYRotation ,q
   const [, params] = useRoute('/item/:id')
   const [, setLocation] = useLocation()
   const [cameraAngle, setCameraAngle] = useState(1);
-  useEffect(() => {
-    clicked.current = ref.current.getObjectByName(params?.id)
-    if (clicked.current) {
-      clicked.current.parent.updateWorldMatrix(true, true)
-      clicked.current.parent.localToWorld(p.set(0, GOLDENRATIO / 2, 1.25))
-      clicked.current.parent.getWorldQuaternion(q)
-    } else {
-      p.set(0, 0, 5.5)
-      q.identity()
-    }
-  })
+
   // console.log(yCameraPosition);
   const cameraRotate = (e) => {
     switch (e.key) {
@@ -150,7 +140,7 @@ function Frame({ yCameraPosition, url, c = new THREE.Color(), ...props }) {
   const frame = useRef()
   const name = getUuid(url)
   let xScale = GOLDENRATIO * 5;
-  let yScale = 6.5;
+  let yScale = 5.5;
   useCursor(hovered)
   useFrame((state) => {
     // image.current.material.zoom = 2 + Math.sin(rnd * 10000 + state.clock.elapsedTime / 3) / 2
@@ -165,8 +155,9 @@ function Frame({ yCameraPosition, url, c = new THREE.Color(), ...props }) {
     xScale /= 2;
 
   }
+
   return (
-    <group {...props}>
+    <group {...props} >
       <mesh
         name={name}
         // onPointerOver={(e) => (e.stopPropagation(), hover(true))}

@@ -8,8 +8,7 @@ import styled from "styled-components";
 import VideoButton from "../components/VideoButton";
 import { connect } from "react-redux";
 import ScreenBottomBar from "../components/ScreenBottomBar";
-import PictureFrame from "../components/pictureFrame";
-import { user } from "../config/api";
+import PictureFrame from "../components/pictureFrame"
 import { joinUser, updateLocation } from "../utils/game/character";
 import { io } from "socket.io-client";
 import _const from "../config/const";
@@ -124,7 +123,6 @@ const Room = ({ userData }) => {
       setUser(data);
       setSocket(io(_const.HOST));
     });
-    return () => {};
   }, []);
 
   useEffect(() => {
@@ -133,8 +131,8 @@ const Room = ({ userData }) => {
         console.log("새로운 유저 접속");
         socket.emit("send_user_info", {
           src: isUser.character,
-          x: 80,
-          y: 80,
+          x: 1552,
+          y: 1424,
           nickname: isUser.nickname,
           roomId: "room" + roomId,
         });
@@ -149,10 +147,9 @@ const Room = ({ userData }) => {
       });
 
       socket.on("leave_user", function (data) {
-        const leaveUser = charMap[data.id];
         setIsCharacter((prev) => prev.filter((char) => char.id !== data.id));
         setNicknames((prev) =>
-          prev.filter((nickname) => nickname !== leaveUser.nickname)
+          prev.filter((nickname) => nickname !== data.nickname)
         );
         delete charMap[data.id];
       });
@@ -167,32 +164,20 @@ const Room = ({ userData }) => {
 
   const room = {
     RoomSrc:
-      "https://aim-image-storage.s3.ap-northeast-2.amazonaws.com/map2.png",
+      "https://aim-front.s3.ap-northeast-2.amazonaws.com/aim-map.png",
     roomNum: 0,
     gameObjects: {
       player: new Person({
         id: null,
         isPlayerControlled: true,
-        x: 80,
-        y: 80,
+        x: 1552,
+        y: 1424,
         src:
           isUser?.character ||
           "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png",
       }),
     },
   };
-  const adjust = {
-    xaxios: 0,
-    yaxios: 0,
-    yratio: 1,
-  };
-  const otherMaps = [
-    {
-      x: 16,
-      y: 448,
-      url: `/room1/${roomId}`,
-    },
-  ];
 
   return (
     <>
@@ -207,8 +192,7 @@ const Room = ({ userData }) => {
             <Overworld
               setOpenDraw={setOpenDraw}
               Room={room}
-              adjust={adjust}
-              otherMaps={otherMaps}
+              roomId={roomId}
               charMap={charMap}
               socket={socket}
               openDraw={openDraw}
@@ -243,17 +227,11 @@ const Room = ({ userData }) => {
   );
 };
 
-function cursorPosition() {
-  var e = window.event;
-
-  var posX = e.clientX;
-  var posY = e.clientY;
-}
-
 function mapStateProps(state) {
   return {
     userData: state,
   };
 }
+
 
 export default connect(mapStateProps)(Room);

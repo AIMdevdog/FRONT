@@ -80,16 +80,8 @@ const PictureFrame = ({ collapsed, socket }) => {
   const [isCursorY, setIsCursorY] = useState(0);
 
   function updateDisplay(event) {
-    // console.dir(ref)
-    console.log(
-      ref.current.clientWidth,
-      ref.current.clientHeight,
-      ref.current.offsetLeft
-    );
-    const xRatio =
-      (event.pageX - ref.current.offsetLeft) / ref.current.clientWidth;
+    const xRatio = (event.pageX - ref.current.offsetLeft) / ref.current.clientWidth;
     const yRatio = event.pageY / ref.current.clientHeight;
-    // // console.log(xRatio, yRatio);
     socket.emit("cursorPosition", xRatio, yRatio, socket.id);
   }
   const throttleUpdateDisplay = throttle(updateDisplay, 16);
@@ -99,9 +91,6 @@ const PictureFrame = ({ collapsed, socket }) => {
     const ref = document.querySelector(".frame");
     setIsCursorX(ref.offsetLeft + xRatio * ref.clientWidth);
     setIsCursorY(yRatio * ref.clientHeight);
-    // console.dir(ref.current.clientWidth, ref.current.clientHeight);
-    // setIsCursorX(ref.current.offsetLeft + xRatio * ref.current.clientWidth);
-    // setIsCursorY(yRatio * ref.current.clientHeight);
   });
   return (
     <PictureContainer

@@ -26,7 +26,7 @@ export class OverworldMap {
         this.lowerImage,
         // utils.withGrid(10.5) - cameraPerson.x,
         // utils.withGrid(6) - cameraPerson.y
-        utils.withGrid(ctx.canvas.clientWidth / 16 / 2) - cameraPerson.x,
+        utils.withGrid(ctx.canvas.clientWidth / 16 / 2) - cameraPerson.x + 24,
         utils.withGrid(ctx.canvas.clientHeight / 16 / 2) - cameraPerson.y
       );
   }

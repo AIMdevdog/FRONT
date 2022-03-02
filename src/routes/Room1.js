@@ -203,7 +203,7 @@ const ThreeCanvas = styled.div`
   }
 `;
 
-const Room = ({ userData }) => {
+const Room1 = ({ userData }) => {
   const charMap = {};
   const params = useParams();
   const roomId = params.roomId;
@@ -340,4 +340,4 @@ function mapStateProps(state) {
   };
 }
 
-export default connect(mapStateProps)(Room);
+export default connect(mapStateProps)(Room1);

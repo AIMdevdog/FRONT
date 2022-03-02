@@ -15,10 +15,6 @@ let pcObj = {
   // remoteSocketId: pc (peer connection)
   // pcObj[remoteSocketId] = myPeerConnection 이다
 };
-var sendChannel = []; // RTCDataChannel for the local (sender)
-var receiveChannel = []; // RTCDataChannel for the remote (receiver)
-var localConnection = []; // RTCPeerConnection for our "local" connection
-var remoteConnection = []; // RTCPeerConnection for the "remote"
 
 // WebRTC SFU (mediasoup)
 let params = {
@@ -657,14 +653,6 @@ const Overworld1 = ({
 
     socket.on("ice", async (ice, remoteSocketId, remoteNickname) => {
       await pcObj[remoteSocketId].addIceCandidate(ice);
-      // const state = pcObj[remoteSocketId].iceConnectionState;
-      // if (state === "failed" || state === "closed") {
-      //   const newPC = await createConnection(remoteSocketId, remoteNickname);
-      //   const offer = await newPC.createOffer();
-      //   await newPC.setLocalDescription(offer);
-      //   socket.emit("offer", offer, remoteSocketId, remoteNickname);
-      //   console.log("iceCandidate 실패! 재연결 시도");
-      // }
     });
 
 
@@ -696,12 +684,17 @@ const Overworld1 = ({
         //Update all objects
         Object.values(charMap).forEach((object) => {
           if (object.id === socket.id) {
+            console.log(object.x, object.y);
             for (let i = 0; i < otherMaps.length; i++) {
-              if (object.y > 400 || (object.y < -1250 && object.x > 1232)) {
+              if (map.roomNum === 3 && object.y > 400 || (object.y < -1250 && object.x > 1232)) {
                 // console.log("warp!!!");
                 socket.close();
                 navigate(url);
                 // window.location.href = `${otherMaps[i].url}`;
+              }
+              else if (map.roomNum === 2 && object.y > 208){
+                socket.close();
+                navigate(url);
               }
             }
             object.update({
@@ -875,14 +868,18 @@ const Overworld1 = ({
           break;
       }
     }
-    document.addEventListener("keydown", cameraRotate);
+    if (map.roomNum === 3) {
+      document.addEventListener("keydown", cameraRotate);
+    }
 
     setTimeout(() => {
       setIsLoading(false);
       startGameLoop();
     }, 3000);
     return () => {
-      document.removeEventListener("keydown", cameraRotate);
+      if (map.roomNum === 3) {
+        document.removeEventListener("keydown", cameraRotate);
+      }
       isLoop = false;
     };
   }, []);

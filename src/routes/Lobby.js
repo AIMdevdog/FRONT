@@ -18,6 +18,7 @@ import moment from "moment";
 import { Cookies } from "react-cookie";
 import { connect } from "react-redux";
 import ReactModal from "react-modal";
+import { actionCreators } from "../store";
 
 const cookies = new Cookies();
 
@@ -328,16 +329,15 @@ const customStyles = {
   },
 };
 
-const Lobby = ({ userData }) => {
+const Lobby = ({userData}) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [isGetRoom, setIsGetRoom] = useState([]);
-
-  const [isSaveUserData, setIsSaveUserData] = useState(null);
   const [isChangeRoom, setIsChangeRoom] = useState(false);
   const [isMyRoom, setIsMyRoom] = useState([]);
   const [isSearchRoom, setSearchRoom] = useState([]);
+  const [isSaveUserData, setIsSaveUserData] = useState(null);
 
   const [isRoomEdit, setIsRoomEdit] = useState(false);
   const [isRoomId, setIsRoomId] = useState(null);
@@ -358,6 +358,9 @@ const Lobby = ({ userData }) => {
         setIsLoading(false);
       }
     };
+    userData.then((data)=>{
+      setIsSaveUserData(data);
+    })
 
     getRoom();
   }, []);
@@ -416,17 +419,14 @@ const Lobby = ({ userData }) => {
   };
 
   const readyToGoIntoTheRoom = (item) => {
-    navigate(`/room/${item.id}`, {replace: false});
+    navigate(`/room/${item.id}`);
     // window.location.href = `/room/${item.id}`;
   };
   return (
     <>
       {isLoading && <LoadingComponent />}
       <LobbyContainer>
-        <Header
-          isSaveUserData={isSaveUserData}
-          setIsSaveUserData={setIsSaveUserData}
-        />
+        <Header/>
         <LobbyHeader>
           <TabButton room={isChangeRoom} onClick={isChangeRoomType}>
             <span>모든 전시공간</span>
@@ -614,6 +614,7 @@ const Lobby = ({ userData }) => {
     </>
   );
 };
+
 
 function mapStateToProps(state) {
   return {
