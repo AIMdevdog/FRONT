@@ -3,7 +3,7 @@ import Slider from "react-slick";
 import styled from "styled-components";
 
 const roomImage =
-  "https://aim-image-storage.s3.ap-northeast-2.amazonaws.com/map2.png";
+  "https://aim-front.s3.ap-northeast-2.amazonaws.com/room_images.png";
 
 const RoomImageSliderContainer = styled.div`
   display: flex;

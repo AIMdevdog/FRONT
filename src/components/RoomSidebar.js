@@ -11,7 +11,8 @@ import { RiCheckboxCircleFill, RiCheckboxCircleLine } from "react-icons/ri";
 import { useNavigate } from "react-router";
 
 const Layout = styled.div`
-  position: fixed;
+  /* position: fixed; */
+  position: relative;
   left: 0;
   top: 0;
   height: 100vh;
@@ -167,6 +168,7 @@ const ExitModalContainer = styled.div`
 const ExitText = styled.div`
   display: flex;
   width: 100%;
+  flex-direction: column;
   align-items: center;
   margin-bottom: 16px;
 
@@ -175,7 +177,7 @@ const ExitText = styled.div`
     font-family: "DM Sans", sans-serif;
     font-weight: 700;
     font-size: 20px;
-    line-height: 26px;
+    display: block;
   }
 `;
 
@@ -313,6 +315,9 @@ const RoomSideBar = ({
   const [isChatValue, setIsChatValue] = useState("");
 
   const [checkedArr, setCheckedArr] = useState([]);
+  const [isSharePrompt, setSharePrompt] = useState(false);
+  const [isSharingUser, setSharingUsers] = useState([]);
+  const [isSharingHost, setSharingHost] = useState(null);
 
   const onExitModal = () => setExitModal(!exitModal);
 
@@ -323,7 +328,7 @@ const RoomSideBar = ({
   };
   const onExitRoom = () => {
     socket.close();
-    navigate('/lobby');
+    navigate("/lobby");
   };
 
   useEffect(() => {
@@ -378,18 +383,30 @@ const RoomSideBar = ({
     setChatCollapsed(false);
   };
 
-  const isHandleChecked = (charId) => {
+  const isHandleChecked = (char) => {
     let updatedList = [...checkedArr];
-    if (checkedArr.includes(charId)) {
-      updatedList.splice(checkedArr.indexOf(charId), 1);
+    if (checkedArr.includes(char)) {
+      updatedList.splice(checkedArr.indexOf(char), 1);
     } else {
-      updatedList = [...checkedArr, charId];
+      updatedList = [...checkedArr, char];
     }
     setCheckedArr(updatedList);
   };
 
   const isShareingArtWorks = () => {
-    socket.emit("ArtsAddr", socket?.id, checkedArr);
+    const myInfo = characters?.filter((char) => char?.id === socket?.id);
+    const myInfoDestruct = myInfo?.map((info) => {
+      return {
+        id: info?.id,
+        nickname: info?.nickname,
+      };
+    });
+
+    const checkAddrDestruct = checkedArr?.map((check) => {
+      return { id: check?.id, nickname: check?.nickname };
+    });
+
+    socket.emit("ArtsAddr", myInfoDestruct, checkAddrDestruct);
     isShareIconAction();
     setCheckedArr([]);
   };
@@ -399,10 +416,24 @@ const RoomSideBar = ({
   };
 
   useEffect(() => {
-    socket.on("ShareAddr", (socketId) => {
-      setOpenDraw(true);
+    socket.on("ShareAddr", (sender) => {
+      setSharingHost(sender[0]);
+      onSharePrompt();
     });
-  });
+  }, []);
+
+  const onSharePrompt = () => {
+    setSharePrompt(true);
+  };
+  const onShareReject = () => {
+    setSharePrompt(false);
+  };
+  const onShareAccept = () => {
+    setOpenDraw(true);
+    setSharePrompt(false);
+  };
+
+  console.log(checkedArr, "----");
 
   return (
     <Layout>
@@ -444,27 +475,31 @@ const RoomSideBar = ({
                 <ul className="user-list">
                   {characters?.map((char, i) => {
                     return (
-                      <li key={i} onClick={() => isHandleChecked(char?.id)}>
-                        <div>
-                          <img
-                            src={char?.sprite?.image?.currentSrc}
-                            alt="currentSrc"
-                          />
-                          <span>{char?.nickname}</span>
-                        </div>
-                        <p></p>
-                        {checkedArr.includes(char?.id) ? (
-                          <RiCheckboxCircleFill
-                            color="rgb(6, 214, 160)"
-                            size={24}
-                          />
-                        ) : (
-                          <RiCheckboxCircleLine
-                            color="rgb(144,156,226)"
-                            size={24}
-                          />
+                      <>
+                        {char?.id !== socket?.id && (
+                          <li key={i} onClick={() => isHandleChecked(char)}>
+                            <div>
+                              <img
+                                src={char?.sprite?.image?.currentSrc}
+                                alt="currentSrc"
+                              />
+                              <span>{char?.nickname}</span>
+                            </div>
+                            <p></p>
+                            {checkedArr.includes(char) ? (
+                              <RiCheckboxCircleFill
+                                color="rgb(6, 214, 160)"
+                                size={24}
+                              />
+                            ) : (
+                              <RiCheckboxCircleLine
+                                color="rgb(144,156,226)"
+                                size={24}
+                              />
+                            )}
+                          </li>
                         )}
-                      </li>
+                      </>
                     );
                   })}
                 </ul>
@@ -518,6 +553,30 @@ const RoomSideBar = ({
                 <button onClick={onExitRoom}> 예 </button>
                 <button
                   onClick={onExitModal}
+                  style={{ backgroundColor: "rgb(169,169,169)" }}
+                >
+                  아니요
+                </button>
+              </SetButtonContainer>
+            </ExitModalContainer>
+          </ReactModal>
+          <ReactModal
+            style={customStyles}
+            isOpen={isSharePrompt}
+            onRequestClose={onShareReject}
+          >
+            <ExitModalContainer>
+              <ExitText>
+                <span>
+                  {isSharingHost?.nickname}님이 작품을 공유하셨습니다.
+                </span>
+                <br />
+                <span>수락하시겠습니까?</span>
+              </ExitText>
+              <SetButtonContainer>
+                <button onClick={onShareAccept}> 예 </button>
+                <button
+                  onClick={onShareReject}
                   style={{ backgroundColor: "rgb(169,169,169)" }}
                 >
                   아니요

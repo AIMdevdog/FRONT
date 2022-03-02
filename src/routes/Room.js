@@ -208,6 +208,16 @@ const Room = ({ userData }) => {
               characters={isCharacter}
               openDraw={openDraw}
             />
+            <Overworld
+              setOpenDraw={setOpenDraw}
+              Room={room}
+              adjust={adjust}
+              otherMaps={otherMaps}
+              charMap={charMap}
+              socket={socket}
+              openDraw={openDraw}
+            />
+            <CharacterNickname nicknames={nicknames} />
           </>
         ) : null}
       </div>
