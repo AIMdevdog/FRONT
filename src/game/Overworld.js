@@ -62,8 +62,9 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) 
     };
   }, []);
 
-  const share = document.querySelector("#share");
-  share.addEventListener("click", sendArtsAddr);
+  // const share = document.querySelector("#share");
+  // share.addEventListener("click", sendArtsAddr);
+useEffect(() => {
 
   async function sendArtsAddr() {
     const shareChecked = document.querySelectorAll(
@@ -85,7 +86,7 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) 
 
   async function handleAddStream(event, remoteSocketId, remoteNickname) {
     const peerStream = event.stream;
-    // console.log(peerStream);
+    console.log(peerStream);
     const user = charMap[remoteSocketId]; // person.js에 있는 거랑 같이
 
     if (!user.isUserJoin) {
@@ -100,20 +101,20 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) 
   }
 
   // 영상 connect
-  async function paintPeerFace(peerStream, id, remoteNickname) {
+  async function paintPeerFace(peerStream, remoteProducerId, remoteNickname) {
     const streams = document.querySelector("#streams");
     const div = document.createElement("div");
     // div.classList.add("userVideoContainer");
-    div.id = id;
+    div.id = remoteProducerId;
 
     // console.log("-------- 커넥션 상태 --------", pcObj[id].iceConnectionState);
-
     try {
+      console.log("******peerstream", peerStream);
       const video = document.createElement("video");
+      video.srcObject = await peerStream;
       video.className = "userVideo";
       video.autoplay = true;
       video.playsInline = true;
-      video.srcObject = peerStream;
       div.appendChild(video);
       streams.appendChild(div);
       // await sortStreams();
@@ -126,14 +127,14 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) 
   function removePeerFace(id) {
     const streams = document.querySelector("#streams");
     const streamArr = streams.querySelectorAll("div");
-    // console.log("총 길이 " , streamArr.length);
+    console.log("총 길이 " , streamArr.length);
     streamArr.forEach((streamElement) => {
-      // console.log(streamArr, streamElement.id, id);
+      console.log(streamArr, streamElement.id, id);
       if (streamElement.id === id) {
         streams.removeChild(streamElement);
       }
     });
-    // console.log(streams);
+    console.log(streams);
   }
 
   async function createConnection(remoteSocketId, remoteNickname) {
@@ -175,10 +176,9 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) 
       console.log("+------getTracks------+", myStream);
 
       pcObj[remoteSocketId] = myPeerConnection;
-      // console.log(pcObj);
+      console.log(pcObj);
 
       ++peopleInRoom;
-      // sortStreams();
       return myPeerConnection;
     } catch (e) {
       console.log(e);
@@ -235,7 +235,7 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) 
   myFaceBtn.addEventListener("click", closeScreenSharing);
 
   function handleMuteClick() {
-    myStream //
+    myStream
       .getAudioTracks()
       .forEach((track) => (track.enabled = !track.enabled));
     if (muted) {
@@ -299,6 +299,7 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) 
     }
   }
 
+  
   async function initCall() {
     console.log("initCall 함수");
     try {
@@ -308,85 +309,6 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) 
     }
   }
 
-  // chat form
-
-  const chatForm = document.querySelector("#chatForm");
-  const chatBox = document.querySelector("#chatBox");
-
-  const MYCHAT_CN = "myChat";
-  const NOTICE_CN = "noticeChat";
-
-  chatForm.addEventListener("submit", handleChatSubmit);
-
-  function handleChatSubmit(event) {
-    event.preventDefault();
-    const chatInput = chatForm.querySelector("input");
-    const message = chatInput.value;
-    chatInput.value = "";
-
-    let groupName = 1;
-
-    socket.emit("chat", `${nickname}: ${message}`, groupName);
-    writeChat(`You: ${message}`, MYCHAT_CN);
-  }
-
-  function writeChat(message, className = null) {
-    const li = document.createElement("li");
-    const span = document.createElement("span");
-    span.innerText = message;
-    li.appendChild(span);
-    li.classList.add(className);
-    li.classList.add("message-list");
-    chatBox.appendChild(li);
-  }
-
-  //상대방의 마우스 커서 그리기
-  socket.on("shareCursorPosition", (cursorX, cursorY, remoteSocketId) => {
-    //artsAddr로 작품을 그려주면 된다.
-    const draw = document.querySelector(".draw");
-    if (!draw) {
-      return;
-    } else if (draw?.firstChild) {
-      draw.removeChild(draw?.firstChild);
-    }
-    const img = document.createElement("img");
-    img.src = "https://img.icons8.com/ios-glyphs/344/cursor--v1.png";
-    // console.log(cursorX, cursorY, remoteSocketId);
-    img.style.top = cursorY - 240 + "px";
-    img.style.left = cursorX - 165 + "px";
-    draw.appendChild(img);
-    // console.dir(img);
-  });
-
-  function updateDisplay(event) {
-    socket.emit("cursorPosition", event.pageX, event.pageY, socket.id);
-  }
-
-  var SharedArts = document.querySelector("#Arts");
-  SharedArts.addEventListener("mousemove", updateDisplay, false);
-  SharedArts.addEventListener("mouseenter", updateDisplay, false);
-  SharedArts.addEventListener("mouseleave", updateDisplay, false);
-
-  function popupArts(artsAddr) {
-    const div = document.createElement("div");
-    try {
-      const artsImg = document.createElement("img");
-      artsImg.src = `${artsAddr}`;
-      div.appendChild(artsImg);
-      SharedArts.appendChild(div);
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  //미술작품 공유
-  socket.on("ShareAddr", (artsAddr, SocketId) => {
-    //artsAddr로 작품을 그려주면 된다.
-    console.log("Other browser check", artsAddr, SocketId);
-    //true, false로 그리고 안그리고 
-    popupArts(artsAddr);
-  });
-
   // 남는 사람 기준
   socket.on("leave_succ", function (data) {
     const user = charMap[data.removeSid];
@@ -394,56 +316,50 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) 
     removePeerFace(data.removeSid);
   });
 
-  socket.on("chat", (message) => {
-    writeChat(message);
-  });
-
   socket.on("accept_join", async (userObjArr) => {
     try {
-      const length = userObjArr.length;
-      if (length === 1) {
-        return;
-      }
+        // Mesh코드~
+        const length = userObjArr.length;
+        if (length === 1) {
+          return;
+        }
 
-      for (let i = 0; i < length - 1; ++i) {
-        const newPC = await createConnection(
-          userObjArr[i].socketId,
-          userObjArr[i].nickname
-        );
-        // sendChannel[userObjArr[i].socketId] = await newPC.createDataChannel("sendChannel");
-        // sendChannel[userObjArr[i].socketId].addEventListener("message", console.log);
-        // console.log("made data channel", "local", socket.id, "remote", userObjArr[i].socketId);
+        for (let i = 0; i < length - 1; ++i) {
+          const newPC = await createConnection(
+            userObjArr[i].socketId,
+            userObjArr[i].nickname
+          );
+          const offer = await newPC.createOffer();
+          await newPC.setLocalDescription(offer);
+          socket.emit(
+            "offer",
+            offer,
+            userObjArr[i].socketId,
+            userObjArr[i].nickname
+          );
+        }
+      // SFU
+      // socket.emit("getRtpCapabilities", groupName, (data) => {
+      //   console.log(`Router RTP Capabilities... ${data.rtpCapabilities}`);
+      //   // we assign to local variable and will be used when
+      //   // loading the client Device (see createDevice above)
+      //   rtpCapabilities = data.rtpCapabilities;
 
-        const offer = await newPC.createOffer();
-        await newPC.setLocalDescription(offer);
-        socket.emit(
-          "offer",
-          offer,
-          userObjArr[i].socketId,
-          userObjArr[i].nickname
-        );
-      }
+      //   // once we have rtpCapabilities from the Router, create Device
+      //   createDevice();
+      // });
     } catch (err) {
       console.error(err);
     }
-    // writeChat("is in the room.", NOTICE_CN);
   });
 
   socket.on("offer", async (offer, remoteSocketId, remoteNickname) => {
     try {
-      // console.log('*******', remoteSocketId);
-      // console.log('****pcObj', pcObj);
-
-      // pcObj[remoteSocketId].ondatachannel = ev => {
-      //   sendChannel[remoteSocketId] = ev.channel;
-      //   sendChannel[remoteSocketId].addEventListener("message", console.log);
-      // };
       const newPC = await createConnection(remoteSocketId, remoteNickname);
       await newPC.setRemoteDescription(offer);
       const answer = await newPC.createAnswer();
       await newPC.setLocalDescription(answer);
       socket.emit("answer", answer, remoteSocketId);
-      // writeChat(`notice! __${remoteNickname}__ joined the room`, NOTICE_CN);
     } catch (err) {
       console.error(err);
     }
@@ -463,86 +379,9 @@ const Overworld = ({ setOpenDraw, Room, otherMaps, charMap, socket, openDraw }) 
     //   socket.emit("offer", offer, remoteSocketId, remoteNickname);
     //   console.log("iceCandidate 실패! 재연결 시도");
     // }
-  });
+  });  
+}, [])
 
-  let nicknameDiv;
-  let userListItem;
-  let userImg;
-  let userNicknameSpan;
-  let onOffButton;
-  let shareInput;
-  let userInfoDiv;
-
-  socket.on("join_user", function (data) {
-    //====================  비디오 추가 함수 =================//
-    console.log("새로운 유저 접속");
-
-    socket.emit("send_user_info", {
-      src: map.gameObjects.player.sprite.image.src,
-      x: map.gameObjects.player.x,
-      y: map.gameObjects.player.y,
-      nickname: nickname,
-      roomId,
-    });
-  });
-
-  socket.on("get_user_info", function (data) {
-    // console.log(data);
-    joinUser(data.id, data.x, data.y, data.nickname, data.src);
-
-    nicknameDiv = document.createElement("div");
-    nicknameDiv.id = data.nickname;
-    nicknameDiv.innerHTML = data.nickname;
-
-    nicknameDiv.style.width = 100;
-    nicknameDiv.style.transform = "translateX(-40%)";
-    nicknameDiv.style.backgroundColor = "rgba(0, 0, 0, 0.6)";
-    nicknameDiv.style.padding = "6px";
-    nicknameDiv.style.borderRadius = "6px";
-    nicknameDiv.style.color = "white";
-    nicknameDiv.style.fontSize = "12px";
-    nicknameDiv.style.textAlign = "center";
-    nicknameDiv.style.position = "absolute";
-
-    nicknameContainer.appendChild(nicknameDiv);
-
-    // user list
-    const userList = document.querySelector(".user-list");
-
-    // for (let i = 0; i < data?.length; i ++) {
-    // }
-
-    userListItem = document.createElement("li");
-    userNicknameSpan = document.createElement("span");
-    userImg = document.createElement("img");
-    userInfoDiv = document.createElement("div");
-    shareInput = document.createElement("input");
-    onOffButton = document.createElement("p");
-
-    userImg.src = data.src;
-    userListItem.className = data.id;
-    userNicknameSpan.innerHTML = data.nickname;
-    shareInput.type = "checkbox";
-    shareInput.className = "share-checkbox";
-    shareInput.name = "share-checkbox-name";
-    shareInput.value = data.id;
-
-    userInfoDiv.appendChild(userImg);
-    userInfoDiv.appendChild(userNicknameSpan);
-    userListItem.appendChild(userInfoDiv);
-    userListItem.appendChild(onOffButton);
-    userListItem.appendChild(shareInput);
-
-    userList.appendChild(userListItem);
-  });
-
-  socket.on("leave_user", function (data) {
-    leaveUser(data);
-  });
-
-  socket.on("update_state", function (data) {
-    updateLocation(data);
-  });
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
