@@ -128,13 +128,17 @@ const Overworld = ({
     }
 
     // 영상 connect
-    async function paintPeerFace(peerStream, remoteProducerId, socketId) {
+    async function paintPeerFace(peerStream, socketId) {
       // console.log("charMap: ", charMap);
       // console.log("socketId: ", socketId);
+      const user = charMap[socketId];
       const streams = document.querySelector("#streams");
       const div = document.createElement("div");
+      const nicknameDiv = document.createElement("div");
+      nicknameDiv.className = "videoNickname";
+      nicknameDiv.innerText = user.nickname;
       // div.classList.add("userVideoContainer");
-      div.id = remoteProducerId;
+      div.id = socketId;
 
       // console.log("-------- 커넥션 상태 --------", pcObj[id].iceConnectionState);
 
@@ -147,6 +151,7 @@ const Overworld = ({
         video.playsInline = true;
         div.appendChild(video);
         streams.appendChild(div);
+        streams.appendChild(nicknameDiv);
         // await sortStreams();
       } catch (err) {
         console.error(err);
@@ -575,7 +580,7 @@ const Overworld = ({
           remoteProducerId,
           serverConsumerTransportId,
         },
-        async ({ params }) => {
+        async ({ params }, socketId) => {
           if (params.error) {
             console.log("******Cannot Consume******");
             return;
@@ -606,7 +611,7 @@ const Overworld = ({
           console.log("---------------- params : ", params);
           const peerStream = new MediaStream([track]);
           try {
-            await paintPeerFace(peerStream, remoteProducerId, params.socketId);
+            await paintPeerFace(peerStream, socketId);
           } catch (e) {
             console.log(e);
           }
