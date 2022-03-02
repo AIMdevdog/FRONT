@@ -460,12 +460,12 @@ const Header = ({ userData, loadUserData }) => {
     isLogged();
   }, [isPath]);
 
+
+
   useEffect(() => {
     loadUserData();
 
-    userData.then((data) => {
-      setIsSaveUserData(data)
-    })
+
     // const getUser = async () => {
     //   try {
     //     const requestUserData = await user.getUserInfo();
@@ -482,6 +482,14 @@ const Header = ({ userData, loadUserData }) => {
 
     // getUser();
   }, []);
+
+  useEffect(() => {
+    userData.then((data) => {
+      setIsSaveUserData(data)
+    }).catch((e)=>{
+      console.log(e);
+    })
+  }, [])
 
   const onCreateSpace = () => {
     setIsCreateRoomOpen(!isCreateRoomOpen);
