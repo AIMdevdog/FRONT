@@ -26,12 +26,13 @@ export default function Gallery3({ images, roomId, cameraPosition, yCameraPositi
       // gl={{ alpha: false }}
       // dpr={[1, 1.5]}
       camera={{ position: [0, 2, 15] }}
+      style={{width: "100vw", height: "100vh"}}
     >
       {/* <CameraRotation/> */}
       {/* <color attach="background" args={['rgb(19,19,20,0)']} /> */}
       {/* <fog attach="fog" args={['#191920', 0, 15]} />
       <Environment preset="city" /> */}
-      <group position={[cameraPosition + xRotation, -1.5, yCameraPosition + yRotation - 4]}>
+      <group position={[cameraPosition + xRotation, -1.5, yCameraPosition + yRotation - 12]}>
         <Frames images={images} roomId={roomId} yCameraPosition={yCameraPosition} setXRotation={setXRotation}  setYRotation={setYRotation}/>
         {/* <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
           <planeGeometry args={[50, 50]} />

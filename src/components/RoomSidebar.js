@@ -12,7 +12,6 @@ import { useNavigate } from "react-router";
 
 const Layout = styled.div`
   position: fixed;
-  /* position: relative; */
   left: 0;
   top: 0;
   height: 100vh;

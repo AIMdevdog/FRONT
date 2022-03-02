@@ -297,6 +297,12 @@ const Room1 = ({ userData }) => {
       <div className="roomContainer" style={{ display: "flex", height: "100vh" }}>
         {socket ? (
           <>
+            <RoomSideBar
+              socket={socket}
+              collapsed={collapsed}
+              setCollapsed={setCollapsed}
+              characters={isCharacter}
+            />
             <Overworld1
               Room={room}
               url={url}
@@ -312,12 +318,7 @@ const Room1 = ({ userData }) => {
               </Suspense>
             </ThreeCanvas>
             {/* <CharacterNickname nicknames={nicknames} /> */}
-            <RoomSideBar
-              socket={socket}
-              collapsed={collapsed}
-              setCollapsed={setCollapsed}
-              characters={isCharacter}
-            />
+
           </>
         ) : null}
       </div>
