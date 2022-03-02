@@ -78,22 +78,43 @@ const Cursor = styled.img.attrs((props) => ({
   position: fixed;
 `;
 
-const PictureFrame = ({ collapsed, socket }) => {
+const CursorNickname = styled.div.attrs((props) => ({
+  style: {
+    opacity: props.isCursor,
+    left: props.isCursorX + 16 + "px",
+    top: props.isCursorY + 20 + "px",
+  },
+}))`
+  font-size: 12px;
+  z-index: 99;
+  position: fixed;
+  bottom: 140px;
+  height: 16px;
+  background-color: rgb(0, 0, 0, 0.6);
+  padding: 3px;
+  border-radius: 5px;
+  color: white;
+`;
+
+
+const PictureFrame = ({ collapsed, socket, charMap }) => {
   const ref = useRef();
   const [isCursor, setIsCursor] = useState(0);
   const [isCursorX, setIsCursorX] = useState(0);
   const [isCursorY, setIsCursorY] = useState(0);
+  const [nickname, setNickname] = useState("");
 
   function updateDisplay(event) {
     const xRatio = (event.pageX - ref.current.offsetLeft) / ref.current.clientWidth;
     const yRatio = event.pageY / ref.current.clientHeight;
     socket.emit("cursorPosition", xRatio, yRatio, socket.id);
   }
-  const throttleUpdateDisplay = throttle(updateDisplay, 16);
+  const throttleUpdateDisplay = throttle(updateDisplay, 24);
 
-  socket.on("shareCursorPosition", (xRatio, yRatio, remoteSocketId) => {
+  socket.on("shareCursorPosition", (xRatio, yRatio, nickname) => {
     setIsCursor(1);
     const ref = document.querySelector(".frame");
+    setNickname(nickname);
     setIsCursorX(ref.offsetLeft + xRatio * ref.clientWidth);
     setIsCursorY(yRatio * ref.clientHeight);
   });
@@ -106,6 +127,11 @@ const PictureFrame = ({ collapsed, socket }) => {
     >
       <div className="layout">
         <Frame className="frame" ref={ref}>
+          <CursorNickname
+            isCursor={isCursor}
+            isCursorX={isCursorX}
+            isCursorY={isCursorY}
+          >{nickname}</CursorNickname>
           <img
             className="picture"
             src="https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1672&q=80"
@@ -124,11 +150,6 @@ const PictureFrame = ({ collapsed, socket }) => {
             src="https://img.icons8.com/ios-glyphs/344/cursor--v1.png"
             alt="img"
           />
-          <cursorNickname
-            isCursor={isCursor}
-            isCursorX={isCursorX}
-            isCursorY={isCursorY}
-          ></cursorNickname>
         </Frame>
         <PictureInfoContainer> hello </PictureInfoContainer>
       </div>
