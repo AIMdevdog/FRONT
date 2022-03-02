@@ -673,7 +673,7 @@ const Overworld1 = ({
           && element.x === player.x 
           && element.y === player.y
       ).length;
-      if (stay_num > 5){
+      if (stay_num > 4){
         dataBuffer = [];
       }
       if(dataBuffer.length > 4){
