@@ -566,7 +566,7 @@ const Overworld = ({
       consumerTransport,
       remoteProducerId,
       serverConsumerTransportId, 
-      socketId,
+      remoteSocketID,
     ) => {
       console.log("connectRecvTransport 실행");
 
@@ -579,6 +579,7 @@ const Overworld = ({
           rtpCapabilities: device.rtpCapabilities,
           remoteProducerId,
           serverConsumerTransportId,
+          socketId: remoteSocketID,
         },
         async ({ params }) => {
           if (params.error) {
@@ -610,7 +611,7 @@ const Overworld = ({
           // console.log("---------------- params : ", params)
           const peerStream = new MediaStream([track]);
           try {
-            await paintPeerFace(peerStream, socketId);
+            await paintPeerFace(peerStream, remoteSocketID);
           } catch (e) {
             console.log(e);
           }
@@ -626,7 +627,7 @@ const Overworld = ({
       );
     };
 
-    socket.on("producer-closed", ({ remoteProducerId }) => {
+    socket.on("producer-closed", ({ remoteProducerId, remoteSocketId }) => {
       console.log("producer-closed 콜백 실행");
 
       // server notification is received when a producer is closed
@@ -644,7 +645,7 @@ const Overworld = ({
 
       // remove the video div element
       // videoContainer.removeChild(document.getElementById(`td-${remoteProducerId}`))
-      removePeerFace(remoteProducerId);
+      removePeerFace(remoteSocketId);
     });
 
     // ---------------------------------------- ^ SFU
