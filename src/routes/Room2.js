@@ -141,6 +141,7 @@ const CamBtn = styled.div`
   }
 `;
 const ThreeCanvas = styled.div`
+  display:block;
   canvas {
     width: 100vw;
     height: 100%;
@@ -244,6 +245,12 @@ const Room2 = ({ userData }) => {
       <div className="roomContainer" style={{ display: "flex", height: "100vh" }}>
         {socket ? (
           <>
+            <RoomSideBar
+              socket={socket}
+              collapsed={collapsed}
+              setCollapsed={setCollapsed}
+              characters={isCharacter}
+            />
             <Overworld1
               Room={room}
               url={url}
@@ -259,12 +266,6 @@ const Room2 = ({ userData }) => {
               </Suspense>
             </ThreeCanvas>
             {/* <CharacterNickname nicknames={nicknames} /> */}
-            <RoomSideBar
-              socket={socket}
-              collapsed={collapsed}
-              setCollapsed={setCollapsed}
-              characters={isCharacter}
-            />
           </>
         ) : null}
       </div>

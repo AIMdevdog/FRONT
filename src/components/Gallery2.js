@@ -23,6 +23,7 @@ export default function Gallery2({ images, roomId, cameraPosition, yCameraPositi
     <Canvas
       // gl={{ alpha: false }}
       // dpr={[1, 1.5]}
+      style={{width: "100vw", height: "100vh"}}
       camera={{ position: [0, 2, 15] }}
     >
       {/* <CameraRotation/> */}

@@ -728,7 +728,7 @@ const Overworld = ({ setOpenDraw, Room, roomId, charMap, socket, openDraw }) => 
     let isLoop = true;
     const startGameLoop = () => {
       const step = () => {
-        canvas.width = window.innerWidth - 64;
+        canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
         //Clear off the canvas
@@ -832,7 +832,6 @@ const Overworld = ({ setOpenDraw, Room, roomId, charMap, socket, openDraw }) => 
             objectNicknameContainer.style.left =
               object.x +
               utils.withGrid(ctx.canvas.clientWidth / 16 / 2) +
-              64 -
               cameraPerson.x +
               "px";
           });

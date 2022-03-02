@@ -189,15 +189,6 @@ const Room = ({ userData }) => {
                 <PictureFrame collapsed={collapsed} socket={socket} />
               </div>
             ) : null}
-            <Overworld
-              setOpenDraw={setOpenDraw}
-              Room={room}
-              roomId={roomId}
-              charMap={charMap}
-              socket={socket}
-              openDraw={openDraw}
-            />
-            <CharacterNickname nicknames={nicknames} />
             <RoomSideBar
               url={url}
               socket={socket}
@@ -211,8 +202,7 @@ const Room = ({ userData }) => {
             <Overworld
               setOpenDraw={setOpenDraw}
               Room={room}
-              adjust={adjust}
-              otherMaps={otherMaps}
+              roomId={roomId}
               charMap={charMap}
               socket={socket}
               openDraw={openDraw}

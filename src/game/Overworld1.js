@@ -686,11 +686,9 @@ const Overworld1 = ({
           if (object.id === socket.id) {
             console.log(object.x, object.y);
             for (let i = 0; i < otherMaps.length; i++) {
-              if (map.roomNum === 3 && object.y > 400 || (object.y < -1250 && object.x > 1232)) {
-                // console.log("warp!!!");
+              if (map.roomNum === 3 && object.y > 656 || (object.y < -1250 && object.x > 1232)) {
                 socket.close();
                 navigate(url);
-                // window.location.href = `${otherMaps[i].url}`;
               }
               else if (map.roomNum === 2 && object.y > 208){
                 socket.close();
@@ -891,6 +889,7 @@ const Overworld1 = ({
         <div
           ref={containerEl}
           className="game-container"
+          style={{ backgroundColor: "rgb(19,19,20)", width: "100vw", height: "100vh" }}
         >
           <canvas ref={canvasRef} className="game-canvas">
           </canvas>
