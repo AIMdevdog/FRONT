@@ -129,8 +129,8 @@ const Overworld = ({
 
     // 영상 connect
     async function paintPeerFace(peerStream, socketId) {
-      // console.log("charMap: ", charMap);
-      // console.log("socketId: ", socketId);
+      console.log("charMap: ", charMap);
+      console.log("socketId: ", socketId);
       const user = charMap[socketId];
       const streams = document.querySelector("#streams");
       const div = document.createElement("div");
@@ -150,8 +150,8 @@ const Overworld = ({
         video.autoplay = true;
         video.playsInline = true;
         div.appendChild(video);
+        div.appendChild(nicknameDiv);
         streams.appendChild(div);
-        streams.appendChild(nicknameDiv);
         // await sortStreams();
       } catch (err) {
         console.error(err);
@@ -580,7 +580,7 @@ const Overworld = ({
           remoteProducerId,
           serverConsumerTransportId,
         },
-        async ({ params }, socketId) => {
+        async ({ params }) => {
           if (params.error) {
             console.log("******Cannot Consume******");
             return;
@@ -727,8 +727,25 @@ const Overworld = ({
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", {alpha: false});
+    let dataBuffer = [];
     let isLoop = true;
+    const bufferSend = (player, data) => {
+      dataBuffer.push(data);
+      let stay_num = dataBuffer.filter(
+        (element) =>
+          element.direction === undefined 
+          && element.x === player.x 
+          && element.y === player.y
+      ).length;
+      if (stay_num > 5){
+        dataBuffer = [];
+      }
+      if(dataBuffer.length > 4){
+        socket.emit("input", dataBuffer);
+        dataBuffer = [];
+      } 
+    }
     const startGameLoop = () => {
       const step = () => {
         canvas.width = window.innerWidth;
@@ -744,7 +761,6 @@ const Overworld = ({
         //Update all objects
         Object.values(charMap).forEach((object) => {
           if (object.id === socket.id) {
-            console.log(object.x, object.y);
             // for (let i = 0; i < otherMaps.length; i++) {
             if (object.x >= 1552 && object.x <= 1616 && object.y <= 720) {
               // console.log("warp!!!");
@@ -790,8 +806,8 @@ const Overworld = ({
             }
             if (
               object.isUserCalling &&
-              (Math.abs(player.x - object.x) > 96 ||
-                Math.abs(player.y - object.y) > 128)
+              (Math.abs(player?.x - object.x) > 96 ||
+                Math.abs(player?.y - object.y) > 128)
             ) {
               console.log("멀어짐");
               closer = closer.filter((element) => element !== object.id);
@@ -813,7 +829,7 @@ const Overworld = ({
           player.isUserJoin = false;
         }
         //Draw Lower layer
-        map.drawLowerImage(ctx, cameraPerson);
+        map.drawLowerImage(ctx, cameraPerson,);
 
         //Draw Game Objects
         Object.values(charMap)
@@ -849,7 +865,7 @@ const Overworld = ({
             y: player.y,
             direction: directionInput.direction,
           };
-          socket.emit("input", data);
+          bufferSend(player, data);
         }
         if (isLoop) {
           requestAnimationFrame(() => {

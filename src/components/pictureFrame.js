@@ -124,11 +124,14 @@ const PictureFrame = ({ collapsed, socket }) => {
             src="https://img.icons8.com/ios-glyphs/344/cursor--v1.png"
             alt="img"
           />
+          <cursorNickname
+            isCursor={isCursor}
+            isCursorX={isCursorX}
+            isCursorY={isCursorY}
+          ></cursorNickname>
         </Frame>
         <PictureInfoContainer> hello </PictureInfoContainer>
       </div>
-      {/* <Cursor isCursorX={isCursorX} isCursorY={isCursorY} className="draw">
-      </Cursor> */}
     </PictureContainer>
   );
 };
