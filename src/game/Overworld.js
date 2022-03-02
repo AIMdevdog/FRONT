@@ -436,7 +436,6 @@ const Overworld = ({
                     kind: parameters.kind,
                     rtpParameters: parameters.rtpParameters,
                     appData: parameters.appData,
-                    track: myStream.getVideoTracks()[0],
                   },
                   ({ id, producersExist }) => {
                     // Tell the transport that parameters were transmitted and provide it with the
@@ -501,10 +500,11 @@ const Overworld = ({
       socket.emit("getProducers", (producerIds) => {
         console.log("getProducers 콜백 실행");
 
-        console.log(producerIds);
+        console.log("", producerIds);
         // for each of the producer create a consumer
-        // producerIds.forEach(id => signalNewConsumerTransport(id))
-        producerIds.forEach(signalNewConsumerTransport);
+        producerIds.forEach(ids => signalNewConsumerTransport(ids.producerId, ids.socketId))
+        // producerIds.forEach(signalNewConsumerTransport);
+        
       });
     };
 
@@ -580,12 +580,11 @@ const Overworld = ({
           remoteProducerId,
           serverConsumerTransportId,
         },
-        async ({ params }, socketId) => {
+        async ({ params }) => {
           if (params.error) {
             console.log("******Cannot Consume******");
             return;
           }
-          console.log(params.socketId);
           console.log(`******Consumer Params ${params}*******`);
           // then consume with the local consumer transport
           // which creates a consumer
@@ -607,8 +606,8 @@ const Overworld = ({
           ];
           // destructure and retrieve the video track from the producer
           const { track } = consumer;
-          console.log("---------------- consumer : ", consumer);
-          console.log("---------------- params : ", params);
+          // console.log("---------------- consumer : ", consumer);
+          // console.log("---------------- params : ", params)
           const peerStream = new MediaStream([track]);
           try {
             await paintPeerFace(peerStream, socketId);
