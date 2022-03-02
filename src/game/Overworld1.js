@@ -664,6 +664,24 @@ const Overworld1 = ({
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     let isLoop = true;
+    const bufferSend = (player, data) => {
+      dataBuffer.push(data);
+      let stay_num = dataBuffer.filter(
+        (element) =>
+          element.direction === undefined 
+          && element.x === player.x 
+          && element.y === player.y
+      ).length;
+      if (stay_num > 5){
+        dataBuffer = [];
+      }
+      if(dataBuffer.length > 4){
+        socket.emit("input", dataBuffer);
+        dataBuffer = [];
+      } 
+    }
+
+
     const startGameLoop = () => {
       const step = () => {
         canvas.width = window.innerWidth;
@@ -785,7 +803,7 @@ const Overworld1 = ({
             y: player.y,
             direction: directionInput.direction,
           };
-          socket.emit("input", data);
+          bufferSend(player, data);
         }
         if (isLoop) {
           requestAnimationFrame(() => {
