@@ -708,7 +708,7 @@ const Overworld1 = ({
                 socket.close();
                 navigate(url, {state: {x: 1584, y: 784}});
               }
-              else if (map.roomNum === 2 && object.y > 208){
+              else if (map.roomNum === 2 && object.y > 232){
                 socket.close();
                 navigate(url, {state: {x: 1008, y: 1072}});
               }

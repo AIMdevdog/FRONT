@@ -89,8 +89,8 @@ const Overworld = ({
       const player = charMap[socket.id];
       if (
         (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
-        player.x === 720 &&
-        player.y === 912
+        (player.x === 720 || player.x === 752) &&
+        player.y === 880
       ) {
         setOpenDraw((prev) => !prev);
       } else if (

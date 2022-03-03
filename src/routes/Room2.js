@@ -189,7 +189,7 @@ const Room2 = ({ userData }) => {
 
       socket.on("get_user_info", function (data) {
         const user = joinUser(data.id, data.x, data.y, data.nickname, data.src);
-        user.sprite.yaxios = 380;
+        user.sprite.yaxios = 350;
         user.directionUpdate = {
           up: ["y", -4],
           down: ["y", 4],
