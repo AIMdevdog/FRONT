@@ -13,6 +13,7 @@ import { joinUser, updateLocation } from "../utils/game/character";
 import { io } from "socket.io-client";
 import _const from "../config/const";
 import CharacterNickname from "../components/CharacterNickname";
+import PptSlider from "../components/pptSlider";
 
 const StreamsContainer = styled.div`
   position: fixed;
@@ -42,7 +43,7 @@ const StreamsContainer = styled.div`
         cursor: pointer;
       }
     }
-    .videoNickname{
+    .videoNickname {
       position: relative;
       bottom: 140px;
       left: 5px;
@@ -64,14 +65,14 @@ const MyVideoNickname = styled.div`
   border-radius: 10px;
   color: white;
   z-index: 10;
-`
+`;
 
 const MyVideoBox = styled.div`
   position: absolute;
   right: 30px;
   bottom: 20px;
   width: 200px;
-  z-index: 99;
+  z-index: 90;
   border-radius: 10px;
   &:hover {
     cursor: pointer;
@@ -135,6 +136,17 @@ const Room = ({ userData }) => {
   const [nicknames, setNicknames] = useState([]);
   const [openDraw, setOpenDraw] = useState(false);
   const [collapsed, setCollapsed] = useState(true);
+  const [openPPT, setOpenPPT] = useState(false);
+  const ppt1Imgs = [
+    "https://aim-front.s3.ap-northeast-2.amazonaws.com/2.jpeg",
+    "https://aim-front.s3.ap-northeast-2.amazonaws.com/3.jpeg",
+    "https://aim-front.s3.ap-northeast-2.amazonaws.com/4.jpeg",
+  ];
+  const ppt2Imgs = [
+    "https://aim-front.s3.ap-northeast-2.amazonaws.com/4.jpeg",
+    "https://aim-front.s3.ap-northeast-2.amazonaws.com/2.jpeg",
+  ];
+  const [openPPT2, setOpenPPT2] = useState(false);
 
   const [isCharacter, setIsCharacter] = useState([]);
 
@@ -151,7 +163,9 @@ const Room = ({ userData }) => {
       socket.on("join_user", function () {
         console.log("새로운 유저 접속");
         socket.emit("send_user_info", {
-          src: isUser.character,
+          src:
+            isUser.character ||
+            "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png",
           x: location.state.x,
           y: location.state.y,
           nickname: isUser.nickname,
@@ -184,7 +198,8 @@ const Room = ({ userData }) => {
   }, [isUser, socket]);
 
   const room = {
-    RoomSrc: "https://aim-front.s3.ap-northeast-2.amazonaws.com/aim-map.png",
+    RoomSrc:
+      "https://aim-front.s3.ap-northeast-2.amazonaws.com/aim-map-0303.png",
     roomNum: 0,
     gameObjects: {
       player: new Person({
@@ -204,22 +219,30 @@ const Room = ({ userData }) => {
       <div className="roomContainer" style={{ display: "flex" }}>
         {socket ? (
           <>
+            {openPPT ? <PptSlider pptImgs={ppt1Imgs} /> : null}
+            {openPPT2 ? <PptSlider pptImgs={ppt2Imgs} /> : null}
+            {openPPT || openPPT2 ? null : (
+              <RoomSideBar
+                url={url}
+                socket={socket}
+                collapsed={collapsed}
+                setCollapsed={setCollapsed}
+                setOpenDraw={setOpenDraw}
+                charMap={charMap}
+                characters={isCharacter}
+                openDraw={openDraw}
+              />
+            )}
             {openDraw ? (
               <div id="Arts">
-                <PictureFrame collapsed={collapsed} socket={socket} />
+                <PictureFrame
+                  collapsed={collapsed}
+                  socket={socket}
+                  charMap={charMap}
+                />
               </div>
             ) : null}
             <CharacterNickname nicknames={nicknames} />
-            <RoomSideBar
-              url={url}
-              socket={socket}
-              collapsed={collapsed}
-              setCollapsed={setCollapsed}
-              setOpenDraw={setOpenDraw}
-              charMap={charMap}
-              characters={isCharacter}
-              openDraw={openDraw}
-            />
             <Overworld
               setOpenDraw={setOpenDraw}
               roomId={roomId}
@@ -227,6 +250,8 @@ const Room = ({ userData }) => {
               charMap={charMap}
               socket={socket}
               openDraw={openDraw}
+              setOpenPPT={setOpenPPT}
+              setOpenPPT2={setOpenPPT2}
             />
           </>
         ) : null}
@@ -234,12 +259,11 @@ const Room = ({ userData }) => {
 
       <StreamsContainer id="streams"></StreamsContainer>
       <MyVideoBox>
-        <MyVideo id="myFace" autoPlay="autoplay">
-        </MyVideo>
+        <MyVideo id="myFace" autoPlay="autoplay"></MyVideo>
         <CamBtn id="camBtn">
           <VideoButton />
         </CamBtn>
-          <MyVideoNickname>{isUser?.nickname}</MyVideoNickname>
+        <MyVideoNickname>{isUser?.nickname}</MyVideoNickname>
       </MyVideoBox>
       <ScreenBottomBar />
       {/* <div id="share" style={{position: 'absolute', top: 0, right: 0}}>
