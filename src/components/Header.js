@@ -424,6 +424,7 @@ const Header = ({ userData, loadUserData }) => {
   const defaultImage =
     "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png";
 
+  const [isDataLoad, setIsDataLoad] = useState(false);
   const [isPath, setIsPath] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isCreateRoomOpen, setIsCreateRoomOpen] = useState(false);
@@ -460,12 +461,12 @@ const Header = ({ userData, loadUserData }) => {
     isLogged();
   }, [isPath]);
 
+
+
   useEffect(() => {
     loadUserData();
 
-    userData.then((data) => {
-      setIsSaveUserData(data)
-    })
+
     // const getUser = async () => {
     //   try {
     //     const requestUserData = await user.getUserInfo();
@@ -482,6 +483,18 @@ const Header = ({ userData, loadUserData }) => {
 
     // getUser();
   }, []);
+
+  useEffect(() => {
+    userData.then((data) => {
+      if(data.length === 0){
+        console.log("hello");
+        setIsDataLoad(prev=>!prev);
+      }
+      setIsSaveUserData(data)
+    }).catch((e) => {
+      console.log(e);
+    })
+  }, [isDataLoad])
 
   const onCreateSpace = () => {
     setIsCreateRoomOpen(!isCreateRoomOpen);

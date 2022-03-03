@@ -663,7 +663,26 @@ const Overworld1 = ({
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
+    let dataBuffer = [];
     let isLoop = true;
+    const bufferSend = (player, data) => {
+      dataBuffer.push(data);
+      let stay_num = dataBuffer.filter(
+        (element) =>
+          element.direction === undefined 
+          && element.x === player.x 
+          && element.y === player.y
+      ).length;
+      if (stay_num > 4){
+        dataBuffer = [];
+      }
+      if(dataBuffer.length > 4){
+        socket.emit("input", dataBuffer);
+        dataBuffer = [];
+      } 
+    }
+
+
     const startGameLoop = () => {
       const step = () => {
         canvas.width = window.innerWidth;
@@ -684,7 +703,6 @@ const Overworld1 = ({
         //Update all objects
         Object.values(charMap).forEach((object) => {
           if (object.id === socket.id) {
-            console.log(object.x, object.y);
             for (let i = 0; i < otherMaps.length; i++) {
               if (map.roomNum === 3 && object.y > 656 || (object.y < -1250 && object.x > 1232)) {
                 socket.close();
@@ -786,7 +804,7 @@ const Overworld1 = ({
             y: player.y,
             direction: directionInput.direction,
           };
-          socket.emit("input", data);
+          bufferSend(player, data);
         }
         if (isLoop) {
           requestAnimationFrame(() => {

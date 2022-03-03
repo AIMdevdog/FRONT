@@ -64,6 +64,8 @@ const Overworld = ({
   charMap,
   socket,
   openDraw,
+  setOpenPPT,
+  setOpenPPT2,
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   const containerEl = useRef();
@@ -89,8 +91,8 @@ const Overworld = ({
       const player = charMap[socket.id];
       if (
         (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
-        player.x === 720 &&
-        player.y === 912
+        (player.x === 720 || player.x === 752) &&
+        player.y === 880
       ) {
         setOpenDraw((prev) => !prev);
       } else if (
@@ -98,6 +100,32 @@ const Overworld = ({
         directionInput.direction
       ) {
         setOpenDraw(false);
+      }
+
+      if (
+        (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
+        player.x === 1680 &&
+        player.y === 1328
+      ) {
+        setOpenPPT((prev) => !prev);
+      } else if (
+        (!openDraw && (e.key === "x" || e.key === "X" || e.key === "ㅌ")) ||
+        directionInput.direction
+      ) {
+        setOpenPPT(false);
+      }
+
+      if (
+        (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
+        player.x === 1456 &&
+        player.y === 784
+      ) {
+        setOpenPPT2((prev) => !prev);
+      } else if (
+        (!openDraw && (e.key === "x" || e.key === "X" || e.key === "ㅌ")) ||
+        directionInput.direction
+      ) {
+        setOpenPPT2(false);
       }
     };
     window.addEventListener("popstate", socketDisconnect);
@@ -129,8 +157,8 @@ const Overworld = ({
 
     // 영상 connect
     async function paintPeerFace(peerStream, socketId) {
-      // console.log("charMap: ", charMap);
-      // console.log("socketId: ", socketId);
+      console.log("charMap: ", charMap);
+      console.log("socketId: ", socketId);
       const user = charMap[socketId];
       const streams = document.querySelector("#streams");
       const div = document.createElement("div");
@@ -150,8 +178,8 @@ const Overworld = ({
         video.autoplay = true;
         video.playsInline = true;
         div.appendChild(video);
+        div.appendChild(nicknameDiv);
         streams.appendChild(div);
-        streams.appendChild(nicknameDiv);
         // await sortStreams();
       } catch (err) {
         console.error(err);
@@ -436,7 +464,6 @@ const Overworld = ({
                     kind: parameters.kind,
                     rtpParameters: parameters.rtpParameters,
                     appData: parameters.appData,
-                    track: myStream.getVideoTracks()[0],
                   },
                   ({ id, producersExist }) => {
                     // Tell the transport that parameters were transmitted and provide it with the
@@ -501,10 +528,12 @@ const Overworld = ({
       socket.emit("getProducers", (producerIds) => {
         console.log("getProducers 콜백 실행");
 
-        console.log(producerIds);
+        console.log("", producerIds);
         // for each of the producer create a consumer
-        // producerIds.forEach(id => signalNewConsumerTransport(id))
-        producerIds.forEach(signalNewConsumerTransport);
+        producerIds.forEach((ids) =>
+          signalNewConsumerTransport(ids.producerId, ids.socketId)
+        );
+        // producerIds.forEach(signalNewConsumerTransport);
       });
     };
 
@@ -571,7 +600,7 @@ const Overworld = ({
       consumerTransport,
       remoteProducerId,
       serverConsumerTransportId,
-      socketId
+      remoteSocketID
     ) => {
       console.log("connectRecvTransport 실행");
 
@@ -584,13 +613,13 @@ const Overworld = ({
           rtpCapabilities: device.rtpCapabilities,
           remoteProducerId,
           serverConsumerTransportId,
+          socketId: remoteSocketID,
         },
-        async ({ params }, socketId) => {
+        async ({ params }) => {
           if (params.error) {
             console.log("******Cannot Consume******");
             return;
           }
-          console.log(params.socketId);
           console.log(`******Consumer Params ${params}*******`);
           // then consume with the local consumer transport
           // which creates a consumer
@@ -612,11 +641,11 @@ const Overworld = ({
           ];
           // destructure and retrieve the video track from the producer
           const { track } = consumer;
-          console.log("---------------- consumer : ", consumer);
-          console.log("---------------- params : ", params);
+          // console.log("---------------- consumer : ", consumer);
+          // console.log("---------------- params : ", params)
           const peerStream = new MediaStream([track]);
           try {
-            await paintPeerFace(peerStream, socketId);
+            await paintPeerFace(peerStream, remoteSocketID);
           } catch (e) {
             console.log(e);
           }
@@ -632,7 +661,7 @@ const Overworld = ({
       );
     };
 
-    socket.on("producer-closed", ({ remoteProducerId }) => {
+    socket.on("producer-closed", ({ remoteProducerId, remoteSocketId }) => {
       console.log("producer-closed 콜백 실행");
 
       // server notification is received when a producer is closed
@@ -650,7 +679,7 @@ const Overworld = ({
 
       // remove the video div element
       // videoContainer.removeChild(document.getElementById(`td-${remoteProducerId}`))
-      removePeerFace(remoteProducerId);
+      removePeerFace(remoteSocketId);
     });
 
     // ---------------------------------------- ^ SFU
@@ -732,8 +761,25 @@ const Overworld = ({
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", { alpha: false });
+    let dataBuffer = [];
     let isLoop = true;
+    const bufferSend = (player, data) => {
+      dataBuffer.push(data);
+      let stay_num = dataBuffer.filter(
+        (element) =>
+          element.direction === undefined &&
+          element.x === player.x &&
+          element.y === player.y
+      ).length;
+      if (stay_num > 4) {
+        dataBuffer = [];
+      }
+      if (dataBuffer.length > 4) {
+        socket.emit("input", dataBuffer);
+        dataBuffer = [];
+      }
+    };
     const startGameLoop = () => {
       const step = () => {
         canvas.width = window.innerWidth;
@@ -749,33 +795,26 @@ const Overworld = ({
         //Update all objects
         Object.values(charMap).forEach((object) => {
           if (object.id === socket.id) {
-            // for (let i = 0; i < otherMaps.length; i++) {
+            // console.log(object.x, object.y);
             if (object.x >= 1552 && object.x <= 1616 && object.y <= 720) {
-              // console.log("warp!!!");
               socket.close();
               navigate(`/room1/${roomId}`);
-              // window.location.href = `${otherMaps[i].url}`;
             } else if (
               object.x >= 976 &&
               object.x <= 1040 &&
               object.y >= 1136
             ) {
-              // console.log("warp!!!");
               socket.close();
               navigate(`/room2/${roomId}`);
-              // window.location.href = `${otherMaps[i].url}`;
             }
-            // }
             object.update({
               arrow: directionInput.direction,
               map: map,
-              // id: socket.id,
             });
           } else {
             object.update({
               arrow: object.nextDirection.shift(),
               map: map,
-              // id: socket.id,
             });
             if (
               !object.isUserCalling &&
@@ -794,8 +833,8 @@ const Overworld = ({
             }
             if (
               object.isUserCalling &&
-              (Math.abs(player.x - object.x) > 96 ||
-                Math.abs(player.y - object.y) > 128)
+              (Math.abs(player?.x - object.x) > 96 ||
+                Math.abs(player?.y - object.y) > 128)
             ) {
               console.log("멀어짐");
               closer = closer.filter((element) => element !== object.id);
@@ -853,7 +892,7 @@ const Overworld = ({
             y: player.y,
             direction: directionInput.direction,
           };
-          socket.emit("input", data);
+          bufferSend(player, data);
         }
         if (isLoop) {
           requestAnimationFrame(() => {
