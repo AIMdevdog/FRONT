@@ -28,7 +28,7 @@ const GoogleButton = ({ onSocial }) => {
         profileObj: { email },
       } = response;
 
-      console.log(accessToken, email);
+      // console.log(accessToken, email);
 
       const result = await sign.getGoogleSign(accessToken, email);
       const { data, status } = result;

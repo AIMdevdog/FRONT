@@ -78,7 +78,7 @@ export default function Aside() {
     setLinuxPosition((linuxPosition) =>
       linuxPosition === "0px" ? "80px" : "0px"
     );
-    console.log(linuxPosition);
+    // console.log(linuxPosition);
   };
 
   return (

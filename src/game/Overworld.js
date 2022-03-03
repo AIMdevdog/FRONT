@@ -65,7 +65,7 @@ const Overworld = ({
   socket,
   openDraw,
   setOpenPPT,
-  setOpenPPT2
+  setOpenPPT2,
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   const containerEl = useRef();
@@ -90,9 +90,9 @@ const Overworld = ({
     const keydownHandler = (e) => {
       const player = charMap[socket.id];
       if (
-        (e.key === "x" || e.key === "X" || e.key === "ㅌ")
-        && (player.x === 720 || player.x === 752)
-        && player.y === 880
+        (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
+        (player.x === 720 || player.x === 752) &&
+        player.y === 880
       ) {
         setOpenDraw((prev) => !prev);
       } else if (
@@ -103,9 +103,9 @@ const Overworld = ({
       }
 
       if (
-        (e.key === "x" || e.key === "X" || e.key === "ㅌ")
-        && player.x === 1680
-        && player.y === 1328
+        (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
+        player.x === 1680 &&
+        player.y === 1328
       ) {
         setOpenPPT((prev) => !prev);
       } else if (
@@ -116,9 +116,9 @@ const Overworld = ({
       }
 
       if (
-        (e.key === "x" || e.key === "X" || e.key === "ㅌ")
-        && player.x === 1456
-        && player.y === 784
+        (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
+        player.x === 1456 &&
+        player.y === 784
       ) {
         setOpenPPT2((prev) => !prev);
       } else if (
@@ -141,9 +141,9 @@ const Overworld = ({
 
     async function handleAddStream(event, remoteSocketId) {
       const peerStream = event.stream;
-      console.log(peerStream);
+      // console.log(peerStream);
       const user = charMap[remoteSocketId]; // person.js에 있는 거랑 같이
-      console.log("haddleAddStream USER: ", user);
+      // console.log("haddleAddStream USER: ", user);
       if (!user.isUserJoin) {
         // 유저가 어떤 그룹에도 속하지 않을 때 영상을 키겠다
         user.isUserJoin = true;
@@ -169,7 +169,7 @@ const Overworld = ({
       // console.log("-------- 커넥션 상태 --------", pcObj[id].iceConnectionState);
 
       try {
-        console.log("******peerstream", peerStream);
+        // console.log("******peerstream", peerStream);
         const video = document.createElement("video");
         video.srcObject = await peerStream;
         video.className = "userVideo";
@@ -190,7 +190,7 @@ const Overworld = ({
       const streamArr = streams.querySelectorAll("div");
       // console.log("총 길이 " , streamArr.length);
       streamArr.forEach((streamElement) => {
-        console.log(streamArr, streamElement.id, id);
+        // console.log(streamArr, streamElement.id, id);
         if (streamElement.id === id) {
           streams.removeChild(streamElement);
         }
@@ -219,7 +219,7 @@ const Overworld = ({
           } catch (e) {
             console.log(e);
           }
-          console.log("+------Ice------+");
+          // console.log("+------Ice------+");
         });
         myPeerConnection.addEventListener("addstream", async (event) => {
           try {
@@ -227,14 +227,14 @@ const Overworld = ({
           } catch (err) {
             console.error(err);
           }
-          console.log("+------addstream------+");
+          // console.log("+------addstream------+");
         });
 
-        console.log("+------before getTracks------+");
+        // console.log("+------before getTracks------+");
         myStream
           .getTracks()
           .forEach((track) => myPeerConnection.addTrack(track, myStream));
-        console.log("+------getTracks------+", myStream);
+        // console.log("+------getTracks------+", myStream);
 
         pcObj[remoteSocketId] = myPeerConnection;
 
@@ -350,12 +350,12 @@ const Overworld = ({
           track,
           ...params,
         };
-        console.log("----------- myTrack : ", track);
+        // console.log("----------- myTrack : ", track);
       } else {
         myStream = await navigator.mediaDevices.getDisplayMedia(
           displayMediaOptions
         );
-        console.log("mystream", myStream);
+        // console.log("mystream", myStream);
         // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
         myFace.srcObject = myStream;
         myFace.muted = false;
@@ -367,7 +367,7 @@ const Overworld = ({
     }
 
     async function initCall() {
-      console.log("initCall 함수");
+      // console.log("initCall 함수");
       try {
         await getMedia(false); // Room.js에 들어있음
       } catch (err) {
@@ -381,10 +381,10 @@ const Overworld = ({
     // server side to send/recive media
     const createDevice = async () => {
       try {
-        console.log("createDevice 실행");
+        // console.log("createDevice 실행");
         device = new mediasoupClient.Device();
         // device = getMedia(false)
-        console.log("**********device체크", device);
+        // console.log("**********device체크", device);
 
         // https://mediasoup.org/documentation/v3/mediasoup-client/api/#device-load
         // Loads the device with RTP capabilities of the Router (server side)
@@ -393,7 +393,7 @@ const Overworld = ({
           routerRtpCapabilities: rtpCapabilities,
         });
 
-        console.log("Device RTP Capabilities", device.rtpCapabilities);
+        // console.log("Device RTP Capabilities", device.rtpCapabilities);
 
         // once the device loads, create transport
         createSendTransport();
@@ -405,7 +405,7 @@ const Overworld = ({
     };
 
     const createSendTransport = () => {
-      console.log("createSendTransport 실행");
+      // console.log("createSendTransport 실행");
 
       // see server's socket.on('createWebRtcTransport', sender?, ...)
       // this is a call from Producer, so sender = true
@@ -413,9 +413,9 @@ const Overworld = ({
         "createWebRtcTransport",
         { consumer: false },
         ({ params }) => {
-          console.log(
-            "createSendTransport에서 createWebRtcTransport 콜백 실행"
-          );
+          // console.log(
+          //   "createSendTransport에서 createWebRtcTransport 콜백 실행"
+          // );
 
           // The server sends back params needed
           // to create Send Transport on the client side
@@ -528,9 +528,10 @@ const Overworld = ({
 
         console.log("", producerIds);
         // for each of the producer create a consumer
-        producerIds.forEach(ids => signalNewConsumerTransport(ids.producerId, ids.socketId))
+        producerIds.forEach((ids) =>
+          signalNewConsumerTransport(ids.producerId, ids.socketId)
+        );
         // producerIds.forEach(signalNewConsumerTransport);
-
       });
     };
 
@@ -583,7 +584,12 @@ const Overworld = ({
               }
             }
           );
-          connectRecvTransport(consumerTransport, remoteProducerId, params.id, socketId);
+          connectRecvTransport(
+            consumerTransport,
+            remoteProducerId,
+            params.id,
+            socketId
+          );
         }
       );
     };
@@ -592,7 +598,7 @@ const Overworld = ({
       consumerTransport,
       remoteProducerId,
       serverConsumerTransportId,
-      remoteSocketID,
+      remoteSocketID
     ) => {
       console.log("connectRecvTransport 실행");
 
@@ -760,9 +766,9 @@ const Overworld = ({
       dataBuffer.push(data);
       let stay_num = dataBuffer.filter(
         (element) =>
-          element.direction === undefined
-          && element.x === player.x
-          && element.y === player.y
+          element.direction === undefined &&
+          element.x === player.x &&
+          element.y === player.y
       ).length;
       if (stay_num > 4) {
         dataBuffer = [];
@@ -771,7 +777,7 @@ const Overworld = ({
         socket.emit("input", dataBuffer);
         dataBuffer = [];
       }
-    }
+    };
     const startGameLoop = () => {
       const step = () => {
         canvas.width = window.innerWidth;
@@ -847,7 +853,7 @@ const Overworld = ({
           player.isUserJoin = false;
         }
         //Draw Lower layer
-        map.drawLowerImage(ctx, cameraPerson,);
+        map.drawLowerImage(ctx, cameraPerson);
 
         //Draw Game Objects
         Object.values(charMap)
