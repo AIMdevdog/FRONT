@@ -119,11 +119,15 @@ const Overworld1 = ({
     }
 
     // 영상 connect
-    async function paintPeerFace(peerStream, remoteProducerId, remoteNickname) {
+    async function paintPeerFace(peerStream, socketId) {
+      const user = charMap[socketId];
       const streams = document.querySelector("#streams");
       const div = document.createElement("div");
+      const nicknameDiv = document.createElement("div");
+      nicknameDiv.className = "videoNickname";
+      nicknameDiv.innerText = user.nickname;
       // div.classList.add("userVideoContainer");
-      div.id = remoteProducerId;
+      div.id = socketId;
 
       // console.log("-------- 커넥션 상태 --------", pcObj[id].iceConnectionState);
 
@@ -135,6 +139,7 @@ const Overworld1 = ({
         video.autoplay = true;
         video.playsInline = true;
         div.appendChild(video);
+        div.appendChild(nicknameDiv);
         streams.appendChild(div);
         // await sortStreams();
       } catch (err) {
@@ -708,7 +713,7 @@ const Overworld1 = ({
                 socket.close();
                 navigate(url, {state: {x: 1584, y: 784}});
               }
-              else if (map.roomNum === 2 && object.y > 208){
+              else if (map.roomNum === 2 && object.y > 248){
                 socket.close();
                 navigate(url, {state: {x: 1008, y: 1072}});
               }

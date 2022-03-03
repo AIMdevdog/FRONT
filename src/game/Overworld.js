@@ -157,8 +157,6 @@ const Overworld = ({
 
     // 영상 connect
     async function paintPeerFace(peerStream, socketId) {
-      console.log("charMap: ", charMap);
-      console.log("socketId: ", socketId);
       const user = charMap[socketId];
       const streams = document.querySelector("#streams");
       const div = document.createElement("div");
@@ -789,7 +787,6 @@ const Overworld = ({
         //Update all objects
         Object.values(charMap).forEach((object) => {
           if (object.id === socket.id) {
-            console.log(object.x, object.y);
             if (object.x >= 1552 && object.x <= 1616 && object.y <= 720) {
               socket.close();
               navigate(`/room1/${roomId}`);
