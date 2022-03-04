@@ -16,7 +16,7 @@ let pcObj = {
 };
 var sendChannel = []; // RTCDataChannel for the local (sender)
 var receiveChannel = []; // RTCDataChannel for the remote (receiver)
-var localConnection = []; // RTCPeerConnection for our "local" connection
+var localConnection = []; // RTCPeerConnect~ion for our "local" connection
 var remoteConnection = []; // RTCPeerConnection for the "remote"
 
 // WebRTC SFU (mediasoup)
@@ -136,6 +136,7 @@ const Overworld = ({
     };
   }, []);
 
+
   useEffect(() => {
     initCall();
 
@@ -186,6 +187,7 @@ const Overworld = ({
 
     // 영상 disconnect
     function removePeerFace(id) {
+      console.log("삭제되야지", id)
       const streams = document.querySelector("#streams");
       const streamArr = streams.querySelectorAll("div");
       // console.log("총 길이 " , streamArr.length);
@@ -340,6 +342,10 @@ const Overworld = ({
         // console.log("mystream", myStream);
         // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
         myFace.srcObject = myStream;
+        myFace.muted = true;
+        // myStream // mute default
+        //   .getAudioTracks()
+        //   .forEach((track) => (console.log("@@@@@@@@@@@@@@@@@ track.enabled", track.enabled)));
 
         myStream // mute default
           .getAudioTracks()
@@ -597,10 +603,10 @@ const Overworld = ({
       consumerTransport,
       remoteProducerId,
       serverConsumerTransportId,
-      remoteSocketID
+      remoteSocketId
     ) => {
       console.log("connectRecvTransport 실행");
-
+      console.log('connectRecvTransport함수', remoteSocketId)
       // for consumer, we need to tell the server first
       // to create a consumer based on the rtpCapabilities and consume
       // if the router can consume, it will send back a set of params as below
@@ -610,7 +616,7 @@ const Overworld = ({
           rtpCapabilities: device.rtpCapabilities,
           remoteProducerId,
           serverConsumerTransportId,
-          socketId: remoteSocketID,
+          remoteSocketId,
         },
         async ({ params }) => {
           if (params.error) {
@@ -642,7 +648,7 @@ const Overworld = ({
           // console.log("---------------- params : ", params)
           const peerStream = new MediaStream([track]);
           try {
-            await paintPeerFace(peerStream, remoteSocketID);
+            await paintPeerFace(peerStream, remoteSocketId);
           } catch (e) {
             console.log(e);
           }
@@ -685,13 +691,16 @@ const Overworld = ({
     socket.on("leave_succ", function (data) {
       const user = charMap[data.removeSid];
       user.isUserJoin = false;
+      user.groupName = 0;
+      console.log("삭제")
+      console.log(data)
       removePeerFace(data.removeSid);
     });
 
     socket.on("accept_join", async (groupName) => {
       try {
         // SFU
-        await initCall();
+        charMap[socket.id].groupName = groupName;
         socket.emit("getRtpCapabilities", groupName, (data) => {
           console.log(`Router RTP Capabilities... ${data.rtpCapabilities}`);
           // we assign to local variable and will be used when
@@ -727,24 +736,24 @@ const Overworld = ({
       }
     });
 
-    socket.on("offer", async (offer, remoteSocketId, remoteNickname) => {
-      try {
-        const newPC = await createConnection(remoteSocketId, remoteNickname);
-        await newPC.setRemoteDescription(offer);
-        const answer = await newPC.createAnswer();
-        await newPC.setLocalDescription(answer);
-        socket.emit("answer", answer, remoteSocketId);
-      } catch (err) {
-        console.error(err);
-      }
-    });
+    // socket.on("offer", async (offer, remoteSocketId, remoteNickname) => {
+    //   try {
+    //     const newPC = await createConnection(remoteSocketId, remoteNickname);
+    //     await newPC.setRemoteDescription(offer);
+    //     const answer = await newPC.createAnswer();
+    //     await newPC.setLocalDescription(answer);
+    //     socket.emit("answer", answer, remoteSocketId);
+    //   } catch (err) {
+    //     console.error(err);
+    //   }
+    // });
 
-    socket.on("answer", async (answer, remoteSocketId) => {
-      await pcObj[remoteSocketId].setRemoteDescription(answer);
-    });
+    // socket.on("answer", async (answer, remoteSocketId) => {
+    //   await pcObj[remoteSocketId].setRemoteDescription(answer);
+    // });
 
-    socket.on("ice", async (ice, remoteSocketId, remoteNickname) => {
-      await pcObj[remoteSocketId].addIceCandidate(ice);
+    // socket.on("ice", async (ice, remoteSocketId, remoteNickname) => {
+    //   await pcObj[remoteSocketId].addIceCandidate(ice);
       // const state = pcObj[remoteSocketId].iceConnectionState;
       // if (state === "failed" || state === "closed") {
       //   const newPC = await createConnection(remoteSocketId, remoteNickname);
@@ -753,7 +762,7 @@ const Overworld = ({
       //   socket.emit("offer", offer, remoteSocketId, remoteNickname);
       //   console.log("iceCandidate 실패! 재연결 시도");
       // }
-    });
+    // });
   }, []);
 
   useEffect(() => {
@@ -812,8 +821,10 @@ const Overworld = ({
               arrow: object.nextDirection.shift(),
               map: map,
             });
-            if (
+            if ( //기존 !object.isUserCalling에서 아래로 대체함 (전에 groupName 고정되어있을때 사용했었음)
+              //그룹이
               !object.isUserCalling &&
+              // !object.groupName &&
               Math.abs(player?.x - object.x) < 64 &&
               Math.abs(player?.y - object.y) < 96
             ) {
@@ -827,8 +838,13 @@ const Overworld = ({
                 callee: object.id,
               });
             }
+            // console.log(player.groupName);
+            // console.log(object.groupName);
             if (
+              //기존 object.isUserCalling에서 아래로 대체함 (전에 groupName 고정되어있을때 사용했었음)
+              //그룹이 같다. 
               object.isUserCalling &&
+              // object.groupName &&
               (Math.abs(player?.x - object.x) > 96 ||
                 Math.abs(player?.y - object.y) > 128)
             ) {
@@ -840,6 +856,7 @@ const Overworld = ({
           }
         });
         const playercheck = player ? player.isUserCalling : false;
+        // console.log("멀어짐 로직 player.socketId", player.socketId,"근처에 있는",closer)
         if (playercheck && closer.length === 0) {
           // 나가는 사람 기준
           const stream = document.querySelector("#streams");

@@ -13,6 +13,7 @@ export class Person extends GameObject {
     };
     this.isUserCalling = false;
     this.isUserJoin = false;
+    this.groupName = 0;
     this.angle = 1;
   }
 

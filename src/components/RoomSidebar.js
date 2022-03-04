@@ -397,6 +397,7 @@ const RoomSideBar = ({
   setOpenDraw,
   socket,
   characters,
+  charMap,
 }) => {
   const navigate = useNavigate();
   const [exitModal, setExitModal] = useState(false);
