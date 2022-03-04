@@ -12,25 +12,31 @@ import RTCVideo from "../components/RCTVideo.js";
 const StreamsContainer = styled.div`
   position: fixed;
   display: flex;
-  left: 50%;
+  /* left: 50%; */
   top: 20px;
-  width: 20%;
+  width: 100%;
   justify-content: center;
   align-items: center;
   z-index: 99;
 
   .slick-initialized .slick-slide {
-    display: flex !important;
+    max-width: 1440px;
+    min-width: 1440px;
+    display: flex;
     justify-content: center;
     align-items: center;
   }
 
+  /* .slick-slide {
+    margin: 0 20px;
+  } */
+
   .slick-slider {
-    width: auto;
+    width: 100%;
   }
 
   .slick-track {
-    width: 200px;
+    width: 100%;
   }
 `;
 
@@ -108,7 +114,7 @@ const Overworld = ({
     dots: true,
     infinite: true,
     speed: 500,
-    slidesToShow: 1,
+    slidesToShow: 5,
     slidesToScroll: 1,
   };
 
@@ -947,7 +953,13 @@ const Overworld = ({
     };
   }, []);
 
-  console.log(isVideoUser, "----------------");
+  const namesArr = isVideoUser.filter(function (elem, pos) {
+    return isVideoUser.indexOf(elem?.id) == pos?.id;
+  });
+
+  console.log(namesArr, "namesArr");
+
+  console.log(isVideoUser, "isVideoUser");
 
   return (
     <>

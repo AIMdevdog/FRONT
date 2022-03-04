@@ -37,11 +37,12 @@ const RTCVideo = ({ mediaStream }) => {
   const { peerStream, nickname, id } = mediaStream;
   const viewRef = useRef(null);
 
+  console.log(peerStream, "peerStream");
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(async () => {
     if (!viewRef.current) return;
     viewRef.current.srcObject = peerStream ? peerStream : null;
-  }, [peerStream]);
+  }, []);
 
   return (
     <UserStreamDiv id={id}>
