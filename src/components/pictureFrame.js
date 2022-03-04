@@ -100,8 +100,6 @@ const PictureFrame = ({ socket }) => {
       }
       return [...prev,{
         nickname: nickname,
-        isCursorX: 500,
-        isCursorY: 500,
       }]
     })
   });
