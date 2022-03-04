@@ -6,11 +6,9 @@ import RoomSideBar from "../components/RoomSidebar";
 import styled from "styled-components";
 import VideoButton from "../components/VideoButton";
 import { connect } from "react-redux";
-import ScreenBottomBar from "../components/ScreenBottomBar";
 import { joinUser, updateLocation } from "../utils/game/character";
 import { io } from "socket.io-client";
 import _const from "../config/const";
-import CharacterNickname from "../components/CharacterNickname";
 import Overworld1 from "../game/Overworld1";
 import Gallery3 from "../components/Gallery3";
 

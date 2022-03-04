@@ -236,9 +236,7 @@ const Room = ({ userData }) => {
             {openDraw ? (
               <div id="Arts">
                 <PictureFrame
-                  collapsed={collapsed}
                   socket={socket}
-                  charMap={charMap}
                 />
               </div>
             ) : null}
