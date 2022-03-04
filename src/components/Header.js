@@ -9,7 +9,7 @@ import React from "react";
 import { Cookies } from "react-cookie";
 
 import CreateSpaceModal from "./CreateSpaceModal";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { actionCreators } from "../store";
 
 const cookies = new Cookies();
@@ -461,40 +461,23 @@ const Header = ({ userData, loadUserData }) => {
     isLogged();
   }, [isPath]);
 
-
-
   useEffect(() => {
     loadUserData();
-
-
-    // const getUser = async () => {
-    //   try {
-    //     const requestUserData = await user.getUserInfo();
-    //     const {
-    //       data: { result },
-    //     } = requestUserData;
-    //     if (result) {
-    //       setIsSaveUserData(result);
-    //     }
-    //   } catch (e) {
-    //     console.log(e);
-    //   }
-    // };
-
-    // getUser();
   }, []);
 
   useEffect(() => {
-    userData.then((data) => {
-      if(data.length === 0){
-        console.log("hello");
-        setIsDataLoad(prev=>!prev);
+    const getUserInfo = async () => {
+      const requestUserData = await user.getUserInfo();
+      const {
+        data: { result },
+      } = requestUserData;
+      if (result) {
+        setIsSaveUserData(result);
       }
-      setIsSaveUserData(data)
-    }).catch((e) => {
-      console.log(e);
-    })
-  }, [isDataLoad])
+    };
+
+    getUserInfo();
+  }, []);
 
   const onCreateSpace = () => {
     setIsCreateRoomOpen(!isCreateRoomOpen);
@@ -728,10 +711,9 @@ function mapStateToProps(state) {
   };
 }
 function mapDispachProps(dispatch) {
-
   return {
-    loadUserData: () => dispatch(actionCreators.loadUserData())
-  }
+    loadUserData: () => dispatch(actionCreators.loadUserData()),
+  };
 }
 
 export default connect(mapStateToProps, mapDispachProps)(Header);
