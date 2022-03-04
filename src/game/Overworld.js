@@ -21,11 +21,11 @@ var remoteConnection = []; // RTCPeerConnection for the "remote"
 
 // WebRTC SFU (mediasoup)
 let params_audio = {
-    codecOptions: {
+  codecOptions: {
     opusStereo: 1,
     opusDtx: 1,
-    }
-}
+  },
+};
 let params_video = {
   // mediasoup params
   encodings: [
@@ -55,7 +55,8 @@ let device;
 let rtpCapabilities;
 let producerTransport;
 let consumerTransports = [];
-let producer;
+let producer_video;
+let producer_audio;
 let consumer;
 let isProducer = false;
 
@@ -142,7 +143,6 @@ const Overworld = ({
     };
   }, []);
 
-
   useEffect(() => {
     initCall();
 
@@ -193,7 +193,7 @@ const Overworld = ({
 
     // 영상 disconnect
     function removePeerFace(id) {
-      console.log("삭제되야지", id)
+      console.log("삭제되야지", id);
       const streams = document.querySelector("#streams");
       const streamArr = streams.querySelectorAll("div");
       // console.log("총 길이 " , streamArr.length);
@@ -356,8 +356,8 @@ const Overworld = ({
         myStream // mute default
           .getAudioTracks()
           .forEach((track) => (track.enabled = true));
-        const video_track = myStream.getVideoTracks()[0]
-        const audio_track = myStream.getAudioTracks()[0]
+        const video_track = myStream.getVideoTracks()[0];
+        const audio_track = myStream.getAudioTracks()[0];
 
         params_audio = {
           audio_track,
@@ -517,7 +517,7 @@ const Overworld = ({
       console.log("--------------- params_video : ", params_audio);
       producer_video = await producerTransport.produce(params_video);
       producer_audio = await producerTransport.produce(params_audio);
-      
+
       producer_video.on("trackended", () => {
         console.log("producer의 trackended 이벤트 실행");
 
@@ -551,8 +551,6 @@ const Overworld = ({
 
         // close video track
       });
-
-
     };
 
     // server informs the client of a new producer just joined
@@ -641,7 +639,7 @@ const Overworld = ({
       remoteSocketId
     ) => {
       console.log("connectRecvTransport 실행");
-      console.log('connectRecvTransport함수', remoteSocketId)
+      console.log("connectRecvTransport함수", remoteSocketId);
       // for consumer, we need to tell the server first
       // to create a consumer based on the rtpCapabilities and consume
       // if the router can consume, it will send back a set of params as below
@@ -727,8 +725,8 @@ const Overworld = ({
       const user = charMap[data.removeSid];
       user.isUserJoin = false;
       user.groupName = 0;
-      console.log("삭제")
-      console.log(data)
+      console.log("삭제");
+      console.log(data);
       removePeerFace(data.removeSid);
     });
 
@@ -789,14 +787,14 @@ const Overworld = ({
 
     // socket.on("ice", async (ice, remoteSocketId, remoteNickname) => {
     //   await pcObj[remoteSocketId].addIceCandidate(ice);
-      // const state = pcObj[remoteSocketId].iceConnectionState;
-      // if (state === "failed" || state === "closed") {
-      //   const newPC = await createConnection(remoteSocketId, remoteNickname);
-      //   const offer = await newPC.createOffer();
-      //   await newPC.setLocalDescription(offer);
-      //   socket.emit("offer", offer, remoteSocketId, remoteNickname);
-      //   console.log("iceCandidate 실패! 재연결 시도");
-      // }
+    // const state = pcObj[remoteSocketId].iceConnectionState;
+    // if (state === "failed" || state === "closed") {
+    //   const newPC = await createConnection(remoteSocketId, remoteNickname);
+    //   const offer = await newPC.createOffer();
+    //   await newPC.setLocalDescription(offer);
+    //   socket.emit("offer", offer, remoteSocketId, remoteNickname);
+    //   console.log("iceCandidate 실패! 재연결 시도");
+    // }
     // });
   }, []);
 
@@ -856,7 +854,8 @@ const Overworld = ({
               arrow: object.nextDirection.shift(),
               map: map,
             });
-            if ( //기존 !object.isUserCalling에서 아래로 대체함 (전에 groupName 고정되어있을때 사용했었음)
+            if (
+              //기존 !object.isUserCalling에서 아래로 대체함 (전에 groupName 고정되어있을때 사용했었음)
               //그룹이
               !object.isUserCalling &&
               // !object.groupName &&
@@ -877,7 +876,7 @@ const Overworld = ({
             // console.log(object.groupName);
             if (
               //기존 object.isUserCalling에서 아래로 대체함 (전에 groupName 고정되어있을때 사용했었음)
-              //그룹이 같다. 
+              //그룹이 같다.
               object.isUserCalling &&
               // object.groupName &&
               (Math.abs(player?.x - object.x) > 96 ||
