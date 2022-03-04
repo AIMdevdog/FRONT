@@ -18,6 +18,20 @@ const StreamsContainer = styled.div`
   justify-content: center;
   align-items: center;
   z-index: 99;
+
+  .slick-initialized .slick-slide {
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .slick-slider {
+    width: auto;
+  }
+
+  .slick-track {
+    width: 200px;
+  }
 `;
 
 const mediasoupClient = require("mediasoup-client");
@@ -932,6 +946,8 @@ const Overworld = ({
       isLoop = false;
     };
   }, []);
+
+  console.log(isVideoUser, "----------------");
 
   return (
     <>
