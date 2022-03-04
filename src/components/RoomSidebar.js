@@ -303,6 +303,7 @@ const RoomSideBar = ({
   setOpenDraw,
   socket,
   characters,
+  charMap,
 }) => {
   const navigate = useNavigate();
   const [exitModal, setExitModal] = useState(false);
@@ -354,10 +355,12 @@ const RoomSideBar = ({
 
   // chat socket
   const onHandleChatSubmit = () => {
-    let groupName = 1;
+    const groupName = charMap[socket.id].groupName
+    const nickname = charMap[socket.id].nickname
+    // let groupName = 1;
     setIsChatValue("");
 
-    socket.emit("chat", `${1}: ${isChatValue}`, groupName);
+    socket.emit("chat", `${nickname}: ${isChatValue}`, groupName);
     onChatWrite(isChatValue);
   };
 
@@ -367,6 +370,7 @@ const RoomSideBar = ({
 
   useEffect(() => {
     socket.on("chat", (isChatValue) => {
+      console.log('get')
       onChatWrite(isChatValue);
     });
 
