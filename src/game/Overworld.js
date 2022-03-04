@@ -21,9 +21,26 @@ var remoteConnection = []; // RTCPeerConnection for the "remote"
 
 // WebRTC SFU (mediasoup)
 let params_audio = {
+  encodings: [
+    {
+      rid: "r0",
+      maxBitrate: 100000,
+      scalabilityMode: "S1T3",
+    },
+    {
+      rid: "r1",
+      maxBitrate: 300000,
+      scalabilityMode: "S1T3",
+    },
+    {
+      rid: "r2",
+      maxBitrate: 900000,
+      scalabilityMode: "S1T3",
+    },
+  ],
+  // https://mediasoup.org/documentation/v3/mediasoup-client/api/#ProducerCodecOptions
   codecOptions: {
-    opusStereo: 1,
-    opusDtx: 1,
+    videoGoogleStartBitrate: 1000,
   },
 };
 let params_video = {
