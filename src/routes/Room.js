@@ -14,6 +14,7 @@ import { io } from "socket.io-client";
 import _const from "../config/const";
 import CharacterNickname from "../components/CharacterNickname";
 import PptSlider from "../components/pptSlider";
+import { user } from "../config/api";
 
 const StreamsContainer = styled.div`
   position: fixed;
@@ -56,8 +57,8 @@ const StreamsContainer = styled.div`
   }
 `;
 const MyVideoNickname = styled.div`
-  position: relative;
-  bottom: 140px;
+  position: absolute;
+  top: 5px;
   left: 5px;
   display: inline;
   background-color: rgb(0, 0, 0, 0.6);
@@ -147,15 +148,26 @@ const Room = ({ userData }) => {
     "https://aim-front.s3.ap-northeast-2.amazonaws.com/2.jpeg",
   ];
   const [openPPT2, setOpenPPT2] = useState(false);
-
   const [isCharacter, setIsCharacter] = useState([]);
-
   const [isUser, setUser] = useState(null);
+
   useEffect(() => {
-    userData.then((data) => {
-      setUser(data);
-      setSocket(io(_const.HOST));
-    });
+    const getUser = async () => {
+      try {
+        const requestUserData = await user.getUserInfo();
+        const {
+          data: { result },
+        } = requestUserData;
+        if (result) {
+          setUser(result);
+          setSocket(io(_const.HOST));
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    getUser();
   }, []);
 
   useEffect(() => {
@@ -164,11 +176,11 @@ const Room = ({ userData }) => {
         console.log("새로운 유저 접속");
         socket.emit("send_user_info", {
           src:
-            isUser.character ||
+            isUser?.character ||
             "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png",
           x: location.state.x,
           y: location.state.y,
-          nickname: isUser.nickname,
+          nickname: isUser?.nickname,
           roomId: "room" + roomId,
         });
       });

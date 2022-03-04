@@ -463,37 +463,21 @@ const Header = ({ userData, loadUserData }) => {
 
   useEffect(() => {
     loadUserData();
-
-    // const getUser = async () => {
-    //   try {
-    //     const requestUserData = await user.getUserInfo();
-    //     const {
-    //       data: { result },
-    //     } = requestUserData;
-    //     if (result) {
-    //       setIsSaveUserData(result);
-    //     }
-    //   } catch (e) {
-    //     console.log(e);
-    //   }
-    // };
-
-    // getUser();
   }, []);
 
   useEffect(() => {
-    userData
-      .then((data) => {
-        if (data.length === 0) {
-          console.log("hello");
-          setIsDataLoad((prev) => !prev);
-        }
-        setIsSaveUserData(data);
-      })
-      .catch((e) => {
-        console.log(e);
-      });
-  }, [isDataLoad]);
+    const getUserInfo = async () => {
+      const requestUserData = await user.getUserInfo();
+      const {
+        data: { result },
+      } = requestUserData;
+      if (result) {
+        setIsSaveUserData(result);
+      }
+    };
+
+    getUserInfo();
+  }, []);
 
   const onCreateSpace = () => {
     setIsCreateRoomOpen(!isCreateRoomOpen);
