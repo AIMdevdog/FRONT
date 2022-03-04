@@ -342,15 +342,15 @@ const Overworld = ({
         // console.log("mystream", myStream);
         // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
         myFace.srcObject = myStream;
-        myFace.muted = true;
+        // myFace.muted = true;
         // myStream // mute default
         //   .getAudioTracks()
         //   .forEach((track) => (console.log("@@@@@@@@@@@@@@@@@ track.enabled", track.enabled)));
 
         myStream // mute default
           .getAudioTracks()
-          .forEach((track) => (track.enabled = false));
-        const track = myStream.getVideoTracks()[0];
+          .forEach((track) => (track.enabled = true));
+        const track = myStream.getAudioTracks()[0]
         params = {
           track,
           ...params,
