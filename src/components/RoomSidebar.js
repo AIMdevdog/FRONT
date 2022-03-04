@@ -476,6 +476,8 @@ const RoomSideBar = ({
   const onHandleChatSubmit = (e) => {
     const { key } = e;
     const notMe = characters?.filter((char) => char?.id !== socket?.id);
+    const isMe = characters?.filter((char) => char?.id === socket?.id);
+
     const notMeDestruct = notMe?.map((info) => {
       return {
         id: info?.id,
@@ -483,23 +485,33 @@ const RoomSideBar = ({
       };
     });
 
-    const isChatTargetDestruct = characters?.map((char) => {
+    const isMeDestruct = isMe?.map((info) => {
       return {
         id: socket?.id,
-        nickname: char?.nickname,
-        character: char?.sprite?.image?.currentSrc,
+        nickname: info?.nickname,
+        character: info?.sprite?.image?.currentSrc,
         message: isChatValue,
         date: moment(),
       };
     });
+
+    // const isChatTargetDestruct = characters?.map((char) => {
+    //   return {
+    // id: socket?.id,
+    // nickname: char?.nickname,
+    // character: char?.sprite?.image?.currentSrc,
+    // message: isChatValue,
+    // date: moment(),
+    //   };
+    // });
 
     let groupName = 1;
     if (key === "Enter") {
       setIsChatValue("");
 
       // socket.emit("chat", `${1}: ${isChatValue}`, groupName);
-      socket.emit("chat", isChatTargetDestruct[0], notMeDestruct);
-      onChatWrite(isChatTargetDestruct[0]);
+      socket.emit("chat", isMeDestruct[0], notMeDestruct);
+      onChatWrite(isMeDestruct[0]);
     }
   };
 
