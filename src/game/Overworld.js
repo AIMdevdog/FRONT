@@ -20,7 +20,10 @@ var localConnection = []; // RTCPeerConnect~ion for our "local" connection
 var remoteConnection = []; // RTCPeerConnection for the "remote"
 
 // WebRTC SFU (mediasoup)
-let params = {
+let params_audio = {
+  
+}
+let params_video = {
   // mediasoup params
   encodings: [
     {
@@ -350,9 +353,16 @@ const Overworld = ({
         myStream // mute default
           .getAudioTracks()
           .forEach((track) => (track.enabled = true));
-        const track = myStream.getAudioTracks()[0]
-        params = {
-          track,
+        const video_track = myStream.getVideoTracks()[0]
+        const audio_track = myStream.getAudioTracks()[0]
+        
+        params_audio = {
+          audio_track,
+          ...params,
+        };
+
+        params_video = {
+          video_track,
           ...params,
         };
         // console.log("----------- myTrack : ", track);
@@ -500,9 +510,10 @@ const Overworld = ({
       // this action will trigger the 'connect' and 'produce' events above
 
       console.log("--------------- params : ", params);
-      producer = await producerTransport.produce(params);
-
-      producer.on("trackended", () => {
+      producer_video = await producerTransport.produce(params_video);
+      producer_audio = await producerTransport.produce(params_audio);
+      
+      producer_video.on("trackended", () => {
         console.log("producer의 trackended 이벤트 실행");
 
         console.log("track ended");
@@ -510,7 +521,7 @@ const Overworld = ({
         // close video track
       });
 
-      producer.on("transportclose", () => {
+      producer_video.on("transportclose", () => {
         console.log("producer의 transportclose 이벤트 실행");
 
         console.log("producer");
@@ -518,6 +529,25 @@ const Overworld = ({
 
         // close video track
       });
+
+      producer_audio.on("trackended", () => {
+        console.log("producer의 trackended 이벤트 실행");
+
+        console.log("track ended");
+
+        // close video track
+      });
+
+      producer_audio.on("transportclose", () => {
+        console.log("producer의 transportclose 이벤트 실행");
+
+        console.log("producer");
+        console.log("transport ended");
+
+        // close video track
+      });
+
+
     };
 
     // server informs the client of a new producer just joined
