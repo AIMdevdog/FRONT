@@ -16,46 +16,6 @@ import CharacterNickname from "../components/CharacterNickname";
 import PptSlider from "../components/pptSlider";
 import { user } from "../config/api";
 
-const StreamsContainer = styled.div`
-  position: fixed;
-  display: flex;
-  left: 50%;
-  top: 60px;
-  width: 20%;
-  height: 100px;
-  justify-content: center;
-  align-items: center;
-
-  div {
-    width: 200px;
-    margin-right: 20px;
-
-    .userVideo {
-      width: 200px;
-      border-radius: 10px;
-      /*Mirror code starts*/
-      transform: rotateY(180deg);
-      -webkit-transform: rotateY(180deg); /* Safari and Chrome */
-      -moz-transform: rotateY(180deg); /* Firefox */
-
-      /*Mirror code ends*/
-      &:hover {
-        outline: 2px solid red;
-        cursor: pointer;
-      }
-    }
-    .videoNickname {
-      position: relative;
-      bottom: 140px;
-      left: 5px;
-      display: inline;
-      background-color: rgb(0, 0, 0, 0.6);
-      padding: 5px;
-      border-radius: 10px;
-      color: white;
-    }
-  }
-`;
 const MyVideoNickname = styled.div`
   position: absolute;
   top: 5px;
@@ -269,7 +229,7 @@ const Room = ({ userData }) => {
         ) : null}
       </div>
 
-      <StreamsContainer id="streams"></StreamsContainer>
+      {/* <StreamsContainer id="streams"></StreamsContainer> */}
       <MyVideoBox>
         <MyVideo id="myFace" autoPlay="autoplay"></MyVideo>
         <CamBtn id="camBtn">

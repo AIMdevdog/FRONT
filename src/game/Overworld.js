@@ -5,6 +5,50 @@ import _const from "../config/const.js";
 import { useEffect, useRef, useState } from "react";
 import LoadingComponent from "../components/Loading.js";
 import { useNavigate } from "react-router";
+import styled from "styled-components";
+import RTCVideo from "../components/RCTVideo.js";
+
+const StreamsContainer = styled.div`
+  position: fixed;
+  display: flex;
+  left: 50%;
+  top: 20px;
+  width: 20%;
+  justify-content: center;
+  align-items: center;
+  z-index: 99;
+
+  div {
+    width: 200px;
+    margin-right: 20px;
+
+    video {
+      width: 200px;
+      border-radius: 10px;
+      /*Mirror code starts*/
+      transform: rotateY(180deg);
+      -webkit-transform: rotateY(180deg); /* Safari and Chrome */
+      -moz-transform: rotateY(180deg); /* Firefox */
+
+      /*Mirror code ends*/
+      &:hover {
+        outline: 2px solid red;
+        cursor: pointer;
+      }
+    }
+    div {
+      position: relative;
+      bottom: 140px;
+      left: 5px;
+      display: inline;
+      background-color: rgb(0, 0, 0, 0.6);
+      padding: 5px;
+      border-radius: 10px;
+      color: white;
+    }
+  }
+`;
+
 const mediasoupClient = require("mediasoup-client");
 
 let myStream;
@@ -68,6 +112,7 @@ const Overworld = ({
   setOpenPPT2,
 }) => {
   const [isLoading, setIsLoading] = useState(true);
+  const [isVideoUser, isSetVideoUser] = useState([]);
   const containerEl = useRef();
   const canvasRef = useRef();
   const navigate = useNavigate();
@@ -136,7 +181,6 @@ const Overworld = ({
     };
   }, []);
 
-
   useEffect(() => {
     initCall();
 
@@ -158,6 +202,9 @@ const Overworld = ({
 
     // 영상 connect
     async function paintPeerFace(peerStream, socketId) {
+      // isSetVideoUser
+      isSetVideoUser((prev) => [...prev, peerStream]);
+
       const user = charMap[socketId];
       const streams = document.querySelector("#streams");
       const div = document.createElement("div");
@@ -185,9 +232,11 @@ const Overworld = ({
       }
     }
 
+    console.log(isVideoUser, "--------------------");
+
     // 영상 disconnect
     function removePeerFace(id) {
-      console.log("삭제되야지", id)
+      console.log("삭제되야지", id);
       const streams = document.querySelector("#streams");
       const streamArr = streams.querySelectorAll("div");
       // console.log("총 길이 " , streamArr.length);
@@ -326,7 +375,7 @@ const Overworld = ({
     cameraBtn.addEventListener("click", handleCameraClick);
     muteBtn.addEventListener("click", handleMuteClick);
 
-    var displayMediaOptions = {
+    const displayMediaOptions = {
       video: {
         cursor: "always",
       },
@@ -342,14 +391,14 @@ const Overworld = ({
         // console.log("mystream", myStream);
         // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
         myFace.srcObject = myStream;
-        myFace.muted = true;
+        // myFace.muted = true;
         // myStream // mute default
         //   .getAudioTracks()
         //   .forEach((track) => (console.log("@@@@@@@@@@@@@@@@@ track.enabled", track.enabled)));
 
         myStream // mute default
           .getAudioTracks()
-          .forEach((track) => (track.enabled = false));
+          .forEach((track) => (track.enabled = true));
         const track = myStream.getVideoTracks()[0];
         params = {
           track,
@@ -363,7 +412,7 @@ const Overworld = ({
         // console.log("mystream", myStream);
         // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
         myFace.srcObject = myStream;
-        myFace.muted = false;
+        // myFace.muted = false;
 
         myStream // mute default
           .getAudioTracks()
@@ -606,7 +655,7 @@ const Overworld = ({
       remoteSocketId
     ) => {
       console.log("connectRecvTransport 실행");
-      console.log('connectRecvTransport함수', remoteSocketId)
+      console.log("connectRecvTransport함수", remoteSocketId);
       // for consumer, we need to tell the server first
       // to create a consumer based on the rtpCapabilities and consume
       // if the router can consume, it will send back a set of params as below
@@ -692,8 +741,8 @@ const Overworld = ({
       const user = charMap[data.removeSid];
       user.isUserJoin = false;
       user.groupName = 0;
-      console.log("삭제")
-      console.log(data)
+      console.log("삭제");
+      console.log(data);
       removePeerFace(data.removeSid);
     });
 
@@ -754,14 +803,14 @@ const Overworld = ({
 
     // socket.on("ice", async (ice, remoteSocketId, remoteNickname) => {
     //   await pcObj[remoteSocketId].addIceCandidate(ice);
-      // const state = pcObj[remoteSocketId].iceConnectionState;
-      // if (state === "failed" || state === "closed") {
-      //   const newPC = await createConnection(remoteSocketId, remoteNickname);
-      //   const offer = await newPC.createOffer();
-      //   await newPC.setLocalDescription(offer);
-      //   socket.emit("offer", offer, remoteSocketId, remoteNickname);
-      //   console.log("iceCandidate 실패! 재연결 시도");
-      // }
+    // const state = pcObj[remoteSocketId].iceConnectionState;
+    // if (state === "failed" || state === "closed") {
+    //   const newPC = await createConnection(remoteSocketId, remoteNickname);
+    //   const offer = await newPC.createOffer();
+    //   await newPC.setLocalDescription(offer);
+    //   socket.emit("offer", offer, remoteSocketId, remoteNickname);
+    //   console.log("iceCandidate 실패! 재연결 시도");
+    // }
     // });
   }, []);
 
@@ -821,7 +870,8 @@ const Overworld = ({
               arrow: object.nextDirection.shift(),
               map: map,
             });
-            if ( //기존 !object.isUserCalling에서 아래로 대체함 (전에 groupName 고정되어있을때 사용했었음)
+            if (
+              //기존 !object.isUserCalling에서 아래로 대체함 (전에 groupName 고정되어있을때 사용했었음)
               //그룹이
               !object.isUserCalling &&
               // !object.groupName &&
@@ -842,7 +892,7 @@ const Overworld = ({
             // console.log(object.groupName);
             if (
               //기존 object.isUserCalling에서 아래로 대체함 (전에 groupName 고정되어있을때 사용했었음)
-              //그룹이 같다. 
+              //그룹이 같다.
               object.isUserCalling &&
               // object.groupName &&
               (Math.abs(player?.x - object.x) > 96 ||
@@ -934,6 +984,16 @@ const Overworld = ({
       >
         <canvas ref={canvasRef} className="game-canvas"></canvas>
       </div>
+      {/* <StreamsContainer id="streams"></StreamsContainer> */}
+      <StreamsContainer id="streams">
+        {isVideoUser?.map((video) => {
+          return (
+            <div>
+              <RTCVideo mediaStream={video} />
+            </div>
+          );
+        })}
+      </StreamsContainer>
     </>
   );
 };
