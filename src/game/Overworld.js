@@ -21,7 +21,10 @@ var remoteConnection = []; // RTCPeerConnection for the "remote"
 
 // WebRTC SFU (mediasoup)
 let params_audio = {
-  
+    codecOptions: {
+    opusStereo: 1,
+    opusDtx: 1,
+    }
 }
 let params_video = {
   // mediasoup params
@@ -355,15 +358,15 @@ const Overworld = ({
           .forEach((track) => (track.enabled = true));
         const video_track = myStream.getVideoTracks()[0]
         const audio_track = myStream.getAudioTracks()[0]
-        
+
         params_audio = {
           audio_track,
-          ...params,
+          ...params_audio,
         };
 
         params_video = {
           video_track,
-          ...params,
+          ...params_video,
         };
         // console.log("----------- myTrack : ", track);
       } else {
@@ -441,6 +444,7 @@ const Overworld = ({
 
           // creates a new WebRTC Transport to send media
           // based on the server's producer transport params
+          console.log(params);
           producerTransport = device.createSendTransport(params);
 
           // see connectSendTransport() below
@@ -509,7 +513,8 @@ const Overworld = ({
       // to send media to the Router
       // this action will trigger the 'connect' and 'produce' events above
 
-      console.log("--------------- params : ", params);
+      console.log("--------------- params_video : ", params_video);
+      console.log("--------------- params_video : ", params_audio);
       producer_video = await producerTransport.produce(params_video);
       producer_audio = await producerTransport.produce(params_audio);
       
