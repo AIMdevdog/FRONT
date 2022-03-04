@@ -1,11 +1,12 @@
 import { OverworldMap } from "./OverworldMap.js";
 import { DirectionInput } from "./DirectionInput.js";
 import utils from "./utils.js";
-import _const from "../config/const.js";
+import Slider from "react-slick";
 import { useEffect, useRef, useState } from "react";
 import LoadingComponent from "../components/Loading.js";
 import { useNavigate } from "react-router";
 import styled from "styled-components";
+
 import RTCVideo from "../components/RCTVideo.js";
 
 const StreamsContainer = styled.div`
@@ -17,36 +18,6 @@ const StreamsContainer = styled.div`
   justify-content: center;
   align-items: center;
   z-index: 99;
-
-  div {
-    width: 200px;
-    margin-right: 20px;
-
-    video {
-      width: 200px;
-      border-radius: 10px;
-      /*Mirror code starts*/
-      transform: rotateY(180deg);
-      -webkit-transform: rotateY(180deg); /* Safari and Chrome */
-      -moz-transform: rotateY(180deg); /* Firefox */
-
-      /*Mirror code ends*/
-      &:hover {
-        outline: 2px solid red;
-        cursor: pointer;
-      }
-    }
-    div {
-      position: relative;
-      bottom: 140px;
-      left: 5px;
-      display: inline;
-      background-color: rgb(0, 0, 0, 0.6);
-      padding: 5px;
-      border-radius: 10px;
-      color: white;
-    }
-  }
 `;
 
 const mediasoupClient = require("mediasoup-client");
@@ -118,6 +89,14 @@ const Overworld = ({
   const navigate = useNavigate();
   const directionInput = new DirectionInput();
   directionInput.init();
+
+  const settings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+  };
 
   const cameraConstraints = {
     audio: true,
@@ -203,36 +182,16 @@ const Overworld = ({
     // 영상 connect
     async function paintPeerFace(peerStream, socketId) {
       // isSetVideoUser
-      isSetVideoUser((prev) => [...prev, peerStream]);
-
       const user = charMap[socketId];
-      const streams = document.querySelector("#streams");
-      const div = document.createElement("div");
-      const nicknameDiv = document.createElement("div");
-      nicknameDiv.className = "videoNickname";
-      nicknameDiv.innerText = user.nickname;
-      // div.classList.add("userVideoContainer");
-      div.id = socketId;
-
-      // console.log("-------- 커넥션 상태 --------", pcObj[id].iceConnectionState);
-
-      try {
-        // console.log("******peerstream", peerStream);
-        const video = document.createElement("video");
-        video.srcObject = await peerStream;
-        video.className = "userVideo";
-        video.autoplay = true;
-        video.playsInline = true;
-        div.appendChild(video);
-        div.appendChild(nicknameDiv);
-        streams.appendChild(div);
-        // await sortStreams();
-      } catch (err) {
-        console.error(err);
-      }
+      isSetVideoUser((prev) => [
+        ...prev,
+        {
+          peerStream,
+          nickname: user?.nickname,
+          id: socketId,
+        },
+      ]);
     }
-
-    console.log(isVideoUser, "--------------------");
 
     // 영상 disconnect
     function removePeerFace(id) {
@@ -986,13 +945,11 @@ const Overworld = ({
       </div>
       {/* <StreamsContainer id="streams"></StreamsContainer> */}
       <StreamsContainer id="streams">
-        {isVideoUser?.map((video) => {
-          return (
-            <div>
-              <RTCVideo mediaStream={video} />
-            </div>
-          );
-        })}
+        <Slider {...settings}>
+          {isVideoUser?.map((video) => {
+            return <RTCVideo mediaStream={video} />;
+          })}
+        </Slider>
       </StreamsContainer>
     </>
   );
