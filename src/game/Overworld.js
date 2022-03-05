@@ -762,8 +762,8 @@ const Overworld = ({
       const producerToClose = consumerTransports.find(
         (transportData) => transportData.producerId === remoteProducerId
       );
-      producerToClose.consumerTransports.close();
-      producerToClose.consumer.close();
+      producerToClose.consumerTransport.close();
+      producerToClose.close();
 
       // remove the consumer transport from the list
       consumerTransports = consumerTransports.filter(
