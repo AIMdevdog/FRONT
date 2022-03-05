@@ -353,12 +353,12 @@ const Overworld = ({
         const audio_track = myStream.getAudioTracks()[0];
 
         params_audio = {
-          audio_track,
+          track: audio_track,
           ...params_audio,
         };
 
         params_video = {
-          video_track,
+          track: video_track,
           ...params_video,
         };
         // console.log("----------- myTrack : ", track);

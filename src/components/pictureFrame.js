@@ -58,16 +58,15 @@ const PictureInfoContainer = styled.div`
   background-color: #ffebcd;
   border-radius: 5px;
   padding: 20px;
-
 `;
 const InfoInnerContainer = styled.div`
-padding-top: 20px;
- width:100%;
- height: 100%;
- background-color: white;
- div{
-  margin: 20px;
-}
+  padding-top: 20px;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  div {
+    margin: 20px;
+  }
 `;
 
 // const Comp = styled.div.attrs({
@@ -75,7 +74,6 @@ padding-top: 20px;
 //     background
 //   }),
 // })``
-
 
 const PictureFrame = ({ socket }) => {
   const ref = useRef();
@@ -85,7 +83,8 @@ const PictureFrame = ({ socket }) => {
   // const [isCursorY, setIsCursorY] = useState(0);
   // const [nickname, setNickname] = useState("");
   function updateDisplay(event) {
-    const xRatio = (event.pageX - ref.current.offsetLeft) / ref.current.clientWidth;
+    const xRatio =
+      (event.pageX - ref.current.offsetLeft) / ref.current.clientWidth;
     const yRatio = event.pageY / ref.current.clientHeight;
     socket.emit("cursorPosition", xRatio, yRatio, socket.id);
   }
@@ -110,13 +109,13 @@ const PictureFrame = ({ socket }) => {
     >
       <div className="layout">
         <Frame className="frame" ref={ref}>
-          {drawUser.map((data, i) =>
+          {drawUser.map((data, i) => (
             <DrawCursor
               socket={socket}
               key={data + i}
               nickname={data}
             />
-          )}
+          ))}
           <img
             className="picture"
             src="https://weekly.cnbnews.com/data/photos/20160831/art_1470374545.jpg"
@@ -125,15 +124,20 @@ const PictureFrame = ({ socket }) => {
         </Frame>
         <PictureInfoContainer>
           <InfoInnerContainer>
+            <div>작품명: Fisher girl</div>
+            <div>작가: 엄유정</div>
             <div>
-              작품명: Fisher girl
-            </div>
-            <div>
-              작가: 엄유정
-            </div>
-            <div>
-              작품 설명: 그림을 그리는 사람. 2009년 홍익대학교에서 회화를 전공했다. 2013년 아이슬란드 북부의 아티스트 레지던시 프로그램에 참여했고, 이듬해 그곳에서의 작업들로 서울에서 개인전 「Take it easy, you can find it」을 열었다. 2016년에는 일본 도쿄에서 짧은 전시를 마치고 오는 등 다수의 개인전과 기획전을 열었다. 2013년 모로코의 이야기를 담은 『드로잉 모로코』 를 출간, 영화 「슬로우 비디오」의 그림 작가로 참여하기도 하며 전시, 영화, 출판 등 다양한 분야에서 그림으로 활동하고 있다.
-              언제나 낯선 풍경을 바라보는 것을 즐기고 이를 드로잉, 페인팅, 애니메이션으로 만들어나가고 있다. 조약돌을 모으듯 앞으로도 매일의 삶과 풍경을 그림으로 담아내고 싶다.
+              작품 설명: 그림을 그리는 사람. 2009년 홍익대학교에서 회화를
+              전공했다. 2013년 아이슬란드 북부의 아티스트 레지던시 프로그램에
+              참여했고, 이듬해 그곳에서의 작업들로 서울에서 개인전 「Take it
+              easy, you can find it」을 열었다. 2016년에는 일본 도쿄에서 짧은
+              전시를 마치고 오는 등 다수의 개인전과 기획전을 열었다. 2013년
+              모로코의 이야기를 담은 『드로잉 모로코』 를 출간, 영화 「슬로우
+              비디오」의 그림 작가로 참여하기도 하며 전시, 영화, 출판 등 다양한
+              분야에서 그림으로 활동하고 있다. 언제나 낯선 풍경을 바라보는 것을
+              즐기고 이를 드로잉, 페인팅, 애니메이션으로 만들어나가고 있다.
+              조약돌을 모으듯 앞으로도 매일의 삶과 풍경을 그림으로 담아내고
+              싶다.
             </div>
           </InfoInnerContainer>
         </PictureInfoContainer>
