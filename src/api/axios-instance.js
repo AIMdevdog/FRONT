@@ -1,7 +1,6 @@
 import axios from "axios";
 import CONST from "../config/const";
 import { Cookies } from "react-cookie";
-
 import { localGetItem } from "../utils/handleStorage";
 import { token } from "../config/api";
 
@@ -49,6 +48,11 @@ instance.interceptors.response.use(
     if (error.response.status === 401 && errorAPI.retry === undefined) {
       errorAPI.retry = true;
       console.log("토큰이 이상한 오류일 경우");
+      // cookies.remove("refresh-token");
+      // cookies.remove("access-token");
+      // alert("로그아웃 되었습니다.");
+      // eslint-disable-next-line no-unused-expressions
+      // window.location.href("/");
       //   await token.();
       const requestResult = await token.getRefreshToken();
       const {
@@ -65,24 +69,5 @@ instance.interceptors.response.use(
     return Promise.reject(error.response);
   }
 );
-
-// instance.defaults.headers.post["Content-Type"] =
-//   "application/x-www-form-urlencoded";
-
-// instance.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
-// instance.defaults.headers.common["Access-Control-Allow-Credentials"] = true;
-
-// instance.interceptors.request.use(
-//   async (response) => {
-//     const token = await localGetItem("session");
-
-//     response.headers.Authorization = "Bearer " + token;
-//     return response;
-//   },
-//   (error) => {
-//     // go catch()
-//     return Promise.reject(error);
-//   }
-// );
 
 export default instance;

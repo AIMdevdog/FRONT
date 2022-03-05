@@ -35,7 +35,7 @@ const PictureContainer = styled.div`
 const Frame = styled.div`
   margin-right: 20px;
   padding: 20px;
-  height: 100vh;
+  height: 60vh;
   background-color: rgb(255, 235, 205, 1);
   border-radius: 5px;
   overflow-y: scroll;
@@ -54,7 +54,7 @@ const Frame = styled.div`
 const PictureInfoContainer = styled.div`
   width: 300px;
   min-width: 300px;
-  height: 100vh;
+  height: 60vh;
   background-color: #ffebcd;
   border-radius: 5px;
   padding: 20px;
@@ -91,7 +91,6 @@ const PictureFrame = ({ socket }) => {
 
 
   socket.on("drawUser", (nickname, drawNum) => {
-    console.log(drawUser);
     setDrawUser(prev => {
       if (prev.findIndex(e => e === nickname) === -1) {
         return [...prev, nickname];
@@ -114,11 +113,7 @@ const PictureFrame = ({ socket }) => {
       <div className="layout">
         <Frame className="frame" ref={ref}>
           {drawUser.map((data, i) => (
-            <DrawCursor
-              socket={socket}
-              key={data + i}
-              nickname={data}
-            />
+            <DrawCursor socket={socket} key={data + i} nickname={data} />
           ))}
           <img
             className="picture"

@@ -4,7 +4,54 @@ import utils from "./utils.js";
 import _const from "../config/const.js";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
+import styled from "styled-components";
 import { throttle } from "lodash";
+
+const StreamsContainer = styled.div`
+  position: fixed;
+  display: flex;
+  left: 64px;
+  top: 20px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 1280px;
+  justify-content: center;
+  align-items: center;
+  z-index: 99;
+  overflow-x: scroll;
+  scroll-behavior: smooth;
+
+  div {
+    width: 200px;
+    margin-right: 20px;
+
+    .userVideo {
+      width: 200px;
+      border-radius: 10px;
+      /*Mirror code starts*/
+      transform: rotateY(180deg);
+      -webkit-transform: rotateY(180deg); /* Safari and Chrome */
+      -moz-transform: rotateY(180deg); /* Firefox */
+
+      /*Mirror code ends*/
+      &:hover {
+        outline: 2px solid red;
+        cursor: pointer;
+      }
+    }
+    .videoNickname {
+      position: relative;
+      bottom: 140px;
+      left: 5px;
+      display: inline;
+      background-color: rgb(0, 0, 0, 0.6);
+      padding: 5px;
+      border-radius: 10px;
+      color: white;
+    }
+  }
+`;
+
 const mediasoupClient = require("mediasoup-client");
 
 let cameraOff = false;
@@ -73,6 +120,8 @@ const Overworld = ({
   setOpenPPT,
   setOpenPPT2,
 }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [isVideoUser, isSetVideoUser] = useState([]);
   const containerEl = useRef();
   const canvasRef = useRef();
   const navigate = useNavigate();
@@ -83,8 +132,8 @@ const Overworld = ({
 
   let closer = [];
   const mediaOff = () => {
-    myStream.getTracks().forEach(track => track.stop());
-  }
+    myStream.getTracks().forEach((track) => track.stop());
+  };
   const socketDisconnect = async () => {
     mediaOff();
     socket.close();
@@ -94,11 +143,11 @@ const Overworld = ({
     const keydownHandler = (e) => {
       const player = charMap[socket.id];
       if (
-        ((e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
-          (player.x === 720 || player.x === 752) &&
-          player.y === 880)
+        (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
+        (player.x === 720 || player.x === 752) &&
+        player.y === 880
       ) {
-        setOpenDraw(prev => {
+        setOpenDraw((prev) => {
           if (prev) {
             socket.emit("closeDraw", player.nickname);
             return !prev;
@@ -110,17 +159,22 @@ const Overworld = ({
       } else if ((e.key === "x" || e.key === "X" || e.key === "ㅌ") || directionInput.direction) {
         setOpenPPT2(false);
         setOpenPPT(false);
-        setOpenDraw(prev => {
+        setOpenDraw((prev) => {
           if (prev) {
             socket.emit("closeDraw", player.nickname);
           }
           return false;
         });
-      } else if ((e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
-        player.x === 1680 && player.y === 1328) {
+      } else if (
+        (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
+        player.x === 1680 &&
+        player.y === 1328
+      ) {
         setOpenPPT((prev) => !prev);
-      } else if ((e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
-        player.x === 1456 && player.y === 784
+      } else if (
+        (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
+        player.x === 1456 &&
+        player.y === 784
       ) {
         setOpenPPT2((prev) => !prev);
       }
@@ -157,6 +211,7 @@ const Overworld = ({
     async function paintPeerFace(peerStream, socketId) {
       const user = charMap[socketId];
       const streams = document.querySelector("#streams");
+      const divSelector = document.querySelectorAll("#streams div");
       const div = document.createElement("div");
       const nicknameDiv = document.createElement("div");
       nicknameDiv.className = "videoNickname";
@@ -176,6 +231,9 @@ const Overworld = ({
         div.appendChild(video);
         div.appendChild(nicknameDiv);
         streams.appendChild(div);
+        if (divSelector?.length > 4) {
+          // streams.style.jus
+        }
         // await sortStreams();
       } catch (err) {
         console.error(err);
@@ -957,6 +1015,7 @@ const Overworld = ({
       >
         <canvas ref={canvasRef} className="game-canvas"></canvas>
       </div>
+      <StreamsContainer id="streams"></StreamsContainer>
     </>
   );
 };
