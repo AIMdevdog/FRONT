@@ -107,7 +107,7 @@ const Overworld = ({
             return !prev;
           }
         });
-      } else if (directionInput.direction) {
+      } else if ((e.key === "x" || e.key === "X" || e.key === "ㅌ") || directionInput.direction) {
         setOpenPPT2(false);
         setOpenPPT(false);
         setOpenDraw(prev => {

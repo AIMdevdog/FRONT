@@ -77,29 +77,33 @@ const InfoInnerContainer = styled.div`
 
 const PictureFrame = ({ socket }) => {
   const ref = useRef();
+  const [drawUser, setDrawUser] = useState([]);
 
-  // const [isCursor, setIsCursor] = useState(0);
-  // const [isCursorX, setIsCursorX] = useState(0);
-  // const [isCursorY, setIsCursorY] = useState(0);
-  // const [nickname, setNickname] = useState("");
   function updateDisplay(event) {
     const xRatio =
       (event.pageX - ref.current.offsetLeft) / ref.current.clientWidth;
     const yRatio = event.pageY / ref.current.clientHeight;
     socket.emit("cursorPosition", xRatio, yRatio, socket.id);
   }
+
+
   const throttleUpdateDisplay = throttle(updateDisplay, 48);
-  const [drawUser, setDrawUser] = useState([]);
+
+
   socket.on("drawUser", (nickname, drawNum) => {
+    console.log(drawUser);
     setDrawUser(prev => {
-      for (let i = 0; i < prev.length; i++) {
-        if (nickname === prev[i]) {
-          return prev;
-        }
+      if (prev.findIndex(e => e === nickname) === -1) {
+        return [...prev, nickname];
+      }else{
+        return prev;
       }
-      return [...prev, nickname]
-    })
+    });
   });
+  socket.on("closeUser", (nickname)=>{
+    setDrawUser(prev => prev.filter(e=> e !== nickname));
+  });
+
   return (
     <PictureContainer
       onMouseEnter={throttleUpdateDisplay}
