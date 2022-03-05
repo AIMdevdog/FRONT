@@ -35,7 +35,7 @@ const PictureContainer = styled.div`
 const Frame = styled.div`
   margin-right: 20px;
   padding: 20px;
-  height: 100vh;
+  height: 60vh;
   background-color: rgb(255, 235, 205, 1);
   border-radius: 5px;
   overflow-y: scroll;
@@ -54,7 +54,7 @@ const Frame = styled.div`
 const PictureInfoContainer = styled.div`
   width: 300px;
   min-width: 300px;
-  height: 100vh;
+  height: 60vh;
   background-color: #ffebcd;
   border-radius: 5px;
   padding: 20px;
@@ -77,34 +77,32 @@ const InfoInnerContainer = styled.div`
 
 const PictureFrame = ({ socket }) => {
   const ref = useRef();
+  const [drawUser, setDrawUser] = useState([]);
 
-  // const [isCursor, setIsCursor] = useState(0);
-  // const [isCursorX, setIsCursorX] = useState(0);
-  // const [isCursorY, setIsCursorY] = useState(0);
-  // const [nickname, setNickname] = useState("");
   function updateDisplay(event) {
     const xRatio =
       (event.pageX - ref.current.offsetLeft) / ref.current.clientWidth;
     const yRatio = event.pageY / ref.current.clientHeight;
     socket.emit("cursorPosition", xRatio, yRatio, socket.id);
   }
+
+
   const throttleUpdateDisplay = throttle(updateDisplay, 48);
-  const [drawUser, setdrawUser] = useState([]);
-  socket.on("shareCursorPosition", (xRatio, yRatio, nickname) => {
-    setdrawUser((prev) => {
-      for (let i = 0; i < prev.length; i++) {
-        if (nickname === prev[i].nickname) {
-          return prev;
-        }
+
+
+  socket.on("drawUser", (nickname, drawNum) => {
+    setDrawUser(prev => {
+      if (prev.findIndex(e => e === nickname) === -1) {
+        return [...prev, nickname];
+      }else{
+        return prev;
       }
-      return [
-        ...prev,
-        {
-          nickname: nickname,
-        },
-      ];
     });
   });
+  socket.on("closeUser", (nickname)=>{
+    setDrawUser(prev => prev.filter(e=> e !== nickname));
+  });
+
   return (
     <PictureContainer
       onMouseEnter={throttleUpdateDisplay}
@@ -115,11 +113,7 @@ const PictureFrame = ({ socket }) => {
       <div className="layout">
         <Frame className="frame" ref={ref}>
           {drawUser.map((data, i) => (
-            <DrawCursor
-              socket={socket}
-              key={data.nickname + i}
-              nickname={data.nickname}
-            />
+            <DrawCursor socket={socket} key={data + i} nickname={data} />
           ))}
           <img
             className="picture"

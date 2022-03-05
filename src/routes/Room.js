@@ -13,49 +13,10 @@ import { joinUser, updateLocation } from "../utils/game/character";
 import { io } from "socket.io-client";
 import _const from "../config/const";
 import CharacterNickname from "../components/CharacterNickname";
+import LoadingComponent from "../components/Loading.js";
 import PptSlider from "../components/pptSlider";
 import { user } from "../config/api";
 
-const StreamsContainer = styled.div`
-  position: fixed;
-  display: flex;
-  left: 50%;
-  top: 60px;
-  width: 20%;
-  height: 100px;
-  justify-content: center;
-  align-items: center;
-
-  div {
-    width: 200px;
-    margin-right: 20px;
-
-    .userVideo {
-      width: 200px;
-      border-radius: 10px;
-      /*Mirror code starts*/
-      transform: rotateY(180deg);
-      -webkit-transform: rotateY(180deg); /* Safari and Chrome */
-      -moz-transform: rotateY(180deg); /* Firefox */
-
-      /*Mirror code ends*/
-      &:hover {
-        outline: 2px solid red;
-        cursor: pointer;
-      }
-    }
-    .videoNickname {
-      position: relative;
-      bottom: 140px;
-      left: 5px;
-      display: inline;
-      background-color: rgb(0, 0, 0, 0.6);
-      padding: 5px;
-      border-radius: 10px;
-      color: white;
-    }
-  }
-`;
 const MyVideoNickname = styled.div`
   position: absolute;
   top: 5px;
@@ -127,6 +88,11 @@ const CamBtn = styled.div`
   }
 `;
 
+const cameraConstraints = {
+  audio: true,
+  video: true,
+};
+
 const Room = ({ userData }) => {
   const charMap = {};
   const [socket, setSocket] = useState(null);
@@ -150,10 +116,12 @@ const Room = ({ userData }) => {
   const [openPPT2, setOpenPPT2] = useState(false);
   const [isCharacter, setIsCharacter] = useState([]);
   const [isUser, setUser] = useState(null);
+  const [myStream, setMyStream] = useState(null);
 
   useEffect(() => {
     const getUser = async () => {
       try {
+        setMyStream(await navigator.mediaDevices.getUserMedia(cameraConstraints));
         const requestUserData = await user.getUserInfo();
         const {
           data: { result },
@@ -169,6 +137,8 @@ const Room = ({ userData }) => {
 
     getUser();
   }, []);
+
+
 
   useEffect(() => {
     if (isUser && socket) {
@@ -208,7 +178,6 @@ const Room = ({ userData }) => {
       });
     }
   }, [isUser, socket]);
-
   const room = {
     RoomSrc:
       "https://aim-front.s3.ap-northeast-2.amazonaws.com/aim-map-0303.png",
@@ -229,7 +198,7 @@ const Room = ({ userData }) => {
   return (
     <>
       <div className="roomContainer" style={{ display: "flex" }}>
-        {socket ? (
+        {socket && myStream ? (
           <>
             {openPPT ? <PptSlider pptImgs={ppt1Imgs} /> : null}
             {openPPT2 ? <PptSlider pptImgs={ppt2Imgs} /> : null}
@@ -243,6 +212,7 @@ const Room = ({ userData }) => {
                 charMap={charMap}
                 characters={isCharacter}
                 openDraw={openDraw}
+                myStream={myStream}
               />
             )}
             {openDraw ? (
@@ -254,20 +224,22 @@ const Room = ({ userData }) => {
             ) : null}
             <CharacterNickname nicknames={nicknames} />
             <Overworld
+              myStream={myStream}
               setOpenDraw={setOpenDraw}
               roomId={roomId}
               Room={room}
               charMap={charMap}
+              characters={isCharacter}
               socket={socket}
               openDraw={openDraw}
               setOpenPPT={setOpenPPT}
               setOpenPPT2={setOpenPPT2}
             />
           </>
-        ) : null}
+        ) : <LoadingComponent />}
       </div>
 
-      <StreamsContainer id="streams"></StreamsContainer>
+      {/* <StreamsContainer id="streams"></StreamsContainer> */}
       <MyVideoBox>
         <MyVideo id="myFace" autoPlay="autoplay"></MyVideo>
         <CamBtn id="camBtn">

@@ -3,11 +3,57 @@ import { DirectionInput } from "./DirectionInput.js";
 import utils from "./utils.js";
 import _const from "../config/const.js";
 import { useEffect, useRef, useState } from "react";
-import LoadingComponent from "../components/Loading.js";
 import { useNavigate } from "react-router";
+import styled from "styled-components";
+import { throttle } from "lodash";
+
+const StreamsContainer = styled.div`
+  position: fixed;
+  display: flex;
+  left: 64px;
+  top: 20px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 1280px;
+  justify-content: center;
+  align-items: center;
+  z-index: 99;
+  overflow-x: scroll;
+  scroll-behavior: smooth;
+
+  div {
+    width: 200px;
+    margin-right: 20px;
+
+    .userVideo {
+      width: 200px;
+      border-radius: 10px;
+      /*Mirror code starts*/
+      transform: rotateY(180deg);
+      -webkit-transform: rotateY(180deg); /* Safari and Chrome */
+      -moz-transform: rotateY(180deg); /* Firefox */
+
+      /*Mirror code ends*/
+      &:hover {
+        outline: 2px solid red;
+        cursor: pointer;
+      }
+    }
+    .videoNickname {
+      position: relative;
+      bottom: 140px;
+      left: 5px;
+      display: inline;
+      background-color: rgb(0, 0, 0, 0.6);
+      padding: 5px;
+      border-radius: 10px;
+      color: white;
+    }
+  }
+`;
+
 const mediasoupClient = require("mediasoup-client");
 
-let myStream;
 let cameraOff = false;
 let muted = true;
 let pcObj = {
@@ -24,7 +70,7 @@ let params_audio = {
   codecOptions: {
     opusStereo: 1,
     opusDtx: 1,
-  }
+  },
 };
 let params_video = {
   // mediasoup params
@@ -65,31 +111,31 @@ let isProducer = false;
 let peopleInRoom = 1;
 
 const Overworld = ({
+  myStream,
   setOpenDraw,
   Room,
   roomId,
   charMap,
   socket,
-  openDraw,
   setOpenPPT,
   setOpenPPT2,
 }) => {
   const [isLoading, setIsLoading] = useState(true);
+  const [isVideoUser, isSetVideoUser] = useState([]);
   const containerEl = useRef();
   const canvasRef = useRef();
   const navigate = useNavigate();
   const directionInput = new DirectionInput();
   directionInput.init();
 
-  const cameraConstraints = {
-    audio: true,
-    video: true,
-  };
-
   const map = new OverworldMap(Room);
 
   let closer = [];
-  const socketDisconnect = () => {
+  const mediaOff = () => {
+    myStream.getTracks().forEach((track) => track.stop());
+  };
+  const socketDisconnect = async () => {
+    mediaOff();
     socket.close();
   };
 
@@ -101,45 +147,44 @@ const Overworld = ({
         (player.x === 720 || player.x === 752) &&
         player.y === 880
       ) {
-        setOpenDraw((prev) => !prev);
+        setOpenDraw((prev) => {
+          if (prev) {
+            socket.emit("closeDraw", player.nickname);
+            return !prev;
+          } else {
+            socket.emit("openDraw", socket.id, 1);
+            return !prev;
+          }
+        });
+      } else if ((e.key === "x" || e.key === "X" || e.key === "ㅌ") || directionInput.direction) {
+        setOpenPPT2(false);
+        setOpenPPT(false);
+        setOpenDraw((prev) => {
+          if (prev) {
+            socket.emit("closeDraw", player.nickname);
+          }
+          return false;
+        });
       } else if (
-        (!openDraw && (e.key === "x" || e.key === "X" || e.key === "ㅌ")) ||
-        directionInput.direction
-      ) {
-        setOpenDraw(false);
-      }
-
-      if (
         (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
         player.x === 1680 &&
         player.y === 1328
       ) {
         setOpenPPT((prev) => !prev);
       } else if (
-        (!openDraw && (e.key === "x" || e.key === "X" || e.key === "ㅌ")) ||
-        directionInput.direction
-      ) {
-        setOpenPPT(false);
-      }
-
-      if (
         (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
         player.x === 1456 &&
         player.y === 784
       ) {
         setOpenPPT2((prev) => !prev);
-      } else if (
-        (!openDraw && (e.key === "x" || e.key === "X" || e.key === "ㅌ")) ||
-        directionInput.direction
-      ) {
-        setOpenPPT2(false);
       }
     };
+    const throttleKeydownHanler = throttle(keydownHandler, 100);
     window.addEventListener("popstate", socketDisconnect);
-    window.addEventListener("keydown", keydownHandler);
+    window.addEventListener("keydown", throttleKeydownHanler);
     return () => {
       window.removeEventListener("popstate", socketDisconnect);
-      window.removeEventListener("keydown", keydownHandler);
+      window.removeEventListener("keydown", throttleKeydownHanler);
     };
   }, []);
 
@@ -166,6 +211,7 @@ const Overworld = ({
     async function paintPeerFace(peerStream, socketId) {
       const user = charMap[socketId];
       const streams = document.querySelector("#streams");
+      const divSelector = document.querySelectorAll("#streams div");
       const div = document.createElement("div");
       const nicknameDiv = document.createElement("div");
       nicknameDiv.className = "videoNickname";
@@ -185,6 +231,9 @@ const Overworld = ({
         div.appendChild(video);
         div.appendChild(nicknameDiv);
         streams.appendChild(div);
+        if (divSelector?.length > 4) {
+          // streams.style.jus
+        }
         // await sortStreams();
       } catch (err) {
         console.error(err);
@@ -344,7 +393,6 @@ const Overworld = ({
       const camBtn = document.querySelector("#camBtn");
       camBtn.style.display = "block";
       if (!sharing) {
-        myStream = await navigator.mediaDevices.getUserMedia(cameraConstraints);
         // console.log("mystream", myStream);
         // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
         myFace.srcObject = myStream;
@@ -706,7 +754,7 @@ const Overworld = ({
       const producerToClose = consumerTransports.find(
         (transportData) => transportData.producerId === remoteProducerId
       );
-      producerToClose.consumerTransport.close();
+      producerToClose.consumerTransports.close();
       producerToClose.consumer.close();
 
       // remove the consumer transport from the list
@@ -821,6 +869,7 @@ const Overworld = ({
       }
     };
     const startGameLoop = () => {
+      console.log("StartGameLoop");
       const step = () => {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -837,6 +886,7 @@ const Overworld = ({
           if (object.id === socket.id) {
             if (object.x >= 1552 && object.x <= 1616 && object.y <= 720) {
               socket.close();
+              mediaOff();
               navigate(`/room1/${roomId}`);
             } else if (
               object.x >= 976 &&
@@ -844,6 +894,7 @@ const Overworld = ({
               object.y >= 1136
             ) {
               socket.close();
+              mediaOff();
               navigate(`/room2/${roomId}`);
             }
             object.update({
@@ -950,10 +1001,7 @@ const Overworld = ({
       };
       step();
     };
-    setTimeout(() => {
-      setIsLoading(false);
-      startGameLoop();
-    }, 3000);
+    startGameLoop();
     return () => {
       isLoop = false;
     };
@@ -961,7 +1009,6 @@ const Overworld = ({
 
   return (
     <>
-      {isLoading && <LoadingComponent />}
       <div
         ref={containerEl}
         className="game-container"
@@ -969,6 +1016,7 @@ const Overworld = ({
       >
         <canvas ref={canvasRef} className="game-canvas"></canvas>
       </div>
+      <StreamsContainer id="streams"></StreamsContainer>
     </>
   );
 };
