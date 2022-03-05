@@ -53,11 +53,11 @@ let peopleInRoom = 1;
 // ------------------------------------^ SFU
 
 const GameLayout = styled.div`
-  display: flex; 
+  display: flex;
   justify-content: center;
   position: fixed;
   align-items: center;
-  background-color: rgb(19,19,20, 1);
+  background-color: rgb(19, 19, 20, 1);
 `;
 
 const Overworld1 = ({
@@ -68,7 +68,7 @@ const Overworld1 = ({
   charMap,
   socket,
   setCameraPosition,
-  setYCameraPosition
+  setYCameraPosition,
 }) => {
   const containerEl = useRef();
   const canvasRef = useRef();
@@ -82,8 +82,8 @@ const Overworld1 = ({
   let closer = [];
 
   const mediaOff = () => {
-    myStream.getTracks().forEach(track => track.stop());
-  }
+    myStream.getTracks().forEach((track) => track.stop());
+  };
 
   const socketDisconnect = () => {
     socket.close();
@@ -94,7 +94,7 @@ const Overworld1 = ({
     window.addEventListener("popstate", socketDisconnect);
     return () => {
       window.removeEventListener("popstate", socketDisconnect);
-    }
+    };
   }, []);
 
   useEffect(() => {
@@ -119,7 +119,7 @@ const Overworld1 = ({
     // 영상 connect
     async function paintPeerFace(peerStream, socketId) {
       const user = charMap[socketId];
-      const streams = document.querySelector("#streams");
+      const streamContainer = document.querySelector(".streams-container");
       const div = document.createElement("div");
       const nicknameDiv = document.createElement("div");
       nicknameDiv.className = "videoNickname";
@@ -138,7 +138,7 @@ const Overworld1 = ({
         video.playsInline = true;
         div.appendChild(video);
         div.appendChild(nicknameDiv);
-        streams.appendChild(div);
+        streamContainer.appendChild(div);
         // await sortStreams();
       } catch (err) {
         console.error(err);
@@ -147,13 +147,13 @@ const Overworld1 = ({
 
     // 영상 disconnect
     function removePeerFace(id) {
-      const streams = document.querySelector("#streams");
-      const streamArr = streams.querySelectorAll("div");
+      const streamContainer = document.querySelector(".streams-container");
+      const streamArr = streamContainer.querySelectorAll("div");
       // console.log("총 길이 " , streamArr.length);
       streamArr.forEach((streamElement) => {
         console.log(streamArr, streamElement.id, id);
         if (streamElement.id === id) {
-          streams.removeChild(streamElement);
+          streamContainer.removeChild(streamElement);
         }
       });
       // console.log(streams);
@@ -326,71 +326,83 @@ const Overworld1 = ({
 
       // see server's socket.on('createWebRtcTransport', sender?, ...)
       // this is a call from Producer, so sender = true
-      socket.emit("createWebRtcTransport", { consumer: false }, ({ params }) => {
-        console.log("createSendTransport에서 createWebRtcTransport 콜백 실행");
+      socket.emit(
+        "createWebRtcTransport",
+        { consumer: false },
+        ({ params }) => {
+          console.log(
+            "createSendTransport에서 createWebRtcTransport 콜백 실행"
+          );
 
-        // The server sends back params needed
-        // to create Send Transport on the client side
-        if (params.error) {
-          console.log(params.error);
-          return;
-        }
-
-        // creates a new WebRTC Transport to send media
-        // based on the server's producer transport params
-        producerTransport = device.createSendTransport(params);
-
-        // see connectSendTransport() below
-        // this event is raised when a first call to transport.produce() is made
-        producerTransport.on(
-          "connect",
-          async ({ dtlsParameters }, callback, errback) => {
-            try {
-              // see server's socket.on('transport-dconnect', ...)
-              // Signal local DTLS parameters to the server side transport
-              await socket.emit("transport-connect", {
-                dtlsParameters,
-              });
-              // Tell the transport that parameters were transmitted.
-              callback();
-            } catch (error) {
-              errback(error);
-            }
+          // The server sends back params needed
+          // to create Send Transport on the client side
+          if (params.error) {
+            console.log(params.error);
+            return;
           }
-        );
 
-        producerTransport.on("produce", async (parameters, callback, errback) => {
-          console.log("producerTransport의 produce 이벤트 실행");
-          try {
-            // tell the server to create a Producer
-            // with the following parameters and produce
-            // and expect back a server side producer id
-            // see server's socket.on('transport-produce', ...)
-            await socket.emit(
-              "transport-produce",
-              {
-                kind: parameters.kind,
-                rtpParameters: parameters.rtpParameters,
-                appData: parameters.appData,
-                track: myStream.getVideoTracks()[0],
-              },
-              ({ id, producersExist }) => {
-                // Tell the transport that parameters were transmitted and provide it with the
-                // server side producer's id.
-                callback({ id });
+          // creates a new WebRTC Transport to send media
+          // based on the server's producer transport params
+          producerTransport = device.createSendTransport(params);
 
-                // if producers exist, then join room
-                console.log("############# producersExist : ", producersExist);
-                if (producersExist) getProducers();
+          // see connectSendTransport() below
+          // this event is raised when a first call to transport.produce() is made
+          producerTransport.on(
+            "connect",
+            async ({ dtlsParameters }, callback, errback) => {
+              try {
+                // see server's socket.on('transport-dconnect', ...)
+                // Signal local DTLS parameters to the server side transport
+                await socket.emit("transport-connect", {
+                  dtlsParameters,
+                });
+                // Tell the transport that parameters were transmitted.
+                callback();
+              } catch (error) {
+                errback(error);
               }
-            );
-          } catch (error) {
-            errback(error);
-          }
-        });
+            }
+          );
 
-        connectSendTransport();
-      });
+          producerTransport.on(
+            "produce",
+            async (parameters, callback, errback) => {
+              console.log("producerTransport의 produce 이벤트 실행");
+              try {
+                // tell the server to create a Producer
+                // with the following parameters and produce
+                // and expect back a server side producer id
+                // see server's socket.on('transport-produce', ...)
+                await socket.emit(
+                  "transport-produce",
+                  {
+                    kind: parameters.kind,
+                    rtpParameters: parameters.rtpParameters,
+                    appData: parameters.appData,
+                    track: myStream.getVideoTracks()[0],
+                  },
+                  ({ id, producersExist }) => {
+                    // Tell the transport that parameters were transmitted and provide it with the
+                    // server side producer's id.
+                    callback({ id });
+
+                    // if producers exist, then join room
+                    console.log(
+                      "############# producersExist : ",
+                      producersExist
+                    );
+                    if (producersExist) getProducers();
+                  }
+                );
+              } catch (error) {
+                errback(error);
+              }
+            }
+          );
+
+          connectSendTransport();
+        }
+      );
     };
 
     const connectSendTransport = async () => {
@@ -656,11 +668,7 @@ const Overworld1 = ({
     socket.on("ice", async (ice, remoteSocketId, remoteNickname) => {
       await pcObj[remoteSocketId].addIceCandidate(ice);
     });
-
-
-
-
-  }, [])
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -671,9 +679,9 @@ const Overworld1 = ({
       dataBuffer.push(data);
       let stay_num = dataBuffer.filter(
         (element) =>
-          element.direction === undefined
-          && element.x === player.x
-          && element.y === player.y
+          element.direction === undefined &&
+          element.x === player.x &&
+          element.y === player.y
       ).length;
       if (stay_num > 4) {
         dataBuffer = [];
@@ -682,8 +690,7 @@ const Overworld1 = ({
         socket.emit("input", dataBuffer);
         dataBuffer = [];
       }
-    }
-
+    };
 
     const startGameLoop = () => {
       const step = () => {
@@ -701,17 +708,18 @@ const Overworld1 = ({
           setCameraPosition(-player.x / 80);
         }
 
-
         //Update all objects
         Object.values(charMap).forEach((object) => {
           if (object.id === socket.id) {
             for (let i = 0; i < otherMaps.length; i++) {
-              if (map.roomNum === 3 && object.y > 656 || (object.y < -1250 && object.x > 1232)) {
+              if (
+                (map.roomNum === 3 && object.y > 656) ||
+                (object.y < -1250 && object.x > 1232)
+              ) {
                 socket.close();
                 mediaOff();
                 navigate(url, { state: { x: 1584, y: 784 } });
-              }
-              else if (map.roomNum === 2 && object.y > 248) {
+              } else if (map.roomNum === 2 && object.y > 248) {
                 socket.close();
                 mediaOff();
                 navigate(url, { state: { x: 1008, y: 1072 } });
@@ -758,10 +766,10 @@ const Overworld1 = ({
         const playercheck = player ? player.isUserCalling : false;
         if (playercheck && closer.length === 0) {
           // 나가는 사람 기준
-          const stream = document.querySelector("#streams");
-          while (stream.hasChildNodes()) {
+          const streamContainer = document.querySelector(".streams-container");
+          while (streamContainer.hasChildNodes()) {
             // 내가 가지고있는 다른 사람의 영상을 전부 삭제
-            stream.removeChild(stream.firstChild);
+            streamContainer.removeChild(streamContainer.firstChild);
           }
 
           socket.emit("leave_Group", player.id);
@@ -780,7 +788,13 @@ const Overworld1 = ({
             if (object.id === player.id) {
               object.sprite.draw(ctx, player, map.roomNum, true, rotationAngle);
             } else {
-              object.sprite.draw(ctx, player, map.roomNum, false, rotationAngle);
+              object.sprite.draw(
+                ctx,
+                player,
+                map.roomNum,
+                false,
+                rotationAngle
+              );
             }
 
             const objectNicknameContainer = document.getElementById(
@@ -791,7 +805,8 @@ const Overworld1 = ({
               return;
             }
             objectNicknameContainer.style.top =
-              object.y + 225 +
+              object.y +
+              225 +
               utils.withGrid(ctx.canvas.clientHeight / 16 / 2) -
               player.y +
               "px";
@@ -819,17 +834,20 @@ const Overworld1 = ({
       step();
     };
 
-
     const cameraRotate = (e) => {
       switch (e.key) {
-        case "e": case "E": case "ㄷ":
+        case "e":
+        case "E":
+        case "ㄷ":
           rotationAngle += 1;
           if (rotationAngle > 4) {
             rotationAngle = 1;
           }
           characterRotate(rotationAngle);
           break;
-        case "q": case "Q": case "ㅂ":
+        case "q":
+        case "Q":
+        case "ㅂ":
           rotationAngle -= 1;
           if (rotationAngle < 1) {
             rotationAngle = 4;
@@ -883,7 +901,7 @@ const Overworld1 = ({
           };
           break;
       }
-    }
+    };
     if (map.roomNum === 3) {
       document.addEventListener("keydown", cameraRotate);
     }
@@ -903,10 +921,13 @@ const Overworld1 = ({
         <div
           ref={containerEl}
           className="game-container"
-          style={{ backgroundColor: "rgb(19,19,20)", width: "100vw", height: "100vh" }}
+          style={{
+            backgroundColor: "rgb(19,19,20)",
+            width: "100vw",
+            height: "100vh",
+          }}
         >
-          <canvas ref={canvasRef} className="game-canvas">
-          </canvas>
+          <canvas ref={canvasRef} className="game-canvas"></canvas>
         </div>
       </GameLayout>
     </>

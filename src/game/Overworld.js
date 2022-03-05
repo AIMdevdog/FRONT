@@ -10,48 +10,53 @@ import { throttle } from "lodash";
 const StreamsContainer = styled.div`
   position: fixed;
   display: flex;
+  justify-content: center;
+  align-items: center;
   left: 64px;
   top: 20px;
   width: 100%;
-  max-width: 100%;
-  min-width: 1280px;
-  justify-content: center;
-  align-items: center;
   z-index: 99;
-  overflow-x: scroll;
-  scroll-behavior: smooth;
 
-  &::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera*/
-  }
-
-  div {
-    width: 200px;
-    margin-right: 20px;
-
-    .userVideo {
-      width: 200px;
-      border-radius: 10px;
-      /*Mirror code starts*/
-      transform: rotateY(180deg);
-      -webkit-transform: rotateY(180deg); /* Safari and Chrome */
-      -moz-transform: rotateY(180deg); /* Firefox */
-
-      /*Mirror code ends*/
-      &:hover {
-        outline: 2px solid red;
-        cursor: pointer;
-      }
+  .streams-container {
+    max-width: 1024px;
+    min-width: 1024px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-x: scroll;
+    scroll-behavior: smooth;
+    &::-webkit-scrollbar {
+      display: none; /* Chrome, Safari, Opera*/
     }
-    .videoNickname {
-      position: relative;
-      bottom: 140px;
-      left: 5px;
-      display: inline;
-      background-color: rgb(0, 0, 0, 0.6);
-      padding: 5px;
-      border-radius: 10px;
-      color: white;
+
+    div {
+      width: 200px;
+      margin-right: 20px;
+
+      .userVideo {
+        width: 200px;
+        border-radius: 10px;
+        /*Mirror code starts*/
+        transform: rotateY(180deg);
+        -webkit-transform: rotateY(180deg); /* Safari and Chrome */
+        -moz-transform: rotateY(180deg); /* Firefox */
+
+        /*Mirror code ends*/
+        &:hover {
+          outline: 2px solid red;
+          cursor: pointer;
+        }
+      }
+      .videoNickname {
+        position: relative;
+        bottom: 140px;
+        left: 5px;
+        display: inline;
+        background-color: rgb(0, 0, 0, 0.6);
+        padding: 5px;
+        border-radius: 10px;
+        color: white;
+      }
     }
   }
 `;
@@ -219,8 +224,7 @@ const Overworld = ({
     // 영상 connect
     async function paintPeerFace(peerStream, socketId) {
       const user = charMap[socketId];
-      const streams = document.querySelector("#streams");
-      const divSelector = document.querySelectorAll("#streams div");
+      const streamContainer = document.querySelector(".streams-container");
       const div = document.createElement("div");
       const nicknameDiv = document.createElement("div");
       nicknameDiv.className = "videoNickname";
@@ -237,11 +241,15 @@ const Overworld = ({
         video.className = "userVideo";
         video.autoplay = true;
         video.playsInline = true;
+        video.controls = true;
         div.appendChild(video);
         div.appendChild(nicknameDiv);
-        streams.appendChild(div);
+        streamContainer.appendChild(div);
+
+        const divSelector = document.querySelectorAll(".streams-container div");
+
         if (divSelector?.length > 4) {
-          // streams.style.jus
+          streamContainer.style.justifyContent = "flex-start";
         }
         // await sortStreams();
       } catch (err) {
@@ -252,13 +260,13 @@ const Overworld = ({
     // 영상 disconnect
     function removePeerFace(id) {
       console.log("삭제되어야해!", id);
-      const streams = document.querySelector("#streams");
-      const streamArr = streams.querySelectorAll("div");
+      const streamContainer = document.querySelector(".streams-container");
+      const streamArr = streamContainer.querySelectorAll("div");
       // console.log("총 길이 " , streamArr.length);
       streamArr.forEach((streamElement) => {
         // console.log(streamArr, streamElement.id, id);
         if (streamElement.id === id) {
-          streams.removeChild(streamElement);
+          streamContainer.removeChild(streamElement);
         }
       });
       // console.log(streams);
@@ -787,6 +795,10 @@ const Overworld = ({
       removePeerFace(data.removeSid);
     });
 
+    socket.on("leave_user", function (data) {
+      removePeerFace(data.id);
+    });
+
     socket.on("accept_join", async (groupName) => {
       try {
         // SFU
@@ -953,10 +965,10 @@ const Overworld = ({
         // console.log("멀어짐 로직 player.socketId", player.socketId,"근처에 있는",closer)
         if (playercheck && closer.length === 0) {
           // 나가는 사람 기준
-          const stream = document.querySelector("#streams");
-          while (stream.hasChildNodes()) {
+          const streamContainer = document.querySelector(".streams-container");
+          while (streamContainer.hasChildNodes()) {
             // 내가 가지고있는 다른 사람의 영상을 전부 삭제
-            stream.removeChild(stream.firstChild);
+            streamContainer.removeChild(streamContainer.firstChild);
           }
           socket.emit("leave_Group", player.id);
           player.isUserCalling = false;
@@ -1024,7 +1036,9 @@ const Overworld = ({
       >
         <canvas ref={canvasRef} className="game-canvas"></canvas>
       </div>
-      <StreamsContainer id="streams"></StreamsContainer>
+      <StreamsContainer id="streams">
+        <div className="streams-container"></div>
+      </StreamsContainer>
     </>
   );
 };
