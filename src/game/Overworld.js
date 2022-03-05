@@ -224,14 +224,13 @@ const Overworld = ({
       console.log("audio tag만들자")
       const streams = document.querySelector("#streams");
 
-      const div = document.createElement("div");
+      const div = document.querySelector(`#${socketId}`);
       let elem = document.createElement('audio')
       elem.srcObject = peerStream
       elem.playsinline = false
       elem.autoplay = true
       
       div.appendChild(elem)
-      div.id = socketId + "_audio";
       streams.appendChild(div);
     }
     // 영상 connect
@@ -592,9 +591,9 @@ const Overworld = ({
       // this action will trigger the 'connect' and 'produce' events above
 
       console.log("--------------- params_video : ", params_video);
-      console.log("--------------- params_video : ", params_audio);
+      console.log("--------------- params_audio : ", params_audio);
       producer_video = await producerTransport.produce(params_video);
-      producer_audio = await producerTransport.produce(params_audio);
+      await producerTransport.produce(params_audio);
 
       producer_video.on("trackended", () => {
         console.log("producer의 trackended 이벤트 실행");
@@ -760,6 +759,7 @@ const Overworld = ({
           const peerStream = new MediaStream([track]);
           if (track.kind === 'video') {
             let cnt = 0
+            console.log("video두번 들어오나? ", remoteSocketId)
             reduplication.forEach(objectId => {
               if (remoteSocketId === objectId){
                 cnt += 1
@@ -771,6 +771,7 @@ const Overworld = ({
               await paintPeerFace(peerStream, remoteSocketId);
             }
           } else {
+            console.log("audio두번 들어오나? ", remoteSocketId)
             let cnt = 0
             audio_reduplication.forEach(objectId => {
               if (remoteSocketId === objectId){
@@ -803,7 +804,7 @@ const Overworld = ({
       const producerToClose = consumerTransports.find(
         (transportData) => transportData.producerId === remoteProducerId
       );
-      producerToClose.consumerTransports.close();
+      producerToClose.consumerTransport.close();
       producerToClose.consumer.close();
 
       // remove the consumer transport from the list
@@ -824,7 +825,9 @@ const Overworld = ({
       user.isUserJoin = false;
       user.groupName = 0;
       console.log("삭제");
-      console.log(data);
+      console.log(data); 
+      delete reduplication[data.removeSid]
+      delete audio_reduplication[data.removeSid]
       removePeerFace(data.removeSid);
     });
 
