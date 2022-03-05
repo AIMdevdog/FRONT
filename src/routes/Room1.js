@@ -6,13 +6,12 @@ import RoomSideBar from "../components/RoomSidebar";
 import styled from "styled-components";
 import VideoButton from "../components/VideoButton";
 import { connect } from "react-redux";
-import ScreenBottomBar from "../components/ScreenBottomBar";
 import { joinUser, updateLocation } from "../utils/game/character";
 import { io } from "socket.io-client";
 import _const from "../config/const";
-import CharacterNickname from "../components/CharacterNickname";
 import Overworld1 from "../game/Overworld1";
 import Gallery3 from "../components/Gallery3";
+import LoadingComponent from "../components/Loading.js";
 
 const pexel = (id) =>
   `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260`;
@@ -213,11 +212,17 @@ const ThreeCanvas = styled.div`
   }
 `;
 
+const cameraConstraints = {
+  audio: true,
+  video: true,
+};
+
 const Room1 = ({ userData }) => {
   const charMap = {};
   const params = useParams();
   const roomId = params.roomId;
   const [socket, setSocket] = useState(null);
+  const [myStream, setMyStream] = useState(null);
 
   const [nicknames, setNicknames] = useState([]);
   const [collapsed, setCollapsed] = useState(true);
@@ -229,7 +234,8 @@ const Room1 = ({ userData }) => {
   const [cameraPosition, setCameraPosition] = useState(0);
   const [yCameraPosition, setYCameraPosition] = useState(0);
 
-  useEffect(() => {
+  useEffect(async () => {
+    setMyStream(await navigator.mediaDevices.getUserMedia(cameraConstraints));
     userData.then((data) => {
       setUser(data);
       setSocket(io(_const.HOST));
@@ -305,15 +311,17 @@ const Room1 = ({ userData }) => {
   return (
     <>
       <div className="roomContainer" style={{ display: "flex", height: "100vh" }}>
-        {socket ? (
+        {socket && myStream ? (
           <>
             <RoomSideBar
+              myStream={myStream}
               socket={socket}
               collapsed={collapsed}
               setCollapsed={setCollapsed}
               characters={isCharacter}
             />
             <Overworld1
+              myStream={myStream}
               Room={room}
               url={url}
               otherMaps={otherMaps}
@@ -330,7 +338,7 @@ const Room1 = ({ userData }) => {
             {/* <CharacterNickname nicknames={nicknames} /> */}
 
           </>
-        ) : null}
+        ) : <LoadingComponent />}
       </div>
 
       <StreamsContainer id="streams"></StreamsContainer>

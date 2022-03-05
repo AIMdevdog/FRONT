@@ -3,9 +3,9 @@ import { DirectionInput } from "./DirectionInput.js";
 import utils from "./utils.js";
 import _const from "../config/const.js";
 import { useEffect, useRef, useState } from "react";
-import LoadingComponent from "../components/Loading.js";
 import { useNavigate } from "react-router";
 import styled from "styled-components";
+import { throttle } from "lodash";
 
 const StreamsContainer = styled.div`
   position: fixed;
@@ -54,7 +54,6 @@ const StreamsContainer = styled.div`
 
 const mediasoupClient = require("mediasoup-client");
 
-let myStream;
 let cameraOff = false;
 let muted = true;
 let pcObj = {
@@ -67,7 +66,13 @@ var localConnection = []; // RTCPeerConnect~ion for our "local" connection
 var remoteConnection = []; // RTCPeerConnection for the "remote"
 
 // WebRTC SFU (mediasoup)
-let params = {
+let params_audio = {
+  codecOptions: {
+    opusStereo: 1,
+    opusDtx: 1,
+  },
+};
+let params_video = {
   // mediasoup params
   encodings: [
     {
@@ -96,7 +101,8 @@ let device;
 let rtpCapabilities;
 let producerTransport;
 let consumerTransports = [];
-let producer;
+let producer_video;
+let producer_audio;
 let consumer;
 let isProducer = false;
 
@@ -105,12 +111,12 @@ let isProducer = false;
 let peopleInRoom = 1;
 
 const Overworld = ({
+  myStream,
   setOpenDraw,
   Room,
   roomId,
   charMap,
   socket,
-  openDraw,
   setOpenPPT,
   setOpenPPT2,
 }) => {
@@ -122,15 +128,14 @@ const Overworld = ({
   const directionInput = new DirectionInput();
   directionInput.init();
 
-  const cameraConstraints = {
-    audio: true,
-    video: true,
-  };
-
   const map = new OverworldMap(Room);
 
   let closer = [];
-  const socketDisconnect = () => {
+  const mediaOff = () => {
+    myStream.getTracks().forEach((track) => track.stop());
+  };
+  const socketDisconnect = async () => {
+    mediaOff();
     socket.close();
   };
 
@@ -142,45 +147,44 @@ const Overworld = ({
         (player.x === 720 || player.x === 752) &&
         player.y === 880
       ) {
-        setOpenDraw((prev) => !prev);
+        setOpenDraw((prev) => {
+          if (prev) {
+            socket.emit("closeDraw", player.nickname);
+            return !prev;
+          } else {
+            socket.emit("openDraw", socket.id, 1);
+            return !prev;
+          }
+        });
+      } else if (directionInput.direction) {
+        setOpenPPT2(false);
+        setOpenPPT(false);
+        setOpenDraw((prev) => {
+          if (prev) {
+            socket.emit("closeDraw", player.nickname);
+          }
+          return false;
+        });
       } else if (
-        (!openDraw && (e.key === "x" || e.key === "X" || e.key === "ㅌ")) ||
-        directionInput.direction
-      ) {
-        setOpenDraw(false);
-      }
-
-      if (
         (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
         player.x === 1680 &&
         player.y === 1328
       ) {
         setOpenPPT((prev) => !prev);
       } else if (
-        (!openDraw && (e.key === "x" || e.key === "X" || e.key === "ㅌ")) ||
-        directionInput.direction
-      ) {
-        setOpenPPT(false);
-      }
-
-      if (
         (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
         player.x === 1456 &&
         player.y === 784
       ) {
         setOpenPPT2((prev) => !prev);
-      } else if (
-        (!openDraw && (e.key === "x" || e.key === "X" || e.key === "ㅌ")) ||
-        directionInput.direction
-      ) {
-        setOpenPPT2(false);
       }
     };
+    const throttleKeydownHanler = throttle(keydownHandler, 100);
     window.addEventListener("popstate", socketDisconnect);
-    window.addEventListener("keydown", keydownHandler);
+    window.addEventListener("keydown", throttleKeydownHanler);
     return () => {
       window.removeEventListener("popstate", socketDisconnect);
-      window.removeEventListener("keydown", keydownHandler);
+      window.removeEventListener("keydown", throttleKeydownHanler);
     };
   }, []);
 
@@ -389,22 +393,28 @@ const Overworld = ({
       const camBtn = document.querySelector("#camBtn");
       camBtn.style.display = "block";
       if (!sharing) {
-        myStream = await navigator.mediaDevices.getUserMedia(cameraConstraints);
         // console.log("mystream", myStream);
         // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
         myFace.srcObject = myStream;
-        myFace.muted = true;
+        // myFace.muted = true;
         // myStream // mute default
         //   .getAudioTracks()
         //   .forEach((track) => (console.log("@@@@@@@@@@@@@@@@@ track.enabled", track.enabled)));
 
         myStream // mute default
           .getAudioTracks()
-          .forEach((track) => (track.enabled = false));
-        const track = myStream.getVideoTracks()[0];
-        params = {
-          track,
-          ...params,
+          .forEach((track) => (track.enabled = true));
+        const video_track = myStream.getVideoTracks()[0];
+        const audio_track = myStream.getAudioTracks()[0];
+
+        params_audio = {
+          track: audio_track,
+          ...params_audio,
+        };
+
+        params_video = {
+          track: video_track,
+          ...params_video,
         };
         // console.log("----------- myTrack : ", track);
       } else {
@@ -482,6 +492,7 @@ const Overworld = ({
 
           // creates a new WebRTC Transport to send media
           // based on the server's producer transport params
+          console.log(params);
           producerTransport = device.createSendTransport(params);
 
           // see connectSendTransport() below
@@ -550,10 +561,12 @@ const Overworld = ({
       // to send media to the Router
       // this action will trigger the 'connect' and 'produce' events above
 
-      console.log("--------------- params : ", params);
-      producer = await producerTransport.produce(params);
+      console.log("--------------- params_video : ", params_video);
+      console.log("--------------- params_video : ", params_audio);
+      producer_video = await producerTransport.produce(params_video);
+      producer_audio = await producerTransport.produce(params_audio);
 
-      producer.on("trackended", () => {
+      producer_video.on("trackended", () => {
         console.log("producer의 trackended 이벤트 실행");
 
         console.log("track ended");
@@ -561,7 +574,24 @@ const Overworld = ({
         // close video track
       });
 
-      producer.on("transportclose", () => {
+      producer_video.on("transportclose", () => {
+        console.log("producer의 transportclose 이벤트 실행");
+
+        console.log("producer");
+        console.log("transport ended");
+
+        // close video track
+      });
+
+      producer_audio.on("trackended", () => {
+        console.log("producer의 trackended 이벤트 실행");
+
+        console.log("track ended");
+
+        // close video track
+      });
+
+      producer_audio.on("transportclose", () => {
         console.log("producer의 transportclose 이벤트 실행");
 
         console.log("producer");
@@ -838,6 +868,7 @@ const Overworld = ({
       }
     };
     const startGameLoop = () => {
+      console.log("StartGameLoop");
       const step = () => {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -854,6 +885,7 @@ const Overworld = ({
           if (object.id === socket.id) {
             if (object.x >= 1552 && object.x <= 1616 && object.y <= 720) {
               socket.close();
+              mediaOff();
               navigate(`/room1/${roomId}`);
             } else if (
               object.x >= 976 &&
@@ -861,6 +893,7 @@ const Overworld = ({
               object.y >= 1136
             ) {
               socket.close();
+              mediaOff();
               navigate(`/room2/${roomId}`);
             }
             object.update({
@@ -967,10 +1000,7 @@ const Overworld = ({
       };
       step();
     };
-    setTimeout(() => {
-      setIsLoading(false);
-      startGameLoop();
-    }, 3000);
+    startGameLoop();
     return () => {
       isLoop = false;
     };
@@ -978,7 +1008,6 @@ const Overworld = ({
 
   return (
     <>
-      {isLoading && <LoadingComponent />}
       <div
         ref={containerEl}
         className="game-container"

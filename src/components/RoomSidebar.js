@@ -391,6 +391,7 @@ const ShareButton = styled.button`
 `;
 
 const RoomSideBar = ({
+  myStream,
   collapsed,
   setCollapsed,
   openDraw,
@@ -435,6 +436,7 @@ const RoomSideBar = ({
     }
   };
   const onExitRoom = () => {
+    myStream.getTracks().forEach(track => track.stop());
     socket.close();
     navigate("/lobby");
   };
@@ -582,6 +584,7 @@ const RoomSideBar = ({
     setSharePrompt(false);
   };
   const onShareAccept = () => {
+    socket.emit("openDraw", socket.id, 1);
     setOpenDraw(true);
     setSharePrompt(false);
   };

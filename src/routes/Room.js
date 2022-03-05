@@ -13,6 +13,7 @@ import { joinUser, updateLocation } from "../utils/game/character";
 import { io } from "socket.io-client";
 import _const from "../config/const";
 import CharacterNickname from "../components/CharacterNickname";
+import LoadingComponent from "../components/Loading.js";
 import PptSlider from "../components/pptSlider";
 import { user } from "../config/api";
 
@@ -87,6 +88,11 @@ const CamBtn = styled.div`
   }
 `;
 
+const cameraConstraints = {
+  audio: true,
+  video: true,
+};
+
 const Room = ({ userData }) => {
   const charMap = {};
   const [socket, setSocket] = useState(null);
@@ -110,10 +116,12 @@ const Room = ({ userData }) => {
   const [openPPT2, setOpenPPT2] = useState(false);
   const [isCharacter, setIsCharacter] = useState([]);
   const [isUser, setUser] = useState(null);
+  const [myStream, setMyStream] = useState(null);
 
   useEffect(() => {
     const getUser = async () => {
       try {
+        setMyStream(await navigator.mediaDevices.getUserMedia(cameraConstraints));
         const requestUserData = await user.getUserInfo();
         const {
           data: { result },
@@ -129,6 +137,8 @@ const Room = ({ userData }) => {
 
     getUser();
   }, []);
+
+
 
   useEffect(() => {
     if (isUser && socket) {
@@ -168,7 +178,6 @@ const Room = ({ userData }) => {
       });
     }
   }, [isUser, socket]);
-
   const room = {
     RoomSrc:
       "https://aim-front.s3.ap-northeast-2.amazonaws.com/aim-map-0303.png",
@@ -189,7 +198,7 @@ const Room = ({ userData }) => {
   return (
     <>
       <div className="roomContainer" style={{ display: "flex" }}>
-        {socket ? (
+        {socket && myStream ? (
           <>
             {openPPT ? <PptSlider pptImgs={ppt1Imgs} /> : null}
             {openPPT2 ? <PptSlider pptImgs={ppt2Imgs} /> : null}
@@ -203,30 +212,31 @@ const Room = ({ userData }) => {
                 charMap={charMap}
                 characters={isCharacter}
                 openDraw={openDraw}
+                myStream={myStream}
               />
             )}
             {openDraw ? (
               <div id="Arts">
                 <PictureFrame
-                  collapsed={collapsed}
                   socket={socket}
-                  charMap={charMap}
                 />
               </div>
             ) : null}
             <CharacterNickname nicknames={nicknames} />
             <Overworld
+              myStream={myStream}
               setOpenDraw={setOpenDraw}
               roomId={roomId}
               Room={room}
               charMap={charMap}
+              characters={isCharacter}
               socket={socket}
               openDraw={openDraw}
               setOpenPPT={setOpenPPT}
               setOpenPPT2={setOpenPPT2}
             />
           </>
-        ) : null}
+        ) : <LoadingComponent />}
       </div>
 
       {/* <StreamsContainer id="streams"></StreamsContainer> */}

@@ -8,7 +8,6 @@ import { useNavigate } from "react-router";
 import styled from "styled-components";
 const mediasoupClient = require("mediasoup-client");
 
-let myStream;
 let cameraOff = false;
 let muted = true;
 let pcObj = {
@@ -62,6 +61,7 @@ const GameLayout = styled.div`
 `;
 
 const Overworld1 = ({
+  myStream,
   url,
   Room,
   otherMaps,
@@ -70,26 +70,24 @@ const Overworld1 = ({
   setCameraPosition,
   setYCameraPosition
 }) => {
-  const [isLoading, setIsLoading] = useState(true);
   const containerEl = useRef();
   const canvasRef = useRef();
   const navigate = useNavigate();
   const directionInput = new DirectionInput();
-  let prevAngle = 1;
   let rotationAngle = 1;
   directionInput.init();
-
-  const cameraConstraints = {
-    audio: true,
-    video: true,
-  };
 
   const map = new OverworldMap(Room);
 
   let closer = [];
 
+  const mediaOff = () => {
+    myStream.getTracks().forEach(track => track.stop());
+  }
+
   const socketDisconnect = () => {
     socket.close();
+    mediaOff();
   };
 
   useEffect(() => {
@@ -256,7 +254,6 @@ const Overworld1 = ({
       const camBtn = document.querySelector("#camBtn");
       camBtn.style.display = "block";
       if (!sharing) {
-        myStream = await navigator.mediaDevices.getUserMedia(cameraConstraints);
         // console.log("mystream", myStream);
         // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
         myFace.srcObject = myStream;
@@ -674,17 +671,17 @@ const Overworld1 = ({
       dataBuffer.push(data);
       let stay_num = dataBuffer.filter(
         (element) =>
-          element.direction === undefined 
-          && element.x === player.x 
+          element.direction === undefined
+          && element.x === player.x
           && element.y === player.y
       ).length;
-      if (stay_num > 4){
+      if (stay_num > 4) {
         dataBuffer = [];
       }
-      if(dataBuffer.length > 4){
+      if (dataBuffer.length > 4) {
         socket.emit("input", dataBuffer);
         dataBuffer = [];
-      } 
+      }
     }
 
 
@@ -711,11 +708,13 @@ const Overworld1 = ({
             for (let i = 0; i < otherMaps.length; i++) {
               if (map.roomNum === 3 && object.y > 656 || (object.y < -1250 && object.x > 1232)) {
                 socket.close();
-                navigate(url, {state: {x: 1584, y: 784}});
+                mediaOff();
+                navigate(url, { state: { x: 1584, y: 784 } });
               }
-              else if (map.roomNum === 2 && object.y > 248){
+              else if (map.roomNum === 2 && object.y > 248) {
                 socket.close();
-                navigate(url, {state: {x: 1008, y: 1072}});
+                mediaOff();
+                navigate(url, { state: { x: 1008, y: 1072 } });
               }
             }
             object.update({
@@ -852,7 +851,6 @@ const Overworld1 = ({
             ArrowLeft: "left",
             ArrowRight: "right",
           };
-          prevAngle = angle;
           break;
         case 2:
           player.angle = 2;
@@ -863,7 +861,6 @@ const Overworld1 = ({
             ArrowLeft: "up",
             ArrowRight: "down",
           };
-          prevAngle = angle;
           break;
         case 3:
           player.angle = 3;
@@ -874,7 +871,6 @@ const Overworld1 = ({
             ArrowLeft: "right",
             ArrowRight: "left",
           };
-          prevAngle = angle;
           break;
         case 4:
           player.angle = 4;
@@ -885,7 +881,6 @@ const Overworld1 = ({
             ArrowLeft: "down",
             ArrowRight: "up",
           };
-          prevAngle = angle;
           break;
       }
     }
@@ -893,10 +888,7 @@ const Overworld1 = ({
       document.addEventListener("keydown", cameraRotate);
     }
 
-    setTimeout(() => {
-      setIsLoading(false);
-      startGameLoop();
-    }, 3000);
+    startGameLoop();
     return () => {
       if (map.roomNum === 3) {
         document.removeEventListener("keydown", cameraRotate);
@@ -907,7 +899,6 @@ const Overworld1 = ({
 
   return (
     <>
-      {isLoading && <LoadingComponent />}
       <GameLayout>
         <div
           ref={containerEl}
