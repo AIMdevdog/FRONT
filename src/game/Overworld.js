@@ -66,12 +66,12 @@ var localConnection = []; // RTCPeerConnect~ion for our "local" connection
 var remoteConnection = []; // RTCPeerConnection for the "remote"
 
 // WebRTC SFU (mediasoup)
-let params_audio = {
-  codecOptions: {
-    opusStereo: 1,
-    opusDtx: 1,
-  },
-};
+// let params_audio = {
+//   codecOptions: {
+//     opusStereo: 1,
+//     opusDtx: 1,
+//   },
+// };
 let params_video = {
   // mediasoup params
   encodings: [
@@ -407,10 +407,10 @@ const Overworld = ({
         const video_track = myStream.getVideoTracks()[0];
         const audio_track = myStream.getAudioTracks()[0];
 
-        params_audio = {
-          track: audio_track,
-          ...params_audio,
-        };
+        // params_audio = {
+        //   track: audio_track,
+        //   ...params_audio,
+        // };
 
         params_video = {
           track: video_track,
@@ -562,9 +562,9 @@ const Overworld = ({
       // this action will trigger the 'connect' and 'produce' events above
 
       console.log("--------------- params_video : ", params_video);
-      console.log("--------------- params_video : ", params_audio);
+      // console.log("--------------- params_video : ", params_audio);
       producer_video = await producerTransport.produce(params_video);
-      producer_audio = await producerTransport.produce(params_audio);
+      // producer_audio = await producerTransport.produce(params_audio);
 
       producer_video.on("trackended", () => {
         console.log("producer의 trackended 이벤트 실행");
@@ -583,22 +583,22 @@ const Overworld = ({
         // close video track
       });
 
-      producer_audio.on("trackended", () => {
-        console.log("producer의 trackended 이벤트 실행");
+      // producer_audio.on("trackended", () => {
+      //   console.log("producer의 trackended 이벤트 실행");
 
-        console.log("track ended");
+      //   console.log("track ended");
 
-        // close video track
-      });
+      //   // close video track
+      // });
 
-      producer_audio.on("transportclose", () => {
-        console.log("producer의 transportclose 이벤트 실행");
+      // producer_audio.on("transportclose", () => {
+      //   console.log("producer의 transportclose 이벤트 실행");
 
-        console.log("producer");
-        console.log("transport ended");
+      //   console.log("producer");
+      //   console.log("transport ended");
 
-        // close video track
-      });
+      //   // close video track
+      // });
     };
 
     // server informs the client of a new producer just joined
