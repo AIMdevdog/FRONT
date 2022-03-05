@@ -395,7 +395,9 @@ const RoomSideBar = ({
   collapsed,
   setCollapsed,
   openDraw,
+  openDraw2,
   setOpenDraw,
+  setOpenDraw2,
   socket,
   characters,
   charMap,
@@ -410,6 +412,7 @@ const RoomSideBar = ({
   const [isChatReadArr, setIsChatReadArr] = useState([]);
   const [isChatValue, setIsChatValue] = useState("");
 
+  const [drawNum, setDrawNum] = useState(0);
   const [checkedArr, setCheckedArr] = useState([]);
   const [isSharePrompt, setSharePrompt] = useState(false);
   const [isSharingUser, setSharingUsers] = useState([]);
@@ -429,6 +432,16 @@ const RoomSideBar = ({
   ];
 
   const onExitModal = () => setExitModal(!exitModal);
+
+  useEffect(()=>{
+    if(openDraw){
+      setDrawNum(1);
+    }else if(openDraw2){
+      setDrawNum(2);
+    } else{
+      setDrawNum(0);
+    }
+  }, [openDraw, openDraw2])
 
   const escExit = (e) => {
     if (e.key === "Escape") {
@@ -552,7 +565,8 @@ const RoomSideBar = ({
     setCheckedArr(updatedList);
   };
 
-  const isShareingArtWorks = () => {
+  const isShareingArtWorks = (props) => {
+    console.log(props.target.value);
     const myInfo = characters?.filter((char) => char?.id === socket?.id);
     const myInfoDestruct = myInfo?.map((info) => {
       return {
@@ -565,27 +579,35 @@ const RoomSideBar = ({
       return { id: check?.id, nickname: check?.nickname };
     });
 
-    socket.emit("ArtsAddr", myInfoDestruct, checkAddrDestruct);
+    socket.emit("ArtsAddr", myInfoDestruct, checkAddrDestruct, props.target.value);
     isShareIconAction();
     setCheckedArr([]);
   };
 
   useEffect(() => {
-    socket.on("ShareAddr", (sender) => {
+    socket.on("ShareAddr", (sender, num) => {
       setSharingHost(sender[0]);
-      onSharePrompt();
+      onSharePrompt(num);
     });
   }, []);
 
-  const onSharePrompt = () => {
+  const onSharePrompt = (num) => {
     setSharePrompt(true);
+    setDrawNum(num);
   };
   const onShareReject = () => {
     setSharePrompt(false);
+    setDrawNum(0);
   };
-  const onShareAccept = () => {
-    socket.emit("openDraw", socket.id, 1);
-    setOpenDraw(true);
+  const onShareAccept = (props) => {
+    console.log(typeof(props.target.value));
+    const num = parseInt(props.target.value);
+    socket.emit("openDraw", socket.id, num);
+    if(num === 1){
+      setOpenDraw(true);
+    }else if(num === 2){
+      setOpenDraw2(true);
+    }
     setSharePrompt(false);
   };
 
@@ -725,7 +747,7 @@ const RoomSideBar = ({
                 </ul>
                 {checkedArr?.length > 0 && (
                   <ShareButtonContainer>
-                    <ShareButton onClick={isShareingArtWorks} id="share">
+                    <ShareButton onClick={isShareingArtWorks} value={drawNum} id="share">
                       공유하기
                     </ShareButton>
                   </ShareButtonContainer>
@@ -762,12 +784,12 @@ const RoomSideBar = ({
             </div>
             <div
               onClick={
-                openDraw
+                openDraw || openDraw2
                   ? isShareIconAction
                   : () => alert("그림을 보고 있지 않습니다.")
               }
             >
-              <FaShare color={openDraw ? "white" : "grey"} size={24} />
+              <FaShare color={openDraw || openDraw2 ? "white" : "grey"} size={24} />
             </div>
             <div className="exitBtn" onClick={onExitModal}>
               <ImExit color="white" size={24} />
@@ -807,7 +829,7 @@ const RoomSideBar = ({
                 <span>수락하시겠습니까?</span>
               </ExitText>
               <SetButtonContainer>
-                <button onClick={onShareAccept}> 예 </button>
+                <button onClick={onShareAccept} value={drawNum}> 예 </button>
                 <button
                   onClick={onShareReject}
                   style={{ backgroundColor: "rgb(169,169,169)" }}

@@ -75,7 +75,7 @@ const InfoInnerContainer = styled.div`
 //   }),
 // })``
 
-const PictureFrame = ({ socket }) => {
+const PictureFrame = ({ socket, drawNum }) => {
   const ref = useRef();
   const [drawUser, setDrawUser] = useState([]);
 
@@ -90,17 +90,19 @@ const PictureFrame = ({ socket }) => {
   const throttleUpdateDisplay = throttle(updateDisplay, 48);
 
 
-  socket.on("drawUser", (nickname, drawNum) => {
-    setDrawUser(prev => {
-      if (prev.findIndex(e => e === nickname) === -1) {
-        return [...prev, nickname];
-      }else{
-        return prev;
-      }
-    });
+  socket.on("drawUser", (nickname, num) => {
+    if (num === drawNum) {
+      setDrawUser(prev => {
+        if (prev.findIndex(e => e === nickname) === -1) {
+          return [...prev, nickname];
+        } else {
+          return prev;
+        }
+      });
+    }
   });
-  socket.on("closeUser", (nickname)=>{
-    setDrawUser(prev => prev.filter(e=> e !== nickname));
+  socket.on("closeUser", (nickname) => {
+    setDrawUser(prev => prev.filter(e => e !== nickname));
   });
 
   return (

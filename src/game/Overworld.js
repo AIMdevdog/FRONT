@@ -64,6 +64,7 @@ let peopleInRoom = 1;
 const Overworld = ({
   myStream,
   setOpenDraw,
+  setOpenDraw2,
   Room,
   roomId,
   charMap,
@@ -114,14 +115,19 @@ const Overworld = ({
             return !prev;
           }
         });
-      } else if ((e.key === "x" || e.key === "X" || e.key === "ㅌ") || directionInput.direction) {
-        setOpenPPT2(false);
-        setOpenPPT(false);
-        setOpenDraw((prev) => {
+      } else if (
+        (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
+        (player.x === 848 || player.x === 880) &&
+        player.y === 880
+      ) {
+        setOpenDraw2((prev) => {
           if (prev) {
             socket.emit("closeDraw", player.nickname);
+            return !prev;
+          } else {
+            socket.emit("openDraw", socket.id, 2);
+            return !prev;
           }
-          return false;
         });
       } else if (
         (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
@@ -135,6 +141,21 @@ const Overworld = ({
         player.y === 784
       ) {
         setOpenPPT2((prev) => !prev);
+      } else if ((e.key === "x" || e.key === "X" || e.key === "ㅌ") || directionInput.direction) {
+        setOpenPPT2(false);
+        setOpenPPT(false);
+        setOpenDraw((prev) => {
+          if (prev) {
+            socket.emit("closeDraw", player.nickname);
+          }
+          return false;
+        });
+        setOpenDraw2((prev) => {
+          if (prev) {
+            socket.emit("closeDraw", player.nickname);
+          }
+          return false;
+        });
       }
     };
     const throttleKeydownHanler = throttle(keydownHandler, 100);
@@ -891,6 +912,7 @@ const Overworld = ({
         //Update all objects
         Object.values(charMap).forEach((object) => {
           if (object.id === socket.id) {
+            // console.log(object.x, object.y);
             if (object.x >= 1552 && object.x <= 1616 && object.y <= 720) {
               socket.close();
               mediaOff();
