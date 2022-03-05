@@ -206,59 +206,59 @@ const Overworld = ({
       // console.log(streams);
     }
 
-    async function createConnection(remoteSocketId, remoteNickname) {
-      try {
-        const myPeerConnection = new RTCPeerConnection({
-          iceServers: [
-            {
-              urls: [
-                "stun:stun.l.google.com:19302",
-                "stun:stun1.l.google.com:19302",
-                "stun:stun2.l.google.com:19302",
-                "stun:stun3.l.google.com:19302",
-                "stun:stun4.l.google.com:19302",
-              ],
-            },
-          ],
-        });
-        myPeerConnection.addEventListener("icecandidate", async (event) => {
-          try {
-            await handleIce(event, remoteSocketId, remoteNickname);
-          } catch (e) {
-            console.log(e);
-          }
-          // console.log("+------Ice------+");
-        });
-        myPeerConnection.addEventListener("addstream", async (event) => {
-          try {
-            await handleAddStream(event, remoteSocketId, remoteNickname);
-          } catch (err) {
-            console.error(err);
-          }
-          // console.log("+------addstream------+");
-        });
+    // async function createConnection(remoteSocketId, remoteNickname) {
+    //   try {
+    //     const myPeerConnection = new RTCPeerConnection({
+    //       iceServers: [
+    //         {
+    //           urls: [
+    //             "stun:stun.l.google.com:19302",
+    //             "stun:stun1.l.google.com:19302",
+    //             "stun:stun2.l.google.com:19302",
+    //             "stun:stun3.l.google.com:19302",
+    //             "stun:stun4.l.google.com:19302",
+    //           ],
+    //         },
+    //       ],
+    //     });
+    //     myPeerConnection.addEventListener("icecandidate", async (event) => {
+    //       try {
+    //         await handleIce(event, remoteSocketId, remoteNickname);
+    //       } catch (e) {
+    //         console.log(e);
+    //       }
+    //       // console.log("+------Ice------+");
+    //     });
+    //     myPeerConnection.addEventListener("addstream", async (event) => {
+    //       try {
+    //         await handleAddStream(event, remoteSocketId, remoteNickname);
+    //       } catch (err) {
+    //         console.error(err);
+    //       }
+    //       // console.log("+------addstream------+");
+    //     });
 
-        // console.log("+------before getTracks------+");
-        myStream
-          .getTracks()
-          .forEach((track) => myPeerConnection.addTrack(track, myStream));
-        // console.log("+------getTracks------+", myStream);
+    //     // console.log("+------before getTracks------+");
+    //     myStream
+    //       .getTracks()
+    //       .forEach((track) => myPeerConnection.addTrack(track, myStream));
+    //     // console.log("+------getTracks------+", myStream);
 
-        pcObj[remoteSocketId] = myPeerConnection;
+    //     pcObj[remoteSocketId] = myPeerConnection;
 
-        ++peopleInRoom;
-        // sortStreams();
-        return myPeerConnection;
-      } catch (e) {
-        console.log(e);
-      }
-    }
+    //     ++peopleInRoom;
+    //     // sortStreams();
+    //     return myPeerConnection;
+    //   } catch (e) {
+    //     console.log(e);
+    //   }
+    // }
 
-    function handleIce(event, remoteSocketId, remoteNickname) {
-      if (event.candidate) {
-        socket.emit("ice", event.candidate, remoteSocketId, remoteNickname);
-      }
-    }
+    // function handleIce(event, remoteSocketId, remoteNickname) {
+    //   if (event.candidate) {
+    //     socket.emit("ice", event.candidate, remoteSocketId, remoteNickname);
+    //   }
+    // }
 
     // async function handleScreenSharing() {
     //   try {
