@@ -6,52 +6,6 @@ import { useEffect, useRef, useState } from "react";
 import LoadingComponent from "../components/Loading.js";
 import { useNavigate } from "react-router";
 import styled from "styled-components";
-const mediasoupClient = require("mediasoup-client");
-
-let cameraOff = false;
-let muted = true;
-let pcObj = {
-  // remoteSocketId: pc (peer connection)
-  // pcObj[remoteSocketId] = myPeerConnection 이다
-};
-
-// WebRTC SFU (mediasoup)
-let params = {
-  // mediasoup params
-  encodings: [
-    {
-      rid: "r0",
-      maxBitrate: 100000,
-      scalabilityMode: "S1T3",
-    },
-    {
-      rid: "r1",
-      maxBitrate: 300000,
-      scalabilityMode: "S1T3",
-    },
-    {
-      rid: "r2",
-      maxBitrate: 900000,
-      scalabilityMode: "S1T3",
-    },
-  ],
-  // https://mediasoup.org/documentation/v3/mediasoup-client/api/#ProducerCodecOptions
-  codecOptions: {
-    videoGoogleStartBitrate: 1000,
-  },
-};
-
-let device;
-let rtpCapabilities;
-let producerTransport;
-let consumerTransports = [];
-let producer;
-let consumer;
-let isProducer = false;
-let peopleInRoom = 1;
-
-// ------------------------------------^ SFU
-
 const GameLayout = styled.div`
   display: flex; 
   justify-content: center;
@@ -70,6 +24,7 @@ const Overworld1 = ({
   setCameraPosition,
   setYCameraPosition
 }) => {
+  const mediasoupClient = require("mediasoup-client");
   const containerEl = useRef();
   const canvasRef = useRef();
   const navigate = useNavigate();
@@ -98,6 +53,51 @@ const Overworld1 = ({
   }, []);
 
   useEffect(() => {
+
+    let cameraOff = false;
+    let muted = true;
+    let pcObj = {
+      // remoteSocketId: pc (peer connection)
+      // pcObj[remoteSocketId] = myPeerConnection 이다
+    };
+
+    // WebRTC SFU (mediasoup)
+    let params = {
+      // mediasoup params
+      encodings: [
+        {
+          rid: "r0",
+          maxBitrate: 100000,
+          scalabilityMode: "S1T3",
+        },
+        {
+          rid: "r1",
+          maxBitrate: 300000,
+          scalabilityMode: "S1T3",
+        },
+        {
+          rid: "r2",
+          maxBitrate: 900000,
+          scalabilityMode: "S1T3",
+        },
+      ],
+      // https://mediasoup.org/documentation/v3/mediasoup-client/api/#ProducerCodecOptions
+      codecOptions: {
+        videoGoogleStartBitrate: 1000,
+      },
+    };
+
+    let device;
+    let rtpCapabilities;
+    let producerTransport;
+    let consumerTransports = [];
+    let producer;
+    let consumer;
+    let isProducer = false;
+    let peopleInRoom = 1;
+
+    // ------------------------------------^ SFU
+
     initCall();
 
     async function handleAddStream(event, remoteSocketId, remoteNickname) {

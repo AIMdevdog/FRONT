@@ -52,19 +52,6 @@ const StreamsContainer = styled.div`
   }
 `;
 
-const mediasoupClient = require("mediasoup-client");
-
-let cameraOff = false;
-let muted = true;
-let pcObj = {
-  // remoteSocketId: pc (peer connection)
-  // pcObj[remoteSocketId] = myPeerConnection 이다
-};
-var sendChannel = []; // RTCDataChannel for the local (sender)
-var receiveChannel = []; // RTCDataChannel for the remote (receiver)
-var localConnection = []; // RTCPeerConnect~ion for our "local" connection
-var remoteConnection = []; // RTCPeerConnection for the "remote"
-
 // WebRTC SFU (mediasoup)
 // let params_audio = {
 //   codecOptions: {
@@ -72,42 +59,6 @@ var remoteConnection = []; // RTCPeerConnection for the "remote"
 //     opusDtx: 1,
 //   },
 // };
-let params_video = {
-  // mediasoup params
-  encodings: [
-    {
-      rid: "r0",
-      maxBitrate: 100000,
-      scalabilityMode: "S1T3",
-    },
-    {
-      rid: "r1",
-      maxBitrate: 300000,
-      scalabilityMode: "S1T3",
-    },
-    {
-      rid: "r2",
-      maxBitrate: 900000,
-      scalabilityMode: "S1T3",
-    },
-  ],
-  // https://mediasoup.org/documentation/v3/mediasoup-client/api/#ProducerCodecOptions
-  codecOptions: {
-    videoGoogleStartBitrate: 1000,
-  },
-};
-
-let device;
-let rtpCapabilities;
-let producerTransport;
-let consumerTransports = [];
-let producer_video;
-let producer_audio;
-let consumer;
-let isProducer = false;
-
-// ------------------------------------^ SFU
-
 let peopleInRoom = 1;
 
 const Overworld = ({
@@ -120,6 +71,7 @@ const Overworld = ({
   setOpenPPT,
   setOpenPPT2,
 }) => {
+  const mediasoupClient = require("mediasoup-client");
   const [isLoading, setIsLoading] = useState(true);
   const [isVideoUser, isSetVideoUser] = useState([]);
   const containerEl = useRef();
@@ -132,7 +84,12 @@ const Overworld = ({
 
   let closer = [];
   const mediaOff = () => {
-    // myStream.getTracks().forEach((track) => track.stop());
+    // console.log(myStream.getConstraints());
+    // navigator.mediaDevices.getUserMedia({ video: false, audio:false });
+    // myStream.getTracks().forEach((track) => console.log(track.applyConstraints(false)));
+    console.log(myStream);
+    myStream.getTracks().forEach((track) => track.stop());
+    console.log(myStream);
   };
 
   const socketDisconnect = async () => {
@@ -190,7 +147,56 @@ const Overworld = ({
   }, []);
 
   useEffect(() => {
+    let cameraOff = false;
+    let muted = true;
+    let pcObj = {
+      // remoteSocketId: pc (peer connection)
+      // pcObj[remoteSocketId] = myPeerConnection 이다
+    };
+    var sendChannel = []; // RTCDataChannel for the local (sender)
+    var receiveChannel = []; // RTCDataChannel for the remote (receiver)
+    var localConnection = []; // RTCPeerConnect~ion for our "local" connection
+    var remoteConnection = []; // RTCPeerConnection for the "remote"
+    let device;
+    let rtpCapabilities;
+    let producerTransport;
+    let consumerTransports = [];
+    let producer_video;
+    let producer_audio;
+    let consumer;
+    let isProducer = false;
+    let params_video = {
+      // mediasoup params
+      encodings: [
+        {
+          rid: "r0",
+          maxBitrate: 100000,
+          scalabilityMode: "S1T3",
+        },
+        {
+          rid: "r1",
+          maxBitrate: 300000,
+          scalabilityMode: "S1T3",
+        },
+        {
+          rid: "r2",
+          maxBitrate: 900000,
+          scalabilityMode: "S1T3",
+        },
+      ],
+      // https://mediasoup.org/documentation/v3/mediasoup-client/api/#ProducerCodecOptions
+      codecOptions: {
+        videoGoogleStartBitrate: 1000,
+      },
+    };
+
+
+    // ------------------------------------^ SFU
+
+
+
     initCall();
+
     console.log(myStream.getTracks());
     async function handleAddStream(event, remoteSocketId) {
       const peerStream = event.stream;
@@ -394,6 +400,7 @@ const Overworld = ({
       const camBtn = document.querySelector("#camBtn");
       camBtn.style.display = "block";
       if (!sharing) {
+        console.log("getMedia with ", myStream);
         // console.log("mystream", myStream);
         // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
         myFace.srcObject = myStream;
