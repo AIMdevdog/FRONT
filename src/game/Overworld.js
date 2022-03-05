@@ -163,7 +163,7 @@ const Overworld = ({
     }
 
     // 영상 connect
-    async function paintPeerFace(peerStream, socketId) {
+    async function paintPeerFace(peerStream, socketId, kind) {
       const user = charMap[socketId];
       const streams = document.querySelector("#streams");
       const div = document.createElement("div");
@@ -514,7 +514,7 @@ const Overworld = ({
       // this action will trigger the 'connect' and 'produce' events above
 
       console.log("--------------- params_video : ", params_video);
-      console.log("--------------- params_video : ", params_audio);
+      console.log("--------------- params_aideo : ", params_audio);
       producer_video = await producerTransport.produce(params_video);
       producer_audio = await producerTransport.produce(params_audio);
 
@@ -680,8 +680,17 @@ const Overworld = ({
           // console.log("---------------- consumer : ", consumer);
           // console.log("---------------- params : ", params)
           const peerStream = new MediaStream([track]);
+          let kind;
+          if (peerStream.getAudioTracks()[0]) {
+            kind = peerStream.getAudioTracks()[0].kind
+          } else {
+            kind = peerStream.getVidioTracks()[0].kind
+          }
+          // console.log("************* peerStream의 audioTrack : ", peerStream.getAudioTracks()[0]);
+          // console.log("************* peerStream의 videoTrack : ", peerStream.getVideoTracks()[0]);
+          // console.log("************* 스트림의 종류 : ", peerStream)
           try {
-            await paintPeerFace(peerStream, remoteSocketId);
+            await paintPeerFace(peerStream, remoteSocketId, kind);
           } catch (e) {
             console.log(e);
           }
