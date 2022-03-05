@@ -89,18 +89,16 @@ const PictureFrame = ({ socket }) => {
     const yRatio = event.pageY / ref.current.clientHeight;
     socket.emit("cursorPosition", xRatio, yRatio, socket.id);
   }
-  const throttleUpdateDisplay = throttle(updateDisplay, 24);
-  const [drawUser, setdrawUser] = useState([]);
-  socket.on("shareCursorPosition", (xRatio, yRatio, nickname) => {
-    setdrawUser(prev => {
+  const throttleUpdateDisplay = throttle(updateDisplay, 48);
+  const [drawUser, setDrawUser] = useState([]);
+  socket.on("drawUser", (nickname, drawNum) => {
+    setDrawUser(prev => {
       for (let i = 0; i < prev.length; i++) {
-          if (nickname === prev[i].nickname) {
-              return prev;
-          }
+        if (nickname === prev[i]) {
+          return prev;
+        }
       }
-      return [...prev,{
-        nickname: nickname,
-      }]
+      return [...prev, nickname]
     })
   });
   return (
@@ -115,8 +113,8 @@ const PictureFrame = ({ socket }) => {
           {drawUser.map((data, i) =>
             <DrawCursor
               socket={socket}
-              key={data.nickname + i}
-              nickname={data.nickname}
+              key={data + i}
+              nickname={data}
             />
           )}
           <img

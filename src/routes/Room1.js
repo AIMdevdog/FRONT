@@ -211,11 +211,17 @@ const ThreeCanvas = styled.div`
   }
 `;
 
+const cameraConstraints = {
+  audio: true,
+  video: true,
+};
+
 const Room1 = ({ userData }) => {
   const charMap = {};
   const params = useParams();
   const roomId = params.roomId;
   const [socket, setSocket] = useState(null);
+  const [myStream, setMyStream] = useState(null);
 
   const [nicknames, setNicknames] = useState([]);
   const [collapsed, setCollapsed] = useState(true);
@@ -227,7 +233,8 @@ const Room1 = ({ userData }) => {
   const [cameraPosition, setCameraPosition] = useState(0);
   const [yCameraPosition, setYCameraPosition] = useState(0);
 
-  useEffect(() => {
+  useEffect(async () => {
+    setMyStream(await navigator.mediaDevices.getUserMedia(cameraConstraints));
     userData.then((data) => {
       setUser(data);
       setSocket(io(_const.HOST));
@@ -303,15 +310,17 @@ const Room1 = ({ userData }) => {
   return (
     <>
       <div className="roomContainer" style={{ display: "flex", height: "100vh" }}>
-        {socket ? (
+        {socket && myStream ? (
           <>
             <RoomSideBar
+              myStream={myStream}
               socket={socket}
               collapsed={collapsed}
               setCollapsed={setCollapsed}
               characters={isCharacter}
             />
             <Overworld1
+              myStream={myStream}
               Room={room}
               url={url}
               otherMaps={otherMaps}

@@ -5,9 +5,9 @@ import _const from "../config/const.js";
 import { useEffect, useRef, useState } from "react";
 import LoadingComponent from "../components/Loading.js";
 import { useNavigate } from "react-router";
+import { throttle } from "lodash";
 const mediasoupClient = require("mediasoup-client");
 
-let myStream;
 let cameraOff = false;
 let muted = true;
 let pcObj = {
@@ -65,10 +65,12 @@ let isProducer = false;
 let peopleInRoom = 1;
 
 const Overworld = ({
+  myStream,
   setOpenDraw,
   Room,
   roomId,
   charMap,
+  characters,
   socket,
   openDraw,
   setOpenPPT,
@@ -81,15 +83,13 @@ const Overworld = ({
   const directionInput = new DirectionInput();
   directionInput.init();
 
-  const cameraConstraints = {
-    audio: true,
-    video: true,
-  };
-
   const map = new OverworldMap(Room);
 
   let closer = [];
-  const socketDisconnect = () => {
+  const mediaOff = () => {
+    myStream.getTracks().forEach(track => track.stop());
+  }
+  const socketDisconnect = async () => {
     socket.close();
   };
 
@@ -97,49 +97,43 @@ const Overworld = ({
     const keydownHandler = (e) => {
       const player = charMap[socket.id];
       if (
-        (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
-        (player.x === 720 || player.x === 752) &&
-        player.y === 880
+        ((e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
+          (player.x === 720 || player.x === 752) &&
+          player.y === 880)
       ) {
-        setOpenDraw((prev) => !prev);
-      } else if (
-        (!openDraw && (e.key === "x" || e.key === "X" || e.key === "ㅌ")) ||
-        directionInput.direction
-      ) {
-        setOpenDraw(false);
-      }
-
-      if (
-        (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
-        player.x === 1680 &&
-        player.y === 1328
-      ) {
-        setOpenPPT((prev) => !prev);
-      } else if (
-        (!openDraw && (e.key === "x" || e.key === "X" || e.key === "ㅌ")) ||
-        directionInput.direction
-      ) {
+        setOpenDraw(prev => {
+          if (prev) {
+            socket.emit("closeDraw", player.nickname);
+            return !prev;
+          } else {
+            socket.emit("openDraw", socket.id, 1);
+            return !prev;
+          }
+        });
+      } else if (directionInput.direction) {
+        setOpenPPT2(false);
         setOpenPPT(false);
-      }
-
-      if (
-        (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
-        player.x === 1456 &&
-        player.y === 784
+        setOpenDraw(prev => {
+          if (prev) {
+            socket.emit("closeDraw", player.nickname);
+          }
+          return false;
+        });
+      } else if ((e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
+        player.x === 1680 && player.y === 1328) {
+        setOpenPPT((prev) => !prev);
+      } else if ((e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
+        player.x === 1456 && player.y === 784
       ) {
         setOpenPPT2((prev) => !prev);
-      } else if (
-        (!openDraw && (e.key === "x" || e.key === "X" || e.key === "ㅌ")) ||
-        directionInput.direction
-      ) {
-        setOpenPPT2(false);
       }
     };
+    const throttleKeydownHanler = throttle(keydownHandler, 100);
     window.addEventListener("popstate", socketDisconnect);
-    window.addEventListener("keydown", keydownHandler);
+    window.addEventListener("keydown", throttleKeydownHanler);
     return () => {
       window.removeEventListener("popstate", socketDisconnect);
-      window.removeEventListener("keydown", keydownHandler);
+      window.removeEventListener("keydown", throttleKeydownHanler);
     };
   }, []);
 
@@ -344,7 +338,6 @@ const Overworld = ({
       const camBtn = document.querySelector("#camBtn");
       camBtn.style.display = "block";
       if (!sharing) {
-        myStream = await navigator.mediaDevices.getUserMedia(cameraConstraints);
         // console.log("mystream", myStream);
         // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
         myFace.srcObject = myStream;
@@ -820,6 +813,7 @@ const Overworld = ({
       }
     };
     const startGameLoop = () => {
+      console.log("StartGameLoop");
       const step = () => {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -836,6 +830,7 @@ const Overworld = ({
           if (object.id === socket.id) {
             if (object.x >= 1552 && object.x <= 1616 && object.y <= 720) {
               socket.close();
+              mediaOff();
               navigate(`/room1/${roomId}`);
             } else if (
               object.x >= 976 &&
@@ -843,6 +838,7 @@ const Overworld = ({
               object.y >= 1136
             ) {
               socket.close();
+              mediaOff();
               navigate(`/room2/${roomId}`);
             }
             object.update({
