@@ -242,7 +242,7 @@ const Overworld = ({
 
     // 영상 disconnect
     function removePeerFace(id) {
-      console.log("삭제되야지", id);
+      console.log("삭제되어야해!", id);
       const streams = document.querySelector("#streams");
       const streamArr = streams.querySelectorAll("div");
       // console.log("총 길이 " , streamArr.length);
@@ -562,7 +562,7 @@ const Overworld = ({
       // this action will trigger the 'connect' and 'produce' events above
 
       console.log("--------------- params_video : ", params_video);
-      console.log("--------------- params_video : ", params_audio);
+      console.log("--------------- params_audio : ", params_audio);
       producer_video = await producerTransport.produce(params_video);
       producer_audio = await producerTransport.produce(params_audio);
 
@@ -753,7 +753,7 @@ const Overworld = ({
       const producerToClose = consumerTransports.find(
         (transportData) => transportData.producerId === remoteProducerId
       );
-      producerToClose.consumerTransport.close();
+      producerToClose.consumerTransports.close();
       producerToClose.consumer.close();
 
       // remove the consumer transport from the list
