@@ -436,8 +436,8 @@ const RoomSideBar = ({
     }
   };
   const onExitRoom = () => {
-    socket.close();
     myStream.getTracks().forEach(track => track.stop());
+    socket.close();
     navigate("/lobby");
   };
 

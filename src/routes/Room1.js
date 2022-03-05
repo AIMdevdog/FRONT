@@ -11,6 +11,7 @@ import { io } from "socket.io-client";
 import _const from "../config/const";
 import Overworld1 from "../game/Overworld1";
 import Gallery3 from "../components/Gallery3";
+import LoadingComponent from "../components/Loading.js";
 
 const pexel = (id) =>
   `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260`;
@@ -337,7 +338,7 @@ const Room1 = ({ userData }) => {
             {/* <CharacterNickname nicknames={nicknames} /> */}
 
           </>
-        ) : null}
+        ) : <LoadingComponent />}
       </div>
 
       <StreamsContainer id="streams"></StreamsContainer>

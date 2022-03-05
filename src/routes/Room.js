@@ -13,6 +13,7 @@ import { joinUser, updateLocation } from "../utils/game/character";
 import { io } from "socket.io-client";
 import _const from "../config/const";
 import CharacterNickname from "../components/CharacterNickname";
+import LoadingComponent from "../components/Loading.js";
 import PptSlider from "../components/pptSlider";
 import { user } from "../config/api";
 
@@ -275,7 +276,7 @@ const Room = ({ userData }) => {
               setOpenPPT2={setOpenPPT2}
             />
           </>
-        ) : null}
+        ) : <LoadingComponent />}
       </div>
 
       <StreamsContainer id="streams"></StreamsContainer>

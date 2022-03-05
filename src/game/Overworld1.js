@@ -70,7 +70,6 @@ const Overworld1 = ({
   setCameraPosition,
   setYCameraPosition
 }) => {
-  const [isLoading, setIsLoading] = useState(true);
   const containerEl = useRef();
   const canvasRef = useRef();
   const navigate = useNavigate();
@@ -81,7 +80,7 @@ const Overworld1 = ({
   const map = new OverworldMap(Room);
 
   let closer = [];
-  
+
   const mediaOff = () => {
     myStream.getTracks().forEach(track => track.stop());
   }
@@ -672,17 +671,17 @@ const Overworld1 = ({
       dataBuffer.push(data);
       let stay_num = dataBuffer.filter(
         (element) =>
-          element.direction === undefined 
-          && element.x === player.x 
+          element.direction === undefined
+          && element.x === player.x
           && element.y === player.y
       ).length;
-      if (stay_num > 4){
+      if (stay_num > 4) {
         dataBuffer = [];
       }
-      if(dataBuffer.length > 4){
+      if (dataBuffer.length > 4) {
         socket.emit("input", dataBuffer);
         dataBuffer = [];
-      } 
+      }
     }
 
 
@@ -710,12 +709,12 @@ const Overworld1 = ({
               if (map.roomNum === 3 && object.y > 656 || (object.y < -1250 && object.x > 1232)) {
                 socket.close();
                 mediaOff();
-                navigate(url, {state: {x: 1584, y: 784}});
+                navigate(url, { state: { x: 1584, y: 784 } });
               }
-              else if (map.roomNum === 2 && object.y > 248){
+              else if (map.roomNum === 2 && object.y > 248) {
                 socket.close();
                 mediaOff();
-                navigate(url, {state: {x: 1008, y: 1072}});
+                navigate(url, { state: { x: 1008, y: 1072 } });
               }
             }
             object.update({
@@ -889,10 +888,7 @@ const Overworld1 = ({
       document.addEventListener("keydown", cameraRotate);
     }
 
-    setTimeout(() => {
-      setIsLoading(false);
-      startGameLoop();
-    }, 3000);
+    startGameLoop();
     return () => {
       if (map.roomNum === 3) {
         document.removeEventListener("keydown", cameraRotate);
@@ -903,7 +899,6 @@ const Overworld1 = ({
 
   return (
     <>
-      {isLoading && <LoadingComponent />}
       <GameLayout>
         <div
           ref={containerEl}

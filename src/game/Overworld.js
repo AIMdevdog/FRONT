@@ -3,7 +3,6 @@ import { DirectionInput } from "./DirectionInput.js";
 import utils from "./utils.js";
 import _const from "../config/const.js";
 import { useEffect, useRef, useState } from "react";
-import LoadingComponent from "../components/Loading.js";
 import { useNavigate } from "react-router";
 import { throttle } from "lodash";
 const mediasoupClient = require("mediasoup-client");
@@ -70,13 +69,10 @@ const Overworld = ({
   Room,
   roomId,
   charMap,
-  characters,
   socket,
-  openDraw,
   setOpenPPT,
   setOpenPPT2,
 }) => {
-  const [isLoading, setIsLoading] = useState(true);
   const containerEl = useRef();
   const canvasRef = useRef();
   const navigate = useNavigate();
@@ -90,6 +86,7 @@ const Overworld = ({
     myStream.getTracks().forEach(track => track.stop());
   }
   const socketDisconnect = async () => {
+    mediaOff();
     socket.close();
   };
 
@@ -945,10 +942,7 @@ const Overworld = ({
       };
       step();
     };
-    setTimeout(() => {
-      setIsLoading(false);
-      startGameLoop();
-    }, 3000);
+    startGameLoop();
     return () => {
       isLoop = false;
     };
@@ -956,7 +950,6 @@ const Overworld = ({
 
   return (
     <>
-      {isLoading && <LoadingComponent />}
       <div
         ref={containerEl}
         className="game-container"
