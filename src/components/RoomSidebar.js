@@ -17,15 +17,11 @@ const Layout = styled.div`
   left: 0;
   top: 0;
   height: 100vh;
-<<<<<<< HEAD
-  z-index: 80;
-=======
   z-index: 99;
 
   aside {
     position: relative;
   }
->>>>>>> big-merge
 
   .layout {
     display: flex;
@@ -394,10 +390,6 @@ const ShareButton = styled.button`
   font-weight: bold;
 `;
 
-<<<<<<< HEAD
-const RoomSideBar = ({url, collapsed, setCollapsed, openDraw}) => {
-  
-=======
 const RoomSideBar = ({
   myStream,
   collapsed,
@@ -409,7 +401,6 @@ const RoomSideBar = ({
   charMap,
 }) => {
   const navigate = useNavigate();
->>>>>>> big-merge
   const [exitModal, setExitModal] = useState(false);
 
   const [isChatCollapsed, setChatCollapsed] = useState(false);
@@ -743,17 +734,8 @@ const RoomSideBar = ({
             </ProSidebar>
           )}
         </aside>
-<<<<<<< HEAD
-        <main className="content" style={{ display: "flex", flexDirection: "column" }}>
-          <div className="btn" onClick={() => {
-            if(!openDraw){
-              setCollapsed(!collapsed)
-            }
-            }}>
-=======
         <main className="content">
           <div className="btn" onClick={() => setCollapsed(!collapsed)}>
->>>>>>> big-merge
             {collapsed ? (
               <FaArrowRight size={24} color="white" />
             ) : (

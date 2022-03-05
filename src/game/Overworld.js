@@ -132,8 +132,9 @@ const Overworld = ({
 
   let closer = [];
   const mediaOff = () => {
-    myStream.getTracks().forEach((track) => track.stop());
+    // myStream.getTracks().forEach((track) => track.stop());
   };
+
   const socketDisconnect = async () => {
     mediaOff();
     socket.close();
@@ -190,7 +191,7 @@ const Overworld = ({
 
   useEffect(() => {
     initCall();
-
+    console.log(myStream.getTracks());
     async function handleAddStream(event, remoteSocketId) {
       const peerStream = event.stream;
       // console.log(peerStream);
@@ -753,7 +754,7 @@ const Overworld = ({
       const producerToClose = consumerTransports.find(
         (transportData) => transportData.producerId === remoteProducerId
       );
-      producerToClose.consumerTransports.close();
+      producerToClose.consumerTransport.close();
       producerToClose.consumer.close();
 
       // remove the consumer transport from the list

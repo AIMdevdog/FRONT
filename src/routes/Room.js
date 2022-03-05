@@ -118,60 +118,10 @@ const Room = ({ userData }) => {
   const [isUser, setUser] = useState(null);
   const [myStream, setMyStream] = useState(null);
 
-  useEffect(() => {
-<<<<<<< HEAD
-      userData.then((data) => {
-        Overworld({
-          config: document.querySelector(".game-container"),
-          setOpenDraw,
-          nickname: data.nickname || "ANON",
-          Room: {
-            RoomSrc:
-              "https://aim-image-storage.s3.ap-northeast-2.amazonaws.com/map2.png",
-            roomId,
-            roomNum: 0,
-            gameObjects: {
-              player: new Person({
-                id: null,
-                isPlayerControlled: true,
-                x: 80,
-                y: 80,
-                src:
-                  data.character ||
-                  "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png",
-              }),
-            },
-          },
-          adjust: {
-            xaxios: 0,
-            yaxios: 0,
-            yratio: 1,
-          },
-          otherMaps: [
-            {
-              x: 16,
-              y: 448,
-              url: `http://localhost:3000/room3/${roomId}`,
-              // url: "/room1",
-            },
-          ],
-        });
-      });
-    return () => {
-      console.log("room leave!!")
-    };
-  }, [])
-
-  return (
-    <>
-      <div id="Arts">
-        {openDraw ? <PictureFrame collapsed={collapsed}></PictureFrame> : null}
-      </div>
-      <RoomSideBar url={url} collapsed={collapsed} setCollapsed={setCollapsed} openDraw={openDraw} />
-=======
+  useEffect(async () => {
+    setMyStream(await navigator.mediaDevices.getUserMedia(cameraConstraints));
     const getUser = async () => {
       try {
-        setMyStream(await navigator.mediaDevices.getUserMedia(cameraConstraints));
         const requestUserData = await user.getUserInfo();
         const {
           data: { result },
@@ -247,7 +197,6 @@ const Room = ({ userData }) => {
 
   return (
     <>
->>>>>>> big-merge
       <div className="roomContainer" style={{ display: "flex" }}>
         {socket && myStream ? (
           <>
@@ -289,13 +238,8 @@ const Room = ({ userData }) => {
           </>
         ) : <LoadingComponent />}
       </div>
-<<<<<<< HEAD
-      <button style={{ position: "fixed", top: "10px" }}>share</button>
-      <StreamsContainer id="streams"></StreamsContainer>
-=======
 
       {/* <StreamsContainer id="streams"></StreamsContainer> */}
->>>>>>> big-merge
       <MyVideoBox>
         <MyVideo id="myFace" autoPlay="autoplay"></MyVideo>
         <CamBtn id="camBtn">
