@@ -6,13 +6,14 @@ export class Person extends GameObject {
     this.nextDirection = [];
     this.userid = config.id || false;
     this.directionUpdate = {
-      up: ["y", -2],
-      down: ["y", 2],
-      left: ["x", -2],
-      right: ["x", 2],
+      up: ["y", -4],
+      down: ["y", 4],
+      left: ["x", -4],
+      right: ["x", 4],
     };
     this.isUserCalling = false;
     this.isUserJoin = false;
+    this.groupName = 0;
     this.angle = 1;
   }
 
@@ -48,7 +49,7 @@ export class Person extends GameObject {
       }
 
       //Ready to walk!
-      this.movingProgressRemaining = 16;
+      this.movingProgressRemaining = 8;
       this.updateSprite(state);
     }
   }

@@ -15,6 +15,7 @@ import LoadingComponent from "../components/Loading";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import moment from "moment";
+import "moment/locale/ko";
 import { connect } from "react-redux";
 import ReactModal from "react-modal";
 
@@ -49,7 +50,7 @@ const TabButton = styled.button`
 
   span {
     /* color: ${(props) =>
-    !props.room ? "rgb(84, 92, 143)" : "transparent"}; */
+      !props.room ? "rgb(84, 92, 143)" : "transparent"}; */
     color: rgb(255, 255, 255);
     font-family: "DM Sans", sans-serif;
     font-weight: 700;
@@ -325,26 +326,21 @@ const customStyles = {
   },
 };
 
-const Lobby = ({ userData }) => {
+const Lobby = ({userData}) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [isGetRoom, setIsGetRoom] = useState([]);
-
-  const [isSaveUserData, setIsSaveUserData] = useState(null);
   const [isChangeRoom, setIsChangeRoom] = useState(false);
   const [isMyRoom, setIsMyRoom] = useState([]);
   const [isSearchRoom, setSearchRoom] = useState([]);
+  const [isSaveUserData, setIsSaveUserData] = useState(null);
 
   const [isRoomEdit, setIsRoomEdit] = useState(false);
   const [isRoomId, setIsRoomId] = useState(null);
 
   const EnterIcon =
     "https://icon-library.com/images/enter-icon/enter-icon-1.jpg";
-
-  userData.then((data) => {
-    setIsSaveUserData(data);
-  })
 
   useEffect(() => {
     const getRoom = async () => {
@@ -359,9 +355,13 @@ const Lobby = ({ userData }) => {
         setIsLoading(false);
       }
     };
+    userData.then((data)=>{
+      setIsSaveUserData(data);
+    })
 
     getRoom();
   }, []);
+
   const onSearchChange = (e) => {
     const {
       target: { value },
@@ -416,16 +416,14 @@ const Lobby = ({ userData }) => {
   };
 
   const readyToGoIntoTheRoom = (item) => {
-    window.location.href = `/room/${item.id}`;
+    navigate(`/room/${item.id}`, {state: {x: 1552, y: 1424}});
+    // window.location.href = `/room/${item.id}`;
   };
   return (
     <>
       {isLoading && <LoadingComponent />}
       <LobbyContainer>
-        <Header
-          isSaveUserData={isSaveUserData}
-          setIsSaveUserData={setIsSaveUserData}
-        />
+        <Header/>
         <LobbyHeader>
           <TabButton room={isChangeRoom} onClick={isChangeRoomType}>
             <span>모든 전시공간</span>
@@ -613,6 +611,7 @@ const Lobby = ({ userData }) => {
     </>
   );
 };
+
 
 function mapStateToProps(state) {
   return {

@@ -9,6 +9,8 @@ import React from "react";
 import { Cookies } from "react-cookie";
 
 import CreateSpaceModal from "./CreateSpaceModal";
+import { connect, useSelector } from "react-redux";
+import { actionCreators } from "../store";
 
 const cookies = new Cookies();
 
@@ -174,25 +176,6 @@ const LogoutButton = styled.button`
   color: white;
   margin-right: 20px;
 `;
-
-const customStyles = {
-  content: {
-    top: "50%",
-    left: "50%",
-    right: "auto",
-    bottom: "auto",
-    marginRight: "-50%",
-    transform: "translate(-50%, -50%)",
-    padding: 0,
-    borderRadius: 32,
-    border: "none",
-    background: "transparent",
-    boxShadow: "rgba(0, 0, 0, 0.08) 0px 1px 12px",
-  },
-  overlay: {
-    background: "rgba(0, 0, 0, 0.6)",
-  },
-};
 
 const UserInfoModalContainer = styled.div`
   width: 100%;
@@ -434,17 +417,18 @@ const ArrowWrap = styled.div`
   }
 `;
 
-const Header = ({ isSaveUserData, setIsSaveUserData }) => {
+const Header = ({ userData, loadUserData }) => {
   const navigate = useNavigate();
   const isLogin = cookies.get("refresh-token");
 
   const defaultImage =
     "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png";
 
+  const [isDataLoad, setIsDataLoad] = useState(false);
   const [isPath, setIsPath] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isCreateRoomOpen, setIsCreateRoomOpen] = useState(false);
-
+  const [isSaveUserData, setIsSaveUserData] = useState(null);
   //userSettingContainer에 사용되는 변수들
   const [isSettingOpen, setIsSettingOpen] = useState(false);
   const [isNickname, setIsNickname] = useState("");
@@ -478,31 +462,22 @@ const Header = ({ isSaveUserData, setIsSaveUserData }) => {
   }, [isPath]);
 
   useEffect(() => {
-    const getUser = async () => {
-      try {
-        const requestUserData = await user.getUserInfo();
-        const {
-          data: { result },
-        } = requestUserData;
-        if (result) {
-          // alert(msg);
-          setIsSaveUserData(result);
-        }
-      } catch (e) {
-        console.log(e);
+    loadUserData();
+  }, []);
+
+  useEffect(() => {
+    const getUserInfo = async () => {
+      const requestUserData = await user.getUserInfo();
+      const {
+        data: { result },
+      } = requestUserData;
+      if (result) {
+        setIsSaveUserData(result);
       }
     };
 
-    getUser();
+    getUserInfo();
   }, []);
-
-  // const onClickLogo = () => {
-  //   if (session) {
-  //     navigate("/lobby");
-  //   } else {
-  //     navigate("/");
-  //   }
-  // };
 
   const onCreateSpace = () => {
     setIsCreateRoomOpen(!isCreateRoomOpen);
@@ -515,7 +490,8 @@ const Header = ({ isSaveUserData, setIsSaveUserData }) => {
     navigate("/");
   };
 
-  const openSettingContainer = (item) => {
+  const openSettingContainer = () => {
+    setIsNickname("");
     setCurrent(charImgs[initIndex]);
     setIsSettingOpen(!isSettingOpen);
   };
@@ -729,4 +705,15 @@ const Header = ({ isSaveUserData, setIsSaveUserData }) => {
   );
 };
 
-export default Header;
+function mapStateToProps(state) {
+  return {
+    userData: state,
+  };
+}
+function mapDispachProps(dispatch) {
+  return {
+    loadUserData: () => dispatch(actionCreators.loadUserData()),
+  };
+}
+
+export default connect(mapStateToProps, mapDispachProps)(Header);
