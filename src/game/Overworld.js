@@ -1,42 +1,54 @@
 import { OverworldMap } from "./OverworldMap.js";
 import { DirectionInput } from "./DirectionInput.js";
 import utils from "./utils.js";
-import Slider from "react-slick";
+import _const from "../config/const.js";
 import { useEffect, useRef, useState } from "react";
 import LoadingComponent from "../components/Loading.js";
 import { useNavigate } from "react-router";
 import styled from "styled-components";
 
-import RTCVideo from "../components/RCTVideo.js";
-
 const StreamsContainer = styled.div`
   position: fixed;
   display: flex;
-  /* left: 50%; */
+  left: 64px;
   top: 20px;
   width: 100%;
+  max-width: 100%;
+  min-width: 1280px;
   justify-content: center;
   align-items: center;
   z-index: 99;
+  overflow-x: scroll;
+  scroll-behavior: smooth;
 
-  .slick-initialized .slick-slide {
-    max-width: 1440px;
-    min-width: 1440px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+  div {
+    width: 200px;
+    margin-right: 20px;
 
-  /* .slick-slide {
-    margin: 0 20px;
-  } */
+    .userVideo {
+      width: 200px;
+      border-radius: 10px;
+      /*Mirror code starts*/
+      transform: rotateY(180deg);
+      -webkit-transform: rotateY(180deg); /* Safari and Chrome */
+      -moz-transform: rotateY(180deg); /* Firefox */
 
-  .slick-slider {
-    width: 100%;
-  }
-
-  .slick-track {
-    width: 100%;
+      /*Mirror code ends*/
+      &:hover {
+        outline: 2px solid red;
+        cursor: pointer;
+      }
+    }
+    .videoNickname {
+      position: relative;
+      bottom: 140px;
+      left: 5px;
+      display: inline;
+      background-color: rgb(0, 0, 0, 0.6);
+      padding: 5px;
+      border-radius: 10px;
+      color: white;
+    }
   }
 `;
 
@@ -109,14 +121,6 @@ const Overworld = ({
   const navigate = useNavigate();
   const directionInput = new DirectionInput();
   directionInput.init();
-
-  const settings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 5,
-    slidesToScroll: 1,
-  };
 
   const cameraConstraints = {
     audio: true,
@@ -201,16 +205,35 @@ const Overworld = ({
 
     // 영상 connect
     async function paintPeerFace(peerStream, socketId) {
-      // isSetVideoUser
       const user = charMap[socketId];
-      isSetVideoUser((prev) => [
-        ...prev,
-        {
-          peerStream,
-          nickname: user?.nickname,
-          id: socketId,
-        },
-      ]);
+      const streams = document.querySelector("#streams");
+      const divSelector = document.querySelectorAll("#streams div");
+      const div = document.createElement("div");
+      const nicknameDiv = document.createElement("div");
+      nicknameDiv.className = "videoNickname";
+      nicknameDiv.innerText = user.nickname;
+      // div.classList.add("userVideoContainer");
+      div.id = socketId;
+
+      // console.log("-------- 커넥션 상태 --------", pcObj[id].iceConnectionState);
+
+      try {
+        // console.log("******peerstream", peerStream);
+        const video = document.createElement("video");
+        video.srcObject = await peerStream;
+        video.className = "userVideo";
+        video.autoplay = true;
+        video.playsInline = true;
+        div.appendChild(video);
+        div.appendChild(nicknameDiv);
+        streams.appendChild(div);
+        if (divSelector?.length > 4) {
+          // streams.style.jus
+        }
+        // await sortStreams();
+      } catch (err) {
+        console.error(err);
+      }
     }
 
     // 영상 disconnect
@@ -354,7 +377,7 @@ const Overworld = ({
     cameraBtn.addEventListener("click", handleCameraClick);
     muteBtn.addEventListener("click", handleMuteClick);
 
-    const displayMediaOptions = {
+    var displayMediaOptions = {
       video: {
         cursor: "always",
       },
@@ -370,14 +393,14 @@ const Overworld = ({
         // console.log("mystream", myStream);
         // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
         myFace.srcObject = myStream;
-        // myFace.muted = true;
+        myFace.muted = true;
         // myStream // mute default
         //   .getAudioTracks()
         //   .forEach((track) => (console.log("@@@@@@@@@@@@@@@@@ track.enabled", track.enabled)));
 
         myStream // mute default
           .getAudioTracks()
-          .forEach((track) => (track.enabled = true));
+          .forEach((track) => (track.enabled = false));
         const track = myStream.getVideoTracks()[0];
         params = {
           track,
@@ -391,7 +414,7 @@ const Overworld = ({
         // console.log("mystream", myStream);
         // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
         myFace.srcObject = myStream;
-        // myFace.muted = false;
+        myFace.muted = false;
 
         myStream // mute default
           .getAudioTracks()
@@ -953,14 +976,6 @@ const Overworld = ({
     };
   }, []);
 
-  const namesArr = isVideoUser.filter(function (elem, pos) {
-    return isVideoUser.indexOf(elem?.id) == pos?.id;
-  });
-
-  console.log(namesArr, "namesArr");
-
-  console.log(isVideoUser, "isVideoUser");
-
   return (
     <>
       {isLoading && <LoadingComponent />}
@@ -971,14 +986,7 @@ const Overworld = ({
       >
         <canvas ref={canvasRef} className="game-canvas"></canvas>
       </div>
-      {/* <StreamsContainer id="streams"></StreamsContainer> */}
-      <StreamsContainer id="streams">
-        <Slider {...settings}>
-          {isVideoUser?.map((video) => {
-            return <RTCVideo mediaStream={video} />;
-          })}
-        </Slider>
-      </StreamsContainer>
+      <StreamsContainer id="streams"></StreamsContainer>
     </>
   );
 };

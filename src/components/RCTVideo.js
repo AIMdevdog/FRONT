@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import Slider from "react-slick";
 import styled from "styled-components";
 
@@ -37,21 +37,19 @@ const RTCVideo = ({ mediaStream }) => {
   const { peerStream, nickname, id } = mediaStream;
   const viewRef = useRef(null);
 
-  console.log(peerStream, "peerStream");
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(async () => {
     if (!viewRef.current) return;
+    console.log(viewRef.current);
+
     viewRef.current.srcObject = peerStream ? peerStream : null;
+
+    return () => {};
   }, []);
 
   return (
     <UserStreamDiv id={id}>
-      <UserVideoTag
-        ref={viewRef}
-        muted={false}
-        autoPlay
-        controls
-      ></UserVideoTag>
+      <UserVideoTag ref={viewRef} muted={false} autoPlay></UserVideoTag>
       <UserVideoNickname>{nickname}</UserVideoNickname>
     </UserStreamDiv>
   );
