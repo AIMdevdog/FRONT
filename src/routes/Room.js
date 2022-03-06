@@ -102,6 +102,7 @@ const Room = ({ userData }) => {
   const url = "/lobby";
   const [nicknames, setNicknames] = useState([]);
   const [openDraw, setOpenDraw] = useState(false);
+  const [openDraw2, setOpenDraw2] = useState(false);
   const [collapsed, setCollapsed] = useState(true);
   const [openPPT, setOpenPPT] = useState(false);
   const ppt1Imgs = [
@@ -118,10 +119,10 @@ const Room = ({ userData }) => {
   const [isUser, setUser] = useState(null);
   const [myStream, setMyStream] = useState(null);
 
-  useEffect(() => {
+  useEffect(async () => {
+    setMyStream(await navigator.mediaDevices.getUserMedia(cameraConstraints));
     const getUser = async () => {
       try {
-        setMyStream(await navigator.mediaDevices.getUserMedia(cameraConstraints));
         const requestUserData = await user.getUserInfo();
         const {
           data: { result },
@@ -209,9 +210,11 @@ const Room = ({ userData }) => {
                 collapsed={collapsed}
                 setCollapsed={setCollapsed}
                 setOpenDraw={setOpenDraw}
+                setOpenDraw2={setOpenDraw2}
                 charMap={charMap}
                 characters={isCharacter}
                 openDraw={openDraw}
+                openDraw2={openDraw2}
                 myStream={myStream}
               />
             )}
@@ -219,6 +222,15 @@ const Room = ({ userData }) => {
               <div id="Arts">
                 <PictureFrame
                   socket={socket}
+                  drawNum={1}
+                />
+              </div>
+            ) : null}
+            {openDraw2 ? (
+              <div id="Arts">
+                <PictureFrame
+                  socket={socket}
+                  drawNum={2}
                 />
               </div>
             ) : null}
@@ -226,12 +238,12 @@ const Room = ({ userData }) => {
             <Overworld
               myStream={myStream}
               setOpenDraw={setOpenDraw}
+              setOpenDraw2={setOpenDraw2}
               roomId={roomId}
               Room={room}
               charMap={charMap}
               characters={isCharacter}
               socket={socket}
-              openDraw={openDraw}
               setOpenPPT={setOpenPPT}
               setOpenPPT2={setOpenPPT2}
             />

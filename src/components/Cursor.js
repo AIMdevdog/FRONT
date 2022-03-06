@@ -34,10 +34,10 @@ const DrawCursor = ({ socket, nickname }) => {
     const [isCursorX, setIsCursorX] = useState(0);
     const [isCursorY, setIsCursorY] = useState(0);
     socket.on("shareCursorPosition", (xRatio, yRatio, socketNickname) => {
-        const frame = document.querySelector(".frame");
         if (nickname === socketNickname) {
-            setIsCursorX(frame.offsetLeft + xRatio * frame.clientWidth);
-            setIsCursorY(yRatio * frame.clientHeight);
+            const ref = document.querySelector(".frame");
+            setIsCursorX(ref.offsetLeft + xRatio * ref.clientWidth);
+            setIsCursorY(ref.offsetTop +  yRatio * ref.clientHeight);
         }
     });
     return (
