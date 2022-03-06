@@ -114,8 +114,7 @@ let device;
 let rtpCapabilities;
 let producerTransport;
 let consumerTransports = [];
-let producer_video;
-let producer_audio;
+let producer;
 let consumer;
 let isProducer = false;
 
@@ -204,24 +203,24 @@ const Overworld = ({
   useEffect(() => {
     initCall();
 
-    async function handleAddStream(event, remoteSocketId) {
-      const peerStream = event.stream;
-      // console.log(peerStream);
-      const user = charMap[remoteSocketId]; // person.js에 있는 거랑 같이
-      // console.log("haddleAddStream USER: ", user);
-      if (!user.isUserJoin) {
-        // 유저가 어떤 그룹에도 속하지 않을 때 영상을 키겠다
-        user.isUserJoin = true;
-        try {
-          await paintPeerFace(peerStream, remoteSocketId);
-        } catch (err) {
-          console.error(err);
-        }
-      }
-    }
+    // async function handleAddStream(event, remoteSocketId) {
+    //   const peerStream = event.stream;
+    //   // console.log(peerStream);
+    //   const user = charMap[remoteSocketId]; // person.js에 있는 거랑 같이
+    //   // console.log("haddleAddStream USER: ", user);
+    //   if (!user.isUserJoin) {
+    //     // 유저가 어떤 그룹에도 속하지 않을 때 영상을 키겠다
+    //     user.isUserJoin = true;
+    //     try {
+    //       await paintPeerFace(peerStream, remoteSocketId);
+    //     } catch (err) {
+    //       console.error(err);
+    //     }
+    //   }
+    // }
     // 음성 connect
     async function setAudio(peerStream, socketId){
-      console.log("audio tag만들자")
+      console.log(`socketID ${socketId} peer의 audio 태그 생성`)
       const streams = document.querySelector("#streams");
 
       const div = document.querySelector(`#${socketId}`);
@@ -233,8 +232,13 @@ const Overworld = ({
       div.appendChild(elem)
       streams.appendChild(div);
     }
+
+    async function removeAudio(peerStream, socketId) {
+      
+    }
     // 영상 connect
     async function paintPeerFace(peerStream, socketId) {
+      console.log(`socketID ${socketId} peer의 vidoe 태그 생성`)
       const user = charMap[socketId];
       const streams = document.querySelector("#streams");
       const divSelector = document.querySelectorAll("#streams div");
@@ -268,17 +272,16 @@ const Overworld = ({
 
     // 영상 disconnect
     function removePeerFace(id) {
-      console.log("삭제되야지", id);
+      console.log(`--------reduplication`, id)
+      
+
       const streams = document.querySelector("#streams");
       const streamArr = streams.querySelectorAll("div");
-      // console.log("총 길이 " , streamArr.length);
       streamArr.forEach((streamElement) => {
-        // console.log(streamArr, streamElement.id, id);
         if (streamElement.id === id) {
           streams.removeChild(streamElement);
         }
       });
-      // console.log(streams);
     }
 
     // async function createConnection(remoteSocketId, remoteNickname) {
@@ -407,12 +410,12 @@ const Overworld = ({
     cameraBtn.addEventListener("click", handleCameraClick);
     muteBtn.addEventListener("click", handleMuteClick);
 
-    var displayMediaOptions = {
-      video: {
-        cursor: "always",
-      },
-      audio: true,
-    };
+    // var displayMediaOptions = {
+    //   video: {
+    //     cursor: "always",
+    //   },
+    //   audio: true,
+    // };
 
     async function getMedia(sharing) {
       const myFace = document.querySelector("#myFace");
@@ -521,7 +524,7 @@ const Overworld = ({
 
           // creates a new WebRTC Transport to send media
           // based on the server's producer transport params
-          console.log(params);
+          // console.log(params);
           producerTransport = device.createSendTransport(params);
 
           // see connectSendTransport() below
@@ -565,10 +568,10 @@ const Overworld = ({
                     callback({ id });
 
                     // if producers exist, then join room
-                    console.log(
-                      "############# producersExist : ",
-                      producersExist
-                    );
+                    // console.log(
+                    //   "############# producersExist : ",
+                    //   producersExist
+                    // );
                     if (producersExist) getProducers();
                   }
                 );
@@ -589,26 +592,16 @@ const Overworld = ({
       // we now call produce() to instruct the producer transport
       // to send media to the Router
       // this action will trigger the 'connect' and 'produce' events above
+      producer = await producerTransport.produce(params_video);
+      // await producerTransport.produce(params_audio);
 
-      console.log("--------------- params_video : ", params_video);
-      console.log("--------------- params_audio : ", params_audio);
-      producer_video = await producerTransport.produce(params_video);
-      await producerTransport.produce(params_audio);
-
-      producer_video.on("trackended", () => {
-        console.log("producer의 trackended 이벤트 실행");
-
+      producer.on("trackended", () => {
         console.log("track ended");
-
         // close video track
       });
 
-      producer_video.on("transportclose", () => {
-        console.log("producer의 transportclose 이벤트 실행");
-
-        console.log("producer");
+      producer.on("transportclose", () => {
         console.log("transport ended");
-
         // close video track
       });
 
@@ -636,10 +629,10 @@ const Overworld = ({
     );
 
     const getProducers = () => {
-      console.log("getProducers 실행");
+      // console.log("getProducers 실행");
 
       socket.emit("getProducers", (producerIds) => {
-        console.log("getProducers 콜백 실행");
+        // console.log("getProducers 콜백 실행");
 
         console.log("", producerIds);
         // for each of the producer create a consumer
@@ -651,21 +644,21 @@ const Overworld = ({
     };
 
     const signalNewConsumerTransport = async (remoteProducerId, socketId) => {
-      console.log("signalNewConsumerTransport 실행");
+      // console.log("signalNewConsumerTransport 실행");
       await socket.emit(
         "createWebRtcTransport",
         { consumer: true },
         ({ params }) => {
-          console.log(
-            "signalNewConsumerTransport에서 createWebRtcTransport 콜백 실행"
-          );
+          // console.log(
+          //   "signalNewConsumerTransport에서 createWebRtcTransport 콜백 실행"
+          // );
           // The server sends back params needed
           // to create Send Transport on the client side
           if (params.error) {
             console.log(params.error);
             return;
           }
-          console.log(`PARAMS... ${params}`);
+          // console.log(`PARAMS... ${params}`);
 
           let consumerTransport;
           try {
@@ -715,8 +708,7 @@ const Overworld = ({
       serverConsumerTransportId,
       remoteSocketId
     ) => {
-      console.log("connectRecvTransport 실행");
-      console.log("connectRecvTransport함수", remoteSocketId);
+      console.log("connectRecvTransport실행", remoteSocketId);
       // for consumer, we need to tell the server first
       // to create a consumer based on the rtpCapabilities and consume
       // if the router can consume, it will send back a set of params as below
@@ -733,7 +725,7 @@ const Overworld = ({
             console.log("******Cannot Consume******");
             return;
           }
-          console.log(`******Consumer Params ${params}*******`);
+          // console.log(`******Consumer Params ${params}*******`);
           // then consume with the local consumer transport
           // which creates a consumer
           const consumer = await consumerTransport.consume({
@@ -758,31 +750,25 @@ const Overworld = ({
           // console.log("---------------- params : ", params)
           const peerStream = new MediaStream([track]);
           if (track.kind === 'video') {
-            let cnt = 0
-            console.log("video두번 들어오나? ", remoteSocketId)
-            reduplication.forEach(objectId => {
-              if (remoteSocketId === objectId){
-                cnt += 1
-              }
-            })
-            if (cnt === 0) {
+            console.log("!!!!video  태그 추가 요청", remoteSocketId)
+            let check = reduplication.filter((element) => element === remoteSocketId)
+            if (check.length === 0) {
+              // console.log("video check안으로 들어옴")
               reduplication.push(remoteSocketId);
               console.log("only one", reduplication)
               await paintPeerFace(peerStream, remoteSocketId);
             }
+            
           } else {
-            console.log("audio두번 들어오나? ", remoteSocketId)
-            let cnt = 0
-            audio_reduplication.forEach(objectId => {
-              if (remoteSocketId === objectId){
-                cnt += 1
-              }
-            })
-            if (cnt === 0) {
+            console.log("!!!!audio 태그 추가 요청", remoteSocketId)
+            let check = audio_reduplication.filter((element) => element === remoteSocketId)
+            if (check.length === 0){
+              // console.log("audio check안으로 들어옴")
               audio_reduplication.push(remoteSocketId);
               console.log("only one", audio_reduplication)
               await setAudio(peerStream, remoteSocketId);
             }
+            
           }
 
           // document.getElementById(remoteProducerId).srcObject = new MediaStream([track])
@@ -821,14 +807,12 @@ const Overworld = ({
 
     // 남는 사람 기준
     socket.on("leave_succ", function (data) {
+      console.log("leave_succ")
       const user = charMap[data.removeSid];
       user.isUserJoin = false;
       user.groupName = 0;
-      console.log("삭제");
-      console.log(data); 
-      delete reduplication[data.removeSid]
-      delete audio_reduplication[data.removeSid]
-      removePeerFace(data.removeSid);
+      
+      // removePeerFace(data.removeSid);
     });
 
     socket.on("accept_join", async (groupName) => {
@@ -836,7 +820,7 @@ const Overworld = ({
         // SFU
         charMap[socket.id].groupName = groupName;
         socket.emit("getRtpCapabilities", groupName, (data) => {
-          console.log(`Router RTP Capabilities... ${data.rtpCapabilities}`);
+          // console.log(`Router RTP Capabilities... ${data.rtpCapabilities}`);
           // we assign to local variable and will be used when
           // loading the client Device (see createDevice above)
           rtpCapabilities = data.rtpCapabilities;
@@ -1005,6 +989,10 @@ const Overworld = ({
           socket.emit("leave_Group", player.id);
           player.isUserCalling = false;
           player.isUserJoin = false;
+          console.log(`video ${reduplication}, audio ${audio_reduplication}`)
+          reduplication = []
+          audio_reduplication = []
+          console.log(`video ${reduplication}, audio ${audio_reduplication}`)
         }
         //Draw Lower layer
         map.drawLowerImage(ctx, cameraPerson);
