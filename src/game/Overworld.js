@@ -74,9 +74,11 @@ const Overworld = ({
   const containerEl = useRef();
   const canvasRef = useRef();
   const navigate = useNavigate();
+  let reduplication = []; //해결하고 지울게요 ㅜㅜ
+  let audio_reduplication = [];  //해결하고 지울게요 ㅜㅜ
   const directionInput = new DirectionInput();
   directionInput.init();
-
+  
   const map = new OverworldMap(Room);
 
   let closer = [];
@@ -138,8 +140,6 @@ const Overworld = ({
   }, []);
 
   useEffect(() => {
-    let reduplication = []; //해결하고 지울게요 ㅜㅜ
-    let audio_reduplication = [];  //해결하고 지울게요 ㅜㅜ
     let cameraOff = false;
     let muted = true;
     let pcObj = {
@@ -819,7 +819,9 @@ const Overworld = ({
       const user = charMap[data.removeSid];
       user.isUserJoin = false;
       user.groupName = 0;
-      
+      reduplication = reduplication.filter((element) => element !== data.removeSid)
+      audio_reduplication = audio_reduplication.filter((element) => element !== data.remveSid)
+      console.log("reduplication video, audio ", reduplication, audio_reduplication)
       removePeerFace(data.removeSid);
     });
 
@@ -997,10 +999,10 @@ const Overworld = ({
           socket.emit("leave_Group", player.id);
           player.isUserCalling = false;
           player.isUserJoin = false;
-          console.log(`video ${reduplication}, audio ${audio_reduplication}`)
+          // console.log(`video ${reduplication}, audio ${audio_reduplication}`)
           reduplication = []
           audio_reduplication = []
-          console.log(`video ${reduplication}, audio ${audio_reduplication}`)
+          // console.log(`video ${reduplication}, audio ${audio_reduplication}`)
         }
         //Draw Lower layer
         map.drawLowerImage(ctx, cameraPerson);
