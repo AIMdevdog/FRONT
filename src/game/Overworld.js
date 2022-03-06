@@ -10,44 +10,53 @@ import { throttle } from "lodash";
 const StreamsContainer = styled.div`
   position: fixed;
   display: flex;
+  justify-content: center;
+  align-items: center;
   left: 64px;
   top: 20px;
   width: 100%;
-  max-width: 100%;
-  min-width: 1280px;
-  justify-content: center;
-  align-items: center;
   z-index: 99;
-  overflow-x: scroll;
-  scroll-behavior: smooth;
 
-  div {
-    width: 200px;
-    margin-right: 20px;
-
-    .userVideo {
-      width: 200px;
-      border-radius: 10px;
-      /*Mirror code starts*/
-      transform: rotateY(180deg);
-      -webkit-transform: rotateY(180deg); /* Safari and Chrome */
-      -moz-transform: rotateY(180deg); /* Firefox */
-
-      /*Mirror code ends*/
-      &:hover {
-        outline: 2px solid red;
-        cursor: pointer;
-      }
+  .streams-container {
+    max-width: 1024px;
+    min-width: 1024px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-x: scroll;
+    scroll-behavior: smooth;
+    &::-webkit-scrollbar {
+      display: none; /* Chrome, Safari, Opera*/
     }
-    .videoNickname {
-      position: relative;
-      bottom: 140px;
-      left: 5px;
-      display: inline;
-      background-color: rgb(0, 0, 0, 0.6);
-      padding: 5px;
-      border-radius: 10px;
-      color: white;
+
+    div {
+      width: 200px;
+      margin-right: 20px;
+
+      .userVideo {
+        width: 200px;
+        border-radius: 10px;
+        /*Mirror code starts*/
+        transform: rotateY(180deg);
+        -webkit-transform: rotateY(180deg); /* Safari and Chrome */
+        -moz-transform: rotateY(180deg); /* Firefox */
+
+        /*Mirror code ends*/
+        &:hover {
+          outline: 2px solid red;
+          cursor: pointer;
+        }
+      }
+      .videoNickname {
+        position: relative;
+        bottom: 140px;
+        left: 5px;
+        display: inline;
+        background-color: rgb(0, 0, 0, 0.6);
+        padding: 5px;
+        border-radius: 10px;
+        color: white;
+      }
     }
   }
 `;
@@ -107,7 +116,12 @@ const Overworld = ({
             return !prev;
           }
         });
-      } else if ((e.key === "x" || e.key === "X" || e.key === "ㅌ") || directionInput.direction) {
+      } else if (
+        e.key === "x" ||
+        e.key === "X" ||
+        e.key === "ㅌ" ||
+        directionInput.direction
+      ) {
         setOpenPPT2(false);
         setOpenPPT(false);
         setOpenDraw((prev) => {
@@ -222,29 +236,26 @@ const Overworld = ({
     //   }
     // }
     // 음성 connect
-    async function setAudio(peerStream, socketId){
-      console.log(`socketID ${socketId} peer의 audio 태그 생성`)
-      const streams = document.querySelector("#streams");
+    async function setAudio(peerStream, socketId) {
+      console.log(`socketID ${socketId} peer의 audio 태그 생성`);
+      const streamContainer = document.querySelector(".streams-container");
 
       const div = document.querySelector(`#${socketId}`);
-      let elem = document.createElement('audio')
-      elem.srcObject = peerStream
-      elem.playsinline = false
-      elem.autoplay = true
-      
-      div.appendChild(elem)
-      streams.appendChild(div);
+      let elem = document.createElement("audio");
+      elem.srcObject = peerStream;
+      elem.playsinline = false;
+      elem.autoplay = true;
+
+      div.appendChild(elem);
+      streamContainer.appendChild(div);
     }
 
-    async function removeAudio(peerStream, socketId) {
-      
-    }
+    async function removeAudio(peerStream, socketId) {}
     // 영상 connect
     async function paintPeerFace(peerStream, socketId) {
-      console.log(`socketID ${socketId} peer의 vidoe 태그 생성`)
+      console.log(`socketID ${socketId} peer의 vidoe 태그 생성`);
       const user = charMap[socketId];
-      const streams = document.querySelector("#streams");
-      const divSelector = document.querySelectorAll("#streams div");
+      const streamContainer = document.querySelector(".streams-container");
       const div = document.createElement("div");
       const nicknameDiv = document.createElement("div");
       nicknameDiv.className = "videoNickname";
@@ -261,11 +272,15 @@ const Overworld = ({
         video.className = "userVideo";
         video.autoplay = true;
         video.playsInline = true;
+        video.controls = true;
         div.appendChild(video);
         div.appendChild(nicknameDiv);
-        streams.appendChild(div);
+        streamContainer.appendChild(div);
+
+        const divSelector = document.querySelectorAll(".streams-container div");
+
         if (divSelector?.length > 4) {
-          // streams.style.jus
+          streamContainer.style.justifyContent = "flex-start";
         }
         // await sortStreams();
       } catch (err) {
@@ -276,11 +291,12 @@ const Overworld = ({
     // 영상 disconnect
     function removePeerFace(id) {
       console.log("삭제되어야해!", id);
-      const streams = document.querySelector("#streams");
-      const streamArr = streams.querySelectorAll("div");
+      const streamContainer = document.querySelector(".streams-container");
+      const streamArr = streamContainer.querySelectorAll("div");
+      // console.log("총 길이 " , streamArr.length);
       streamArr.forEach((streamElement) => {
         if (streamElement.id === id) {
-          streams.removeChild(streamElement);
+          streamContainer.removeChild(streamElement);
         }
       });
     }
@@ -449,7 +465,7 @@ const Overworld = ({
           ...params_video,
         };
       }
-        // console.log("----------- myTrack : ", track);
+      // console.log("----------- myTrack : ", track);
       // } else {
       //   myStream = await navigator.mediaDevices.getDisplayMedia(
       //     displayMediaOptions
@@ -750,26 +766,28 @@ const Overworld = ({
           // console.log("---------------- consumer : ", consumer);
           // console.log("---------------- params : ", params)
           const peerStream = new MediaStream([track]);
-          if (track.kind === 'video') {
-            console.log("!!!!video  태그 추가 요청", remoteSocketId)
-            let check = reduplication.filter((element) => element === remoteSocketId)
+          if (track.kind === "video") {
+            console.log("!!!!video  태그 추가 요청", remoteSocketId);
+            let check = reduplication.filter(
+              (element) => element === remoteSocketId
+            );
             if (check.length === 0) {
               // console.log("video check안으로 들어옴")
               reduplication.push(remoteSocketId);
-              console.log("only one", reduplication)
+              console.log("only one", reduplication);
               await paintPeerFace(peerStream, remoteSocketId);
             }
-            
           } else {
-            console.log("!!!!audio 태그 추가 요청", remoteSocketId)
-            let check = audio_reduplication.filter((element) => element === remoteSocketId)
-            if (check.length === 0){
+            console.log("!!!!audio 태그 추가 요청", remoteSocketId);
+            let check = audio_reduplication.filter(
+              (element) => element === remoteSocketId
+            );
+            if (check.length === 0) {
               // console.log("audio check안으로 들어옴")
               audio_reduplication.push(remoteSocketId);
-              console.log("only one", audio_reduplication)
+              console.log("only one", audio_reduplication);
               await setAudio(peerStream, remoteSocketId);
             }
-            
           }
 
           // document.getElementById(remoteProducerId).srcObject = new MediaStream([track])
@@ -791,8 +809,8 @@ const Overworld = ({
       const producerToClose = consumerTransports.find(
         (transportData) => transportData.producerId === remoteProducerId
       );
-      producerToClose.consumerTransports.close();
-      producerToClose.consumer.close();
+      producerToClose.consumerTransport.close();
+      producerToClose.close();
 
       // remove the consumer transport from the list
       consumerTransports = consumerTransports.filter(
@@ -813,7 +831,7 @@ const Overworld = ({
 
     // 남는 사람 기준
     socket.on("leave_succ", function (data) {
-      console.log("leave_succ")
+      console.log("leave_succ");
       const user = charMap[data.removeSid];
       user.isUserJoin = false;
       user.groupName = 0;
@@ -821,6 +839,10 @@ const Overworld = ({
       audio_reduplication = audio_reduplication.filter((element) => element !== data.remveSid)
       console.log("reduplication video, audio ", reduplication, audio_reduplication)
       removePeerFace(data.removeSid);
+    });
+
+    socket.on("leave_user", function (data) {
+      removePeerFace(data.id);
     });
 
     socket.on("accept_join", async (groupName) => {
@@ -989,10 +1011,10 @@ const Overworld = ({
         // console.log("멀어짐 로직 player.socketId", player.socketId,"근처에 있는",closer)
         if (playercheck && closer.length === 0) {
           // 나가는 사람 기준
-          const stream = document.querySelector("#streams");
-          while (stream.hasChildNodes()) {
+          const streamContainer = document.querySelector(".streams-container");
+          while (streamContainer.hasChildNodes()) {
             // 내가 가지고있는 다른 사람의 영상을 전부 삭제
-            stream.removeChild(stream.firstChild);
+            streamContainer.removeChild(streamContainer.firstChild);
           }
           socket.emit("leave_Group", player.id);
           player.isUserCalling = false;
@@ -1064,7 +1086,9 @@ const Overworld = ({
       >
         <canvas ref={canvasRef} className="game-canvas"></canvas>
       </div>
-      <StreamsContainer id="streams"></StreamsContainer>
+      <StreamsContainer id="streams">
+        <div className="streams-container"></div>
+      </StreamsContainer>
     </>
   );
 };
