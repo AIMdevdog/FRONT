@@ -71,6 +71,7 @@ const InfoInnerContainer = styled.div`
 const PictureFrame = ({ socket, drawNum }) => {
   const ref = useRef();
   const [drawUser, setDrawUser] = useState([]);
+  const color = ["red", "green", "blue", "orange", "yellow", "purple"]
 
   function updateDisplay(event) {
     const xRatio = (event.pageX - ref.current.offsetLeft) / ref.current.clientWidth;
@@ -107,7 +108,7 @@ const PictureFrame = ({ socket, drawNum }) => {
       <div className="layout">
         <Frame className="frame" ref={ref}>
           {drawUser.map((data, i) => (
-            <DrawCursor socket={socket} key={data + i} nickname={data} />
+            <DrawCursor socket={socket} key={data + i} color={color[i]} nickname={data} />
           ))}
           <img
             className="picture"
