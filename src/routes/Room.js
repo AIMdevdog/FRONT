@@ -89,7 +89,7 @@ const CamBtn = styled.div`
 `;
 
 const cameraConstraints = {
-  audio: true,
+  audio: false,
   video: true,
 };
 

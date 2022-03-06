@@ -429,17 +429,17 @@ const Overworld = ({
         // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
         video_stream = navigator.mediaDevices.getUserMedia(videoConstraints);
         audio_stream = navigator.mediaDevices.getUserMedia(audioConstraints);
-        myFace.srcObject = myStream;
+        myStream // mute default
+          .getAudioTracks()
+          .forEach((track) => (track.enabled = true));
+        const video_track = video_stream.getVideoTracks()[0];
+        const audio_track = audio_stream.getAudioTracks()[0];
+        myFace.srcObject = new MediaStream([video_track]);
         // myFace.muted = true;
         // myStream // mute default
         //   .getAudioTracks()
         //   .forEach((track) => (console.log("@@@@@@@@@@@@@@@@@ track.enabled", track.enabled)));
 
-        myStream // mute default
-          .getAudioTracks()
-          .forEach((track) => (track.enabled = true));
-        const video_track = myStream.getVideoTracks()[0];
-        const audio_track = myStream.getAudioTracks()[0];
 
         params_audio = {
           track: audio_track,
