@@ -111,7 +111,7 @@ const Overworld = ({
       ) {
         setOpenDraw((prev) => {
           if (prev) {
-            socket.emit("closeDraw", player.nickname);
+            socket.emit("closeDraw", player.nickname, 1);
             return !prev;
           } else {
             socket.emit("openDraw", socket.id, 1);
@@ -125,7 +125,7 @@ const Overworld = ({
       ) {
         setOpenDraw2((prev) => {
           if (prev) {
-            socket.emit("closeDraw", player.nickname);
+            socket.emit("closeDraw", player.nickname, 2);
             return !prev;
           } else {
             socket.emit("openDraw", socket.id, 2);
@@ -149,13 +149,13 @@ const Overworld = ({
         setOpenPPT(false);
         setOpenDraw((prev) => {
           if (prev) {
-            socket.emit("closeDraw", player.nickname);
+            socket.emit("closeDraw", player.nickname, 1);
           }
           return false;
         });
         setOpenDraw2((prev) => {
           if (prev) {
-            socket.emit("closeDraw", player.nickname);
+            socket.emit("closeDraw", player.nickname, 2);
           }
           return false;
         });
