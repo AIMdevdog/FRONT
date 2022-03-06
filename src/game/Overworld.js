@@ -472,10 +472,10 @@ const Overworld = ({
         //   .forEach((track) => (console.log("@@@@@@@@@@@@@@@@@ track.enabled", track.enabled)));
 
 
-        // params_audio = {
-        //   track: audio_track,
-        //   ...params_audio,
-        // };
+        params_audio = {
+          track: audio_track,
+          ...params_audio,
+        };
 
         params_video = {
           track: video_track,
