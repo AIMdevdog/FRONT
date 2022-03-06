@@ -52,71 +52,7 @@ const StreamsContainer = styled.div`
   }
 `;
 
-const mediasoupClient = require("mediasoup-client");
 
-let reduplication = []; //해결하고 지울게요 ㅜㅜ
-let audio_reduplication = [];  //해결하고 지울게요 ㅜㅜ
-let cameraOff = false;
-let muted = true;
-let pcObj = {
-  // remoteSocketId: pc (peer connection)
-  // pcObj[remoteSocketId] = myPeerConnection 이다
-};
-var sendChannel = []; // RTCDataChannel for the local (sender)
-var receiveChannel = []; // RTCDataChannel for the remote (receiver)
-var localConnection = []; // RTCPeerConnect~ion for our "local" connection
-var remoteConnection = []; // RTCPeerConnection for the "remote"
-let video_stream;
-let audio_stream;
-
-let videoConstraints = {
-  audio: false,
-  video: true,
-}
-let audioConstraints = {
-  audio: true, 
-  video: false,
-}
-
-// WebRTC SFU (mediasoup)
-let params_audio = {
-  codecOptions: {
-    opusStereo: 1,
-    opusDtx: 1,
-  },
-};
-let params_video = {
-  // mediasoup params
-  encodings: [
-    {
-      rid: "r0",
-      maxBitrate: 100000,
-      scalabilityMode: "S1T3",
-    },
-    {
-      rid: "r1",
-      maxBitrate: 300000,
-      scalabilityMode: "S1T3",
-    },
-    {
-      rid: "r2",
-      maxBitrate: 900000,
-      scalabilityMode: "S1T3",
-    },
-  ],
-  // https://mediasoup.org/documentation/v3/mediasoup-client/api/#ProducerCodecOptions
-  codecOptions: {
-    videoGoogleStartBitrate: 1000,
-  },
-};
-
-let device;
-let rtpCapabilities;
-let producerTransport;
-let consumerTransports = [];
-let producer;
-let consumer;
-let isProducer = false;
 
 // ------------------------------------^ SFU
 
@@ -132,6 +68,7 @@ const Overworld = ({
   setOpenPPT,
   setOpenPPT2,
 }) => {
+  const mediasoupClient = require("mediasoup-client");
   const [isLoading, setIsLoading] = useState(true);
   const [isVideoUser, isSetVideoUser] = useState([]);
   const containerEl = useRef();
@@ -201,6 +138,72 @@ const Overworld = ({
   }, []);
 
   useEffect(() => {
+    let reduplication = []; //해결하고 지울게요 ㅜㅜ
+    let audio_reduplication = [];  //해결하고 지울게요 ㅜㅜ
+    let cameraOff = false;
+    let muted = true;
+    let pcObj = {
+      // remoteSocketId: pc (peer connection)
+      // pcObj[remoteSocketId] = myPeerConnection 이다
+    };
+    var sendChannel = []; // RTCDataChannel for the local (sender)
+    var receiveChannel = []; // RTCDataChannel for the remote (receiver)
+    var localConnection = []; // RTCPeerConnect~ion for our "local" connection
+    var remoteConnection = []; // RTCPeerConnection for the "remote"
+    let video_stream;
+    let audio_stream;
+    
+    let videoConstraints = {
+      audio: false,
+      video: true,
+    }
+    let audioConstraints = {
+      audio: true, 
+      video: false,
+    }
+    
+    // WebRTC SFU (mediasoup)
+    let params_audio = {
+      codecOptions: {
+        opusStereo: 1,
+        opusDtx: 1,
+      },
+    };
+    let params_video = {
+      // mediasoup params
+      encodings: [
+        {
+          rid: "r0",
+          maxBitrate: 100000,
+          scalabilityMode: "S1T3",
+        },
+        {
+          rid: "r1",
+          maxBitrate: 300000,
+          scalabilityMode: "S1T3",
+        },
+        {
+          rid: "r2",
+          maxBitrate: 900000,
+          scalabilityMode: "S1T3",
+        },
+      ],
+      // https://mediasoup.org/documentation/v3/mediasoup-client/api/#ProducerCodecOptions
+      codecOptions: {
+        videoGoogleStartBitrate: 1000,
+      },
+    };
+    
+    let device;
+    let rtpCapabilities;
+    let producerTransport;
+    let consumerTransports = [];
+    let producer;
+    let consumer;
+    let isProducer = false;
+    
+
+
     initCall();
 
     // async function handleAddStream(event, remoteSocketId) {
@@ -593,7 +596,7 @@ const Overworld = ({
       // to send media to the Router
       // this action will trigger the 'connect' and 'produce' events above
       producer = await producerTransport.produce(params_video);
-      // await producerTransport.produce(params_audio);
+      await producerTransport.produce(params_audio);
 
       producer.on("trackended", () => {
         console.log("track ended");
@@ -805,6 +808,11 @@ const Overworld = ({
 
     // ---------------------------------------- ^ SFU
 
+    socket.on("remove_reduplication", (remoteSocketId) => {
+      reduplication = reduplication.filter((element) => element !== remoteSocketId)
+      audio_reduplication = audio_reduplication.filter((element) => element !== remoteSocketId)
+    });
+
     // 남는 사람 기준
     socket.on("leave_succ", function (data) {
       console.log("leave_succ")
@@ -812,7 +820,7 @@ const Overworld = ({
       user.isUserJoin = false;
       user.groupName = 0;
       
-      // removePeerFace(data.removeSid);
+      removePeerFace(data.removeSid);
     });
 
     socket.on("accept_join", async (groupName) => {
