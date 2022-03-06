@@ -23,20 +23,12 @@ const PictureContainer = styled.div`
     align-items: center;
     justify-content: center;
   }
-  .layout2 {
-    margin-left: 342px;
-    height: 100%;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-  }
 `;
 const Frame = styled.div`
   margin-right: 20px;
   padding: 20px;
-  height: 60vh;
-  background-color: rgb(255, 235, 205, 1);
+  height: 80vh;
+  // background-color: rgb(255, 235, 205, 1);
   border-radius: 5px;
   overflow-y: scroll;
 
@@ -54,8 +46,8 @@ const Frame = styled.div`
 const PictureInfoContainer = styled.div`
   width: 300px;
   min-width: 300px;
-  height: 60vh;
-  background-color: #ffebcd;
+  height: 80vh;
+  // background-color: #ffebcd;
   border-radius: 5px;
   padding: 20px;
 `;
@@ -64,6 +56,7 @@ const InfoInnerContainer = styled.div`
   width: 100%;
   height: 100%;
   background-color: white;
+  outline: 5px solid black;
   div {
     margin: 20px;
   }
@@ -80,9 +73,8 @@ const PictureFrame = ({ socket, drawNum }) => {
   const [drawUser, setDrawUser] = useState([]);
 
   function updateDisplay(event) {
-    const xRatio =
-      (event.pageX - ref.current.offsetLeft) / ref.current.clientWidth;
-    const yRatio = event.pageY / ref.current.clientHeight;
+    const xRatio = (event.pageX - ref.current.offsetLeft) / ref.current.clientWidth;
+    const yRatio =       (event.pageY - ref.current.offsetTop) / ref.current.clientHeight;
     socket.emit("cursorPosition", xRatio, yRatio, socket.id);
   }
 

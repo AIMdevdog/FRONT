@@ -85,12 +85,7 @@ const Overworld = ({
 
   let closer = [];
   const mediaOff = () => {
-    // console.log(myStream.getConstraints());
-    // navigator.mediaDevices.getUserMedia({ video: false, audio:false });
-    // myStream.getTracks().forEach((track) => console.log(track.applyConstraints(false)));
-    console.log(myStream);
     myStream.getTracks().forEach((track) => track.stop());
-    console.log(myStream);
   };
 
   const socketDisconnect = async () => {
@@ -218,7 +213,6 @@ const Overworld = ({
 
     initCall();
 
-    console.log(myStream.getTracks());
     async function handleAddStream(event, remoteSocketId) {
       const peerStream = event.stream;
       // console.log(peerStream);
@@ -421,7 +415,6 @@ const Overworld = ({
       const camBtn = document.querySelector("#camBtn");
       camBtn.style.display = "block";
       if (!sharing) {
-        console.log("getMedia with ", myStream);
         // console.log("mystream", myStream);
         // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
         myFace.srcObject = myStream;
