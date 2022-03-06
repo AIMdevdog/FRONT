@@ -74,7 +74,7 @@ const PictureFrame = ({ socket, drawNum }) => {
 
   function updateDisplay(event) {
     const xRatio = (event.pageX - ref.current.offsetLeft) / ref.current.clientWidth;
-    const yRatio =       (event.pageY - ref.current.offsetTop) / ref.current.clientHeight;
+    const yRatio = (event.pageY - ref.current.offsetTop) / ref.current.clientHeight;
     socket.emit("cursorPosition", xRatio, yRatio, socket.id);
   }
 
