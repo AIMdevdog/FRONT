@@ -438,8 +438,6 @@ const RoomSideBar = ({
       setDrawNum(1);
     }else if(openDraw2){
       setDrawNum(2);
-    } else{
-      setDrawNum(0);
     }
   }, [openDraw, openDraw2])
 

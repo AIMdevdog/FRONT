@@ -12,6 +12,7 @@ import _const from "../config/const";
 import Overworld1 from "../game/Overworld1";
 import Gallery2 from "../components/Gallery2";
 import LoadingComponent from "../components/Loading.js";
+import { user } from "../config/api";
 
 const pexel = (id) =>
   `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260`;
@@ -19,37 +20,51 @@ const GOLDENRATIO = 1.61803398875;
 
 const images = [
   {
-    position: [-11 * GOLDENRATIO + 1.17, 0.018, -3.5],
-    rotation: [0, Math.PI / 4, 0],
-    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/city-3021474+3.png",
+    position: [-23.4, 0, -2.3],
+    rotation: [0, Math.PI / 180 * 30, 0],
+    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/panorama_far_left_3.png",
   },
   {
-    position: [0.5, 0, -9],
+    position: [-14.5, 0, -6],
+    rotation: [0, Math.PI / 180 * 15, 0],
+    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/panorama_left_3.png",
+  },
+  {
+    position: [-5, 0, -7.3],
     rotation: [0, 0, 0],
-    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/city-3021474+4.png",
-    middle: "middle",
+    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/panorama_left_center_3.png",
   },
   {
-    position: [11 * GOLDENRATIO - 0.17, 0.018, -3.5],
-    rotation: [0, -Math.PI / 4, 0],
-    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/city-3021474+2.png",
+    position: [5, 0, -7.3],
+    rotation: [0, 0, 0],
+    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/panorama_right_center_3.png",
   },
   {
-    position: [0, 13, -5],
-    rotation: [-Math.PI / 2, 0, 0],
-    url: pexel(4175054),
-    ceil: "ceil",
+    position: [14.5, 0, -6],
+    rotation: [0, -Math.PI / 180 * 15, 0],
+    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/panorama_right_3.png",
   },
   {
-    position: [25, 0, 9.5],
-    rotation: [0, Math.PI / 2, 0],
-    url: pexel(2860810),
+    position: [23.4, 0, -2.3],
+    rotation: [0, -Math.PI / 180 * 30, 0],
+    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/panorama_far_right_3.png",
   },
-  {
-    position: [-24, 0, 9.5],
-    rotation: [0, -Math.PI / 2, 0],
-    url: pexel(3156125),
-  }
+  // {
+  //   position: [0.5, -8.3, 0.8],
+  //   rotation: [-Math.PI / 2, 0, 0],
+  //   url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/panorama_bottom.png",
+  //   ceil: "ceil",
+  // },
+  // {
+  //   position: [25, 0, 9.5],
+  //   rotation: [0, Math.PI / 2, 0],
+  //   url: pexel(2860810),
+  // },
+  // {
+  //   position: [-24, 0, 9.5],
+  //   rotation: [0, -Math.PI / 2, 0],
+  //   url: pexel(3156125),
+  // }
 ];
 
 const StreamsContainer = styled.div`
@@ -142,6 +157,7 @@ const CamBtn = styled.div`
   }
 `;
 const ThreeCanvas = styled.div`
+background-color: black;
   display:block;
   canvas {
     width: 100vw;
@@ -176,54 +192,66 @@ const Room2 = ({ userData }) => {
 
   useEffect(async () => {
     setMyStream(await navigator.mediaDevices.getUserMedia(cameraConstraints));
-    userData.then((data) => {
-      setUser(data);
-      setSocket(io(_const.HOST));
-    });
+    const getUser = async () => {
+      try {
+        const requestUserData = await user.getUserInfo();
+        const {
+          data: { result },
+        } = requestUserData;
+        if (result) {
+          setUser(result);
+          setSocket(io(_const.HOST));
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    getUser();
   }, []);
 
-  useEffect(() => {
-    if (isUser && socket) {
-      socket.on("join_user", function () {
-        console.log("새로운 유저 접속");
-        socket.emit("send_user_info", {
-          src: isUser.character,
-          x: 80,
-          y: 80,
-          nickname: isUser.nickname,
-          roomId: "room2" + roomId,
-        });
-      });
+  // useEffect(() => {
+  //   if (isUser && socket) {
+  //     socket.on("join_user", function () {
+  //       console.log("새로운 유저 접속");
+  //       socket.emit("send_user_info", {
+  //         src: isUser.character,
+  //         x: 80,
+  //         y: 80,
+  //         nickname: isUser.nickname,
+  //         roomId: "room2" + roomId,
+  //       });
+  //     });
 
-      socket.on("get_user_info", function (data) {
-        const user = joinUser(data.id, data.x, data.y, data.nickname, data.src);
-        user.sprite.yaxios = 380;
-        user.directionUpdate = {
-          up: ["y", -4],
-          down: ["y", 4],
-          left: ["x", -4],
-          right: ["x", 4],
-        };
-        setIsCharacter((prev) => [...prev, user]);
-        charMap[data.id] = user;
-        setNicknames((prev) => [...prev, data.nickname]);
-      });
+  //     socket.on("get_user_info", function (data) {
+  //       const user = joinUser(data.id, data.x, data.y, data.nickname, data.src);
+  //       user.sprite.yaxios = 380;
+  //       user.directionUpdate = {
+  //         up: ["y", -4],
+  //         down: ["y", 4],
+  //         left: ["x", -4],
+  //         right: ["x", 4],
+  //       };
+  //       setIsCharacter((prev) => [...prev, user]);
+  //       charMap[data.id] = user;
+  //       setNicknames((prev) => [...prev, data.nickname]);
+  //     });
 
-      socket.on("leave_user", function (data) {
-        setIsCharacter((prev) => prev.filter((char) => char.id !== data.id));
-        setNicknames((prev) =>
-          prev.filter((nickname) => nickname !== data.nickname)
-        );
-        delete charMap[data.id];
-      });
+  //     socket.on("leave_user", function (data) {
+  //       setIsCharacter((prev) => prev.filter((char) => char.id !== data.id));
+  //       setNicknames((prev) =>
+  //         prev.filter((nickname) => nickname !== data.nickname)
+  //       );
+  //       delete charMap[data.id];
+  //     });
 
-      socket.on("update_state", function (data) {
-        Object.values(charMap).forEach((character, i) => {
-          updateLocation(data[i], character, socket.id);
-        });
-      });
-    }
-  }, [isUser, socket]);
+  //     socket.on("update_state", function (data) {
+  //       Object.values(charMap).forEach((character, i) => {
+  //         updateLocation(data[i], character, socket.id);
+  //       });
+  //     });
+  //   }
+  // }, [isUser, socket]);
 
   const room = {
     RoomSrc: null,
@@ -240,44 +268,41 @@ const Room2 = ({ userData }) => {
       }),
     },
   };
-  const otherMaps = [
-    {
-      x: 16,
-      y: 448,
-      url: `/room3/${roomId}`,
-    },
-  ];
+  // const otherMaps = [
+  //   {
+  //     x: 16,
+  //     y: 448,
+  //     url: `/room3/${roomId}`,
+  //   },
+  // ];
 
   return (
     <>
       <div className="roomContainer" style={{ display: "flex", height: "100vh" }}>
-        {socket && myStream ? (
-          <>
-            <RoomSideBar
+        <>
+          <RoomSideBar
               myStream={myStream}
               socket={socket}
               collapsed={collapsed}
               setCollapsed={setCollapsed}
               characters={isCharacter}
             />
-            <Overworld1
-              myStream={myStream}
-              Room={room}
-              url={url}
-              otherMaps={otherMaps}
-              charMap={charMap}
-              socket={socket}
-              setCameraPosition={setCameraPosition}
-              setYCameraPosition={setYCameraPosition}
-            />
-            <ThreeCanvas className="gallery">
-              <Suspense fallback={null}>
-                <Gallery2 images={images} roomId={roomId} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
-              </Suspense>
-            </ThreeCanvas>
-            {/* <CharacterNickname nicknames={nicknames} /> */}
-          </>
-        ) : <LoadingComponent/>}
+          <ThreeCanvas className="gallery">
+            <Suspense fallback={null}>
+              <Gallery2 images={images} roomId={roomId} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
+            </Suspense>
+          </ThreeCanvas>
+          {socket ? <Overworld1
+            myStream={myStream}
+            Room={room}
+            url={url}
+            charMap={charMap}
+            socket={socket}
+            setCameraPosition={setCameraPosition}
+            setYCameraPosition={setYCameraPosition}
+          /> : null}
+          <CharacterNickname nicknames={nicknames} />
+        </>
       </div>
 
       <StreamsContainer id="streams"></StreamsContainer>
