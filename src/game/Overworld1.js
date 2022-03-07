@@ -20,6 +20,7 @@ const Overworld1 = ({
   url,
   Room,
   charMap,
+  otherMaps,
   socket,
   setCameraPosition,
   setYCameraPosition,

@@ -210,48 +210,48 @@ const Room2 = ({ userData }) => {
     getUser();
   }, []);
 
-  // useEffect(() => {
-  //   if (isUser && socket) {
-  //     socket.on("join_user", function () {
-  //       console.log("새로운 유저 접속");
-  //       socket.emit("send_user_info", {
-  //         src: isUser.character,
-  //         x: 80,
-  //         y: 80,
-  //         nickname: isUser.nickname,
-  //         roomId: "room2" + roomId,
-  //       });
-  //     });
+  useEffect(() => {
+    if (isUser && socket) {
+      socket.on("join_user", function () {
+        console.log("새로운 유저 접속");
+        socket.emit("send_user_info", {
+          src: isUser.character,
+          x: 80,
+          y: 80,
+          nickname: isUser.nickname,
+          roomId: "room2" + roomId,
+        });
+      });
 
-  //     socket.on("get_user_info", function (data) {
-  //       const user = joinUser(data.id, data.x, data.y, data.nickname, data.src);
-  //       user.sprite.yaxios = 380;
-  //       user.directionUpdate = {
-  //         up: ["y", -4],
-  //         down: ["y", 4],
-  //         left: ["x", -4],
-  //         right: ["x", 4],
-  //       };
-  //       setIsCharacter((prev) => [...prev, user]);
-  //       charMap[data.id] = user;
-  //       setNicknames((prev) => [...prev, data.nickname]);
-  //     });
+      socket.on("get_user_info", function (data) {
+        const user = joinUser(data.id, data.x, data.y, data.nickname, data.src);
+        user.sprite.yaxios = 380;
+        user.directionUpdate = {
+          up: ["y", -4],
+          down: ["y", 4],
+          left: ["x", -4],
+          right: ["x", 4],
+        };
+        setIsCharacter((prev) => [...prev, user]);
+        charMap[data.id] = user;
+        setNicknames((prev) => [...prev, data.nickname]);
+      });
 
-  //     socket.on("leave_user", function (data) {
-  //       setIsCharacter((prev) => prev.filter((char) => char.id !== data.id));
-  //       setNicknames((prev) =>
-  //         prev.filter((nickname) => nickname !== data.nickname)
-  //       );
-  //       delete charMap[data.id];
-  //     });
+      socket.on("leave_user", function (data) {
+        setIsCharacter((prev) => prev.filter((char) => char.id !== data.id));
+        setNicknames((prev) =>
+          prev.filter((nickname) => nickname !== data.nickname)
+        );
+        delete charMap[data.id];
+      });
 
-  //     socket.on("update_state", function (data) {
-  //       Object.values(charMap).forEach((character, i) => {
-  //         updateLocation(data[i], character, socket.id);
-  //       });
-  //     });
-  //   }
-  // }, [isUser, socket]);
+      socket.on("update_state", function (data) {
+        Object.values(charMap).forEach((character, i) => {
+          updateLocation(data[i], character, socket.id);
+        });
+      });
+    }
+  }, [isUser, socket]);
 
   const room = {
     RoomSrc: null,
@@ -268,13 +268,13 @@ const Room2 = ({ userData }) => {
       }),
     },
   };
-  // const otherMaps = [
-  //   {
-  //     x: 16,
-  //     y: 448,
-  //     url: `/room3/${roomId}`,
-  //   },
-  // ];
+  const otherMaps = [
+    {
+      x: 16,
+      y: 448,
+      url: `/room3/${roomId}`,
+    },
+  ];
 
   return (
     <>
@@ -301,7 +301,7 @@ const Room2 = ({ userData }) => {
             setCameraPosition={setCameraPosition}
             setYCameraPosition={setYCameraPosition}
           /> : null}
-          <CharacterNickname nicknames={nicknames} />
+          {/* <CharacterNickname nicknames={nicknames} /> */}
         </>
       </div>
 
