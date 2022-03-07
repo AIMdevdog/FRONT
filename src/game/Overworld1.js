@@ -11,15 +11,16 @@ const GameLayout = styled.div`
   justify-content: center;
   position: fixed;
   align-items: center;
-  background-color: rgb(19, 19, 20, 1);
+  background-color: rgb(19, 19, 20, 0);
+  // z-index: 10;
 `;
 
 const Overworld1 = ({
   myStream,
   url,
   Room,
-  otherMaps,
   charMap,
+  otherMaps,
   socket,
   setCameraPosition,
   setYCameraPosition,
@@ -846,7 +847,7 @@ const Overworld1 = ({
           ref={containerEl}
           className="game-container"
           style={{
-            backgroundColor: "rgb(19,19,20)",
+            backgroundColor: "rgb(37, 127, 190, 0)",
             width: "100vw",
             height: "100vh",
           }}

@@ -203,21 +203,19 @@ const Room = ({ userData }) => {
           <>
             {openPPT ? <PptSlider pptImgs={ppt1Imgs} /> : null}
             {openPPT2 ? <PptSlider pptImgs={ppt2Imgs} /> : null}
-            {openPPT || openPPT2 ? null : (
-              <RoomSideBar
-                url={url}
-                socket={socket}
-                collapsed={collapsed}
-                setCollapsed={setCollapsed}
-                setOpenDraw={setOpenDraw}
-                setOpenDraw2={setOpenDraw2}
-                charMap={charMap}
-                characters={isCharacter}
-                openDraw={openDraw}
-                openDraw2={openDraw2}
-                myStream={myStream}
-              />
-            )}
+            <RoomSideBar
+              url={url}
+              socket={socket}
+              collapsed={collapsed}
+              setCollapsed={setCollapsed}
+              setOpenDraw={setOpenDraw}
+              setOpenDraw2={setOpenDraw2}
+              charMap={charMap}
+              characters={isCharacter}
+              openDraw={openDraw}
+              openDraw2={openDraw2}
+              myStream={myStream}
+            />
             {openDraw ? (
               <div id="Arts">
                 <PictureFrame

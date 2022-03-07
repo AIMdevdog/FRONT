@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
+import { GiArrowCursor } from "react-icons/gi";
 
-const Cursor = styled.img.attrs((props) => ({
+const CursorDiv = styled.div.attrs((props) => ({
     style: {
         left: props.isCursorX + "px",
         top: props.isCursorY + "px",
@@ -30,14 +31,14 @@ const CursorNickname = styled.div.attrs((props) => ({
     border-radius: 5px;
     color: white;
 `;
-const DrawCursor = ({ socket, nickname }) => {
+const DrawCursor = ({ socket, color, nickname }) => {
     const [isCursorX, setIsCursorX] = useState(0);
     const [isCursorY, setIsCursorY] = useState(0);
     socket.on("shareCursorPosition", (xRatio, yRatio, socketNickname) => {
         if (nickname === socketNickname) {
             const ref = document.querySelector(".frame");
             setIsCursorX(ref.offsetLeft + xRatio * ref.clientWidth);
-            setIsCursorY(ref.offsetTop +  yRatio * ref.clientHeight);
+            setIsCursorY(ref.offsetTop + yRatio * ref.clientHeight);
         }
     });
     return (
@@ -46,13 +47,16 @@ const DrawCursor = ({ socket, nickname }) => {
                 isCursorX={isCursorX}
                 isCursorY={isCursorY}
             >{nickname}</CursorNickname>
-            <Cursor
+            <CursorDiv className="cursor" isCursorX={isCursorX} isCursorY={isCursorY}>
+                <GiArrowCursor size="24" color={color}/>
+            </CursorDiv>
+            {/* <Cursor
                 isCursorX={isCursorX}
                 isCursorY={isCursorY}
                 className="cursor"
                 src="https://img.icons8.com/ios-glyphs/344/cursor--v1.png"
                 alt="img"
-            />
+            /> */}
         </>
     )
 }

@@ -88,7 +88,7 @@ const Overworld = ({
   let audio_reduplication = [];  //해결하고 지울게요 ㅜㅜ
   const directionInput = new DirectionInput();
   directionInput.init();
-  
+
   const map = new OverworldMap(Room);
 
   let closer = [];
@@ -111,7 +111,7 @@ const Overworld = ({
       ) {
         setOpenDraw((prev) => {
           if (prev) {
-            socket.emit("closeDraw", player.nickname);
+            socket.emit("closeDraw", player.nickname, 1);
             return !prev;
           } else {
             socket.emit("openDraw", socket.id, 1);
@@ -120,12 +120,12 @@ const Overworld = ({
         });
       } else if (
         (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
-        (player.x === 848 || player.x === 880) &&
+        (player.x === 1232 || player.x === 1264) &&
         player.y === 880
       ) {
         setOpenDraw2((prev) => {
           if (prev) {
-            socket.emit("closeDraw", player.nickname);
+            socket.emit("closeDraw", player.nickname, 2);
             return !prev;
           } else {
             socket.emit("openDraw", socket.id, 2);
@@ -149,13 +149,13 @@ const Overworld = ({
         setOpenPPT(false);
         setOpenDraw((prev) => {
           if (prev) {
-            socket.emit("closeDraw", player.nickname);
+            socket.emit("closeDraw", player.nickname, 1);
           }
           return false;
         });
         setOpenDraw2((prev) => {
           if (prev) {
-            socket.emit("closeDraw", player.nickname);
+            socket.emit("closeDraw", player.nickname, 2);
           }
           return false;
         });
@@ -183,16 +183,16 @@ const Overworld = ({
     var remoteConnection = []; // RTCPeerConnection for the "remote"
     let video_stream;
     let audio_stream;
-    
+
     let videoConstraints = {
       audio: false,
       video: true,
     }
     let audioConstraints = {
-      audio: true, 
+      audio: true,
       video: false,
     }
-    
+
     // WebRTC SFU (mediasoup)
     let params_audio = {
       codecOptions: {
@@ -224,7 +224,7 @@ const Overworld = ({
         videoGoogleStartBitrate: 1000,
       },
     };
-    
+
     let device;
     let rtpCapabilities;
     let producerTransport;
@@ -232,7 +232,7 @@ const Overworld = ({
     let producer;
     let consumer;
     let isProducer = false;
-    
+
 
 
     initCall();
@@ -267,7 +267,7 @@ const Overworld = ({
       streamContainer.appendChild(div);
     }
 
-    async function removeAudio(peerStream, socketId) {}
+    async function removeAudio(peerStream, socketId) { }
     // 영상 connect
     async function paintPeerFace(peerStream, socketId) {
       console.log(`socketID ${socketId} peer의 vidoe 태그 생성`);
@@ -791,6 +791,7 @@ const Overworld = ({
             if (check.length === 0) {
               // console.log("video check안으로 들어옴")
               console.log("only one", reduplication);
+              reduplication.push(remoteSocketId);
               await paintPeerFace(peerStream, remoteSocketId);
             }
           } else {
@@ -1055,21 +1056,19 @@ const Overworld = ({
             const objectNicknameContainer = document.getElementById(
               `${object.nickname}`
             );
+            const x = object.x + utils.withGrid(ctx.canvas.clientWidth / 16 / 2) - cameraPerson.x;
+            const y = object.y - 25 + utils.withGrid(ctx.canvas.clientHeight / 16 / 2) - cameraPerson.y;
             // console.dir(objectNicknameContainer);
             if (!objectNicknameContainer) {
               return;
             }
-            objectNicknameContainer.style.top =
-              object.y -
-              25 +
-              utils.withGrid(ctx.canvas.clientHeight / 16 / 2) -
-              cameraPerson.y +
-              "px";
-            objectNicknameContainer.style.left =
-              object.x +
-              utils.withGrid(ctx.canvas.clientWidth / 16 / 2) -
-              cameraPerson.x +
-              "px";
+            if (x < 0 || x > window.innerWidth || y < 0 || y > window.innerHeight) {
+              objectNicknameContainer.style.left = 0;
+              objectNicknameContainer.style.top = 0;
+            } else {
+              objectNicknameContainer.style.left = x + "px";
+              objectNicknameContainer.style.top = y + "px";
+            }
           });
         if (player) {
           const data = {

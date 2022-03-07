@@ -5,7 +5,7 @@ import styled from "styled-components";
 const PptContainer = styled.div`
     background-color: black;
     position: fixed;
-    z-index: 99;
+    z-index: 102;
     width: 100%;
     height: 100vh;
 `;
