@@ -91,7 +91,7 @@ const Overworld = ({
   
   const map = new OverworldMap(Room);
 
-  let closer = [];
+  let closer = 0;
   const mediaOff = () => {
     myStream.getTracks().forEach((track) => track.stop());
   };
@@ -999,7 +999,7 @@ const Overworld = ({
               Math.abs(player?.y - object.y) < 96
             ) {
               //화상 통화 연결
-              closer.push(object.id);
+              closer += 1;
               console.log("가까워짐");
               player.isUserCalling = true;
               object.isUserCalling = true;
@@ -1019,7 +1019,7 @@ const Overworld = ({
                 Math.abs(player?.y - object.y) > 128)
             ) {
               console.log("멀어짐");
-              closer = closer.filter((element) => element !== object.id);
+              closer -= 1;
               object.isUserCalling = false;
               object.isUserJoin = false;
             }
@@ -1027,7 +1027,7 @@ const Overworld = ({
         });
         const playercheck = player ? player.isUserCalling : false;
         // console.log("멀어짐 로직 player.socketId", player.socketId,"근처에 있는",closer)
-        if (playercheck && closer.length === 0) {
+        if (playercheck && closer === 0) {
           // 나가는 사람 기준
           const streamContainer = document.querySelector(".streams-container");
           while (streamContainer.hasChildNodes()) {
