@@ -600,14 +600,13 @@ const RoomSideBar = ({
     setDrawNum(0);
   };
   const onShareAccept = (props) => {
-    console.log(typeof(props.target.value));
     const num = parseInt(props.target.value);
-    socket.emit("openDraw", socket.id, num);
     if(num === 1){
       setOpenDraw(true);
     }else if(num === 2){
       setOpenDraw2(true);
     }
+    socket.emit("openDraw", socket.id, num);
     setSharePrompt(false);
   };
 
