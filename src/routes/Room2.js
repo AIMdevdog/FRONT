@@ -281,13 +281,13 @@ const Room2 = ({ userData }) => {
     <>
       <div className="roomContainer" style={{ display: "flex", height: "100vh" }}>
         <>
-          <RoomSideBar
+          {/* <RoomSideBar
               myStream={myStream}
               socket={socket}
               collapsed={collapsed}
               setCollapsed={setCollapsed}
               characters={isCharacter}
-            />
+            /> */}
           <ThreeCanvas className="gallery">
             <Suspense fallback={null}>
               <Gallery2 images={images} roomId={roomId} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />

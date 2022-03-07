@@ -67,14 +67,14 @@ function Frames({ images, roomId, setCameraPosition, setYCameraPosition, setZCam
   // console.log(yCameraPosition);
   const cameraMove = (e) => {
     switch (e.key) {
-      case "e":
-      case "E":
-      case "ㄷ":
+      case "s":
+      case "S":
+      case "ㄴ":
         setZCameraPosition(prev => prev + 0.2);
         break;
-      case "q":
-      case "Q":
-      case "ㅂ":
+      case "w":
+      case "W":
+      case "ㅈ":
         setZCameraPosition(prev => prev - 0.2);
         break;
       case "ArrowUp":
