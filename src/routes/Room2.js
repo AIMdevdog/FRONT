@@ -191,7 +191,8 @@ const Room2 = ({ userData }) => {
           x: 80,
           y: 80,
           nickname: isUser.nickname,
-          roomId: "room2" + roomId,
+          roomId: "room2/" + roomId,
+          roomNum: 2
         });
       });
 

@@ -790,7 +790,6 @@ const Overworld = ({
             );
             if (check.length === 0) {
               // console.log("video check안으로 들어옴")
-              reduplication.push(remoteSocketId);
               console.log("only one", reduplication);
               await paintPeerFace(peerStream, remoteSocketId);
             }

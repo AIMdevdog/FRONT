@@ -152,7 +152,7 @@ const Room = ({ userData }) => {
           x: location.state.x,
           y: location.state.y,
           nickname: isUser?.nickname,
-          roomId: "room" + roomId,
+          roomId: "room/" + roomId,
         });
       });
 
