@@ -64,6 +64,8 @@ const StreamsContainer = styled.div`
 // ------------------------------------^ SFU
 
 let peopleInRoom = 1;
+let producer_audio;
+let producer;
 
 const Overworld = ({
   myStream,
@@ -282,7 +284,6 @@ const Overworld = ({
     let rtpCapabilities;
     let producerTransport;
     let consumerTransports = [];
-    let producer;
     let consumer;
     let isProducer = false;
 
@@ -704,7 +705,7 @@ const Overworld = ({
       //   console.log("producer");
       //   console.log("transport ended");
 
-      //   // close video track
+        // close video track
       // });
     };
 
@@ -918,12 +919,12 @@ const Overworld = ({
         reduplication,
         audio_reduplication
       );
-      removePeerFace(data.removeSid);
+      // removePeerFace(data.removeSid);
     });
 
-    socket.on("leave_user", function (data) {
-      removePeerFace(data.id);
-    });
+    // socket.on("leave_user", function (data) {
+    //   removePeerFace(data.id);
+    // });
 
     socket.on("accept_join", async (groupName) => {
       try {
@@ -1094,6 +1095,8 @@ const Overworld = ({
             // 내가 가지고있는 다른 사람의 영상을 전부 삭제
             streamContainer.removeChild(streamContainer.firstChild);
           }
+          // producer_audio.emit("producerclose");
+          producer.emit("producerclose");
           socket.emit("leave_Group", player.id);
           player.isUserCalling = false;
           player.isUserJoin = false;
