@@ -980,7 +980,7 @@ const Overworld = ({
         //Update all objects
         Object.values(charMap).forEach((object) => {
           if (object.id === socket.id) {
-            // console.log(object.x, object.y);
+            console.log(object.x, object.y);
             if (object.x >= 1552 && object.x <= 1616 && object.y <= 720) {
               socket.close();
               mediaOff();

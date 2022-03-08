@@ -180,7 +180,7 @@ const Room = ({ userData }) => {
   }, [isUser, socket]);
   const room = {
     RoomSrc:
-      "https://aim-front.s3.ap-northeast-2.amazonaws.com/aim-map-0303.png",
+      "https://aim-front.s3.ap-northeast-2.amazonaws.com/new_map.png",
     roomNum: 0,
     gameObjects: {
       player: new Person({
