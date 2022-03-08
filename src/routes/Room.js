@@ -16,6 +16,7 @@ import CharacterNickname from "../components/CharacterNickname";
 import LoadingComponent from "../components/Loading.js";
 import PptSlider from "../components/pptSlider";
 import { user } from "../config/api";
+import VisitorsBook from "../components/VisitorBook";
 
 const MyVideoNickname = styled.div`
   position: absolute;
@@ -105,14 +106,15 @@ const Room = ({ userData }) => {
   const [openDraw2, setOpenDraw2] = useState(false);
   const [collapsed, setCollapsed] = useState(true);
   const [openPPT, setOpenPPT] = useState(false);
+  const [openVisitorsBook, setIsOpenVisitorsBook] = useState(false);
   const ppt1Imgs = [
     "https://aim-front.s3.ap-northeast-2.amazonaws.com/2.jpeg",
     "https://aim-front.s3.ap-northeast-2.amazonaws.com/3.jpeg",
     "https://aim-front.s3.ap-northeast-2.amazonaws.com/4.jpeg",
   ];
   const ppt2Imgs = [
-    "https://aim-front.s3.ap-northeast-2.amazonaws.com/4.jpeg",
-    "https://aim-front.s3.ap-northeast-2.amazonaws.com/2.jpeg",
+    // "https://aim-front.s3.ap-northeast-2.amazonaws.com/4.jpeg",
+    // "https://aim-front.s3.ap-northeast-2.amazonaws.com/2.jpeg",
   ];
   const [openPPT2, setOpenPPT2] = useState(false);
   const [isCharacter, setIsCharacter] = useState([]);
@@ -138,8 +140,6 @@ const Room = ({ userData }) => {
 
     getUser();
   }, []);
-
-
 
   useEffect(() => {
     if (isUser && socket) {
@@ -180,8 +180,7 @@ const Room = ({ userData }) => {
     }
   }, [isUser, socket]);
   const room = {
-    RoomSrc:
-      "https://aim-front.s3.ap-northeast-2.amazonaws.com/aim-map-0303.png",
+    RoomSrc: "https://aim-front.s3.ap-northeast-2.amazonaws.com/new_map.png",
     roomNum: 0,
     gameObjects: {
       player: new Person({
@@ -202,7 +201,8 @@ const Room = ({ userData }) => {
         {socket && myStream ? (
           <>
             {openPPT ? <PptSlider pptImgs={ppt1Imgs} /> : null}
-            {openPPT2 ? <PptSlider pptImgs={ppt2Imgs} /> : null}
+            {/* {openPPT2 ? <PptSlider pptImgs={ppt2Imgs} /> : null} */}
+            {openVisitorsBook ? <VisitorsBook isUser={isUser} /> : null}
             <RoomSideBar
               url={url}
               socket={socket}
@@ -218,18 +218,12 @@ const Room = ({ userData }) => {
             />
             {openDraw ? (
               <div id="Arts">
-                <PictureFrame
-                  socket={socket}
-                  drawNum={1}
-                />
+                <PictureFrame socket={socket} drawNum={1} />
               </div>
             ) : null}
             {openDraw2 ? (
               <div id="Arts">
-                <PictureFrame
-                  socket={socket}
-                  drawNum={2}
-                />
+                <PictureFrame socket={socket} drawNum={2} />
               </div>
             ) : null}
             <CharacterNickname nicknames={nicknames} />
@@ -244,9 +238,12 @@ const Room = ({ userData }) => {
               socket={socket}
               setOpenPPT={setOpenPPT}
               setOpenPPT2={setOpenPPT2}
+              setIsOpenVisitorsBook={setIsOpenVisitorsBook}
             />
           </>
-        ) : <LoadingComponent />}
+        ) : (
+          <LoadingComponent />
+        )}
       </div>
 
       {/* <StreamsContainer id="streams"></StreamsContainer> */}
