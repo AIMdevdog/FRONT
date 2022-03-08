@@ -65,6 +65,7 @@ const StreamsContainer = styled.div`
 // ------------------------------------^ SFU
 
 let peopleInRoom = 1;
+let producer;
 
 const Overworld = ({
   myStream,
@@ -284,7 +285,6 @@ const Overworld = ({
     let rtpCapabilities;
     let producerTransport;
     let consumerTransports = [];
-    let producer;
     let consumer;
     let isProducer = false;
 
@@ -637,6 +637,7 @@ const Overworld = ({
             "produce",
             async (parameters, callback, errback) => {
               console.log("producerTransport의 produce 이벤트 실행");
+              console.log("-----", socket.id, parameters.kind);
               try {
                 // tell the server to create a Producer
                 // with the following parameters and produce
@@ -649,7 +650,7 @@ const Overworld = ({
                     rtpParameters: parameters.rtpParameters,
                     appData: parameters.appData,
                   },
-                  ({ id, producersExist }) => {
+                  ({ id, producersExist, kind }) => {
                     // Tell the transport that parameters were transmitted and provide it with the
                     // server side producer's id.
                     callback({ id });
@@ -659,7 +660,7 @@ const Overworld = ({
                     //   "############# producersExist : ",
                     //   producersExist
                     // );
-                    if (producersExist) getProducers();
+                    if (producersExist) getProducers(kind);
                   }
                 );
               } catch (error) {
@@ -706,7 +707,7 @@ const Overworld = ({
       //   console.log("producer");
       //   console.log("transport ended");
 
-      //   // close video track
+        // close video track
       // });
     };
 
@@ -715,10 +716,9 @@ const Overworld = ({
       signalNewConsumerTransport(producerId, socketId)
     );
 
-    const getProducers = () => {
+    const getProducers = (kind) => {
       // console.log("getProducers 실행");
-
-      socket.emit("getProducers", (producerIds) => {
+      socket.emit("getProducers", {kind}, (producerIds) => {
         // console.log("getProducers 콜백 실행");
 
         console.log("", producerIds);
@@ -731,7 +731,7 @@ const Overworld = ({
     };
 
     const signalNewConsumerTransport = async (remoteProducerId, socketId) => {
-      // console.log("signalNewConsumerTransport 실행");
+      console.log("몇번 실행?, signalNewConsumerTransport 실행");
       await socket.emit(
         "createWebRtcTransport",
         { consumer: true },
@@ -920,12 +920,12 @@ const Overworld = ({
         reduplication,
         audio_reduplication
       );
-      removePeerFace(data.removeSid);
+      // removePeerFace(data.removeSid);
     });
 
-    socket.on("leave_user", function (data) {
-      removePeerFace(data.id);
-    });
+    // socket.on("leave_user", function (data) {
+    //   removePeerFace(data.id);
+    // });
 
     socket.on("accept_join", async (groupName) => {
       try {
@@ -1115,7 +1115,10 @@ const Overworld = ({
             // 내가 가지고있는 다른 사람의 영상을 전부 삭제
             streamContainer.removeChild(streamContainer.firstChild);
           }
+          // producer_audio.emit("producerclose");
+          producer.emit("producerclose");
           socket.emit("leave_Group", player.id);
+          producer.emit("producerclose")
           player.isUserCalling = false;
           player.isUserJoin = false;
           // console.log(`video ${reduplication}, audio ${audio_reduplication}`)

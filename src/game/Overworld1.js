@@ -436,7 +436,7 @@ const Overworld1 = ({
       socket.emit("getProducers", (producerIds) => {
         // console.log("getProducers 콜백 실행");
 
-        console.log("", producerIds);
+        console.log("==========", producerIds);
         // for each of the producer create a consumer
         producerIds.forEach((ids) =>
           signalNewConsumerTransport(ids.producerId, ids.socketId)
@@ -446,7 +446,6 @@ const Overworld1 = ({
     };
 
     const signalNewConsumerTransport = async (remoteProducerId, socketId) => {
-      // console.log("signalNewConsumerTransport 실행");
       await socket.emit(
         "createWebRtcTransport",
         { consumer: true },
@@ -460,7 +459,7 @@ const Overworld1 = ({
             console.log(params.error);
             return;
           }
-          // console.log(`PARAMS... ${params}`);
+          console.log(`PARAMS... ${params.id}`);
 
           let consumerTransport;
           try {
