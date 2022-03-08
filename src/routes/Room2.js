@@ -13,10 +13,6 @@ import Gallery2 from "../components/Gallery2";
 import { user } from "../config/api";
 import ReactModal from "react-modal";
 
-const pexel = (id) =>
-  `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260`;
-const GOLDENRATIO = 1.61803398875;
-
 const images = [
   {
     position: [-23.4, 0, -2.3],
@@ -291,8 +287,9 @@ const Room2 = ({ userData }) => {
   const [cameraPosition, setCameraPosition] = useState(0);
   const [yCameraPosition, setYCameraPosition] = useState(0);
 
-  const onClick = () => {
-    setExitModal(true);
+  const onClick = (e) => {
+    console.log(e.key);
+    setExitModal(prev => !prev);
   }
 
   const onExitRoom = () => {
@@ -386,13 +383,6 @@ const Room2 = ({ userData }) => {
     <>
       <div className="roomContainer" style={{ display: "flex", height: "100vh" }}>
         <>
-          {/* <RoomSideBar
-              myStream={myStream}
-              socket={socket}
-              collapsed={collapsed}
-              setCollapsed={setCollapsed}
-              characters={isCharacter}
-            /> */}
           <ThreeCanvas className="gallery">
             <Suspense fallback={null}>
               <Gallery2 images={images} roomId={roomId} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
