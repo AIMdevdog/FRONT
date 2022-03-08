@@ -44,7 +44,6 @@ export class Person extends GameObject {
           setTimeout(() => {
             this.startBehavior(state, behavior);
           }, 6);
-
         return;
       }
 

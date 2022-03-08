@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import styled from "styled-components";
 import { throttle } from "lodash";
+import { cloneDeep } from "lodash";
 
 const StreamsContainer = styled.div`
   position: fixed;
@@ -77,8 +78,6 @@ const Overworld = ({
   setOpenGuide,
 }) => {
   const mediasoupClient = require("mediasoup-client");
-  const [isLoading, setIsLoading] = useState(true);
-  const [isVideoUser, isSetVideoUser] = useState([]);
   const containerEl = useRef();
   const canvasRef = useRef();
   const navigate = useNavigate();
@@ -105,8 +104,8 @@ const Overworld = ({
         return;
       }
       const player = charMap[socket.id];
-      if (player.y === 880 && !directionInput.direction) {
-        if (player.x === 720 || player.x === 752) {
+      if (player.y === 528 && !directionInput.direction) {
+        if (player.x === 327 || player.x === 359 || player.x === 391) {
           console.log("openDraw1");
           setOpenDraw((prev) => {
             if (prev) {
@@ -117,7 +116,7 @@ const Overworld = ({
               return 1;
             }
           });
-        } else if (player.x === 848 || player.x === 880) {
+        } else if (player.x === 455 || player.x === 487) {
           console.log("openDraw2");
           setOpenDraw((prev) => {
             if (prev) {
@@ -128,7 +127,7 @@ const Overworld = ({
               return 2;
             }
           });
-        } else if (player.x === 976 || player.x === 1008) {
+        } else if (player.x === 551 || player.x === 583 || player.x === 615) {
           console.log("openDraw3");
           setOpenDraw((prev) => {
             if (prev) {
@@ -139,7 +138,7 @@ const Overworld = ({
               return 3;
             }
           });
-        } else if (player.x === 1104 || player.x === 1136) {
+        } else if (player.x === 679 || player.x === 711 || player.x === 743) {
           console.log("openDraw4");
           setOpenDraw((prev) => {
             if (prev) {
@@ -150,7 +149,7 @@ const Overworld = ({
               return 4;
             }
           });
-        } else if (player.x === 1232 || player.x === 1264) {
+        } else if (player.x === 807 || player.x === 839 || player.x === 871) {
           console.log("openDraw5");
           setOpenDraw((prev) => {
             if (prev) {
@@ -162,28 +161,30 @@ const Overworld = ({
             }
           });
         }
-        else if (player.x === 1392) {
-          setOpenGuide((prev) => {
-            if (prev) {
-              return 0;
-            } else {
-              return 1;
-            }
-          });
-        }
       } else if (
-        player.x === 1680 &&
-        player.y === 1328 && !directionInput.direction
+        player.x === 1287 &&
+        player.y === 1008 && !directionInput.direction
       ) {
         setOpenPPT((prev) => !prev);
       } else if (
-        player.x === 1456 &&
-        player.y === 784 && !directionInput.direction
+        player.x === 1063 &&
+        player.y === 432 && !directionInput.direction
       ) {
         setIsOpenVisitorsBook((prev) => !prev);
       } else if (
-        player.x === 944 &&
-        player.y === 1040 && !directionInput.direction
+        player.x === 935 &&
+        player.y === 560 && !directionInput.direction
+      ) {
+        setOpenGuide((prev) => {
+          if (prev) {
+            return 0;
+          } else {
+            return 1;
+          }
+        });
+      } else if (
+        player.x === 551 &&
+        player.y === 720 && !directionInput.direction
       ) {
         setOpenGuide((prev) => {
           if (prev) {
@@ -193,8 +194,8 @@ const Overworld = ({
           }
         });
       } else if (
-        player.x === 1648 &&
-        player.y === 784 && !directionInput.direction
+        player.x === 1255 &&
+        player.y === 464 && !directionInput.direction
       ) {
         setOpenGuide((prev) => {
           if (prev) {
@@ -206,6 +207,7 @@ const Overworld = ({
       } else {
         setOpenPPT(false);
         setOpenGuide(0);
+        setIsOpenVisitorsBook(false);
         setOpenDraw((prevNum) => {
           if (prevNum) {
             socket.emit("closeDraw", player.nickname, prevNum);
@@ -1014,31 +1016,50 @@ const Overworld = ({
         dataBuffer = [];
       }
     };
+    for (let i = 263; i < 936; i += 32) {
+      console.log(`${i},496`);
+      map.walls[`${i},496`] = true
+    }
     const startGameLoop = () => {
       console.log("StartGameLoop");
       const step = () => {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
+        const halfWidth = window.innerWidth / 2;
+        const halfHeight = window.innerHeight / 2;
 
         //Clear off the canvas
         ctx.clearRect(0, 0, canvas?.width, canvas?.height);
 
         //Establish the camera person
-        const cameraPerson = charMap[socket.id] || map.gameObjects.player;
+        const cameraPerson = cloneDeep(charMap[socket.id]) || cloneDeep(map.gameObjects.player);
+        if (cameraPerson.x - halfWidth < 23) {
+          cameraPerson.x = halfWidth + 23;
+        }
+        else
+          if (cameraPerson.x + halfWidth > 1719) {
+            cameraPerson.x = 1719 - halfWidth;
+          }
+        if (cameraPerson.y - halfHeight < 0) {
+          cameraPerson.y = halfHeight;
+        } else if (cameraPerson.y + halfHeight > 1232) {
+          cameraPerson.y = 1232 - halfHeight;
+        }
         const player = charMap[socket.id];
+        // console.log(player?.y, cameraPerson.y, halfHeight);
 
         //Update all objects
         Object.values(charMap).forEach((object) => {
           if (object.id === socket.id) {
             // console.log(object.x, object.y);
-            if (object.x >= 1552 && object.x <= 1616 && object.y <= 720) {
+            if (object.x >= 1159 && object.x <= 1223 && object.y <= 400) {
               socket.close();
               mediaOff();
               navigate(`/room1/${roomId}`);
             } else if (
-              object.x >= 976 &&
-              object.x <= 1040 &&
-              object.y >= 1136
+              object.x >= 583 &&
+              object.x <= 647 &&
+              object.y >= 784
             ) {
               socket.close();
               mediaOff();
@@ -1104,7 +1125,6 @@ const Overworld = ({
         }
         //Draw Lower layer
         map.drawLowerImage(ctx, cameraPerson);
-
         //Draw Game Objects
         Object.values(charMap)
           .sort((a, b) => {
@@ -1118,12 +1138,12 @@ const Overworld = ({
             );
             const x =
               object.x +
-              utils.withGrid(ctx.canvas.clientWidth / 16 / 2) -
+              ctx.canvas.clientWidth / 2 -
               cameraPerson.x;
             const y =
               object.y -
               25 +
-              utils.withGrid(ctx.canvas.clientHeight / 16 / 2) -
+              ctx.canvas.clientHeight / 2 -
               cameraPerson.y;
             // console.dir(objectNicknameContainer);
             if (!objectNicknameContainer) {

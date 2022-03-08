@@ -2,8 +2,7 @@ import { OverworldMap } from "./OverworldMap.js";
 import { DirectionInput } from "./DirectionInput.js";
 import utils from "./utils.js";
 import _const from "../config/const.js";
-import { useEffect, useRef, useState } from "react";
-import LoadingComponent from "../components/Loading.js";
+import { useEffect, useRef} from "react";
 import { useNavigate } from "react-router";
 import styled from "styled-components";
 const GameLayout = styled.div`
@@ -699,7 +698,7 @@ const Overworld1 = ({
               ) {
                 socket.close();
                 mediaOff();
-                navigate(url, { state: { x: 1584, y: 784 } });
+                navigate(url, { state: { x: 1191, y: 464 } });
               }
             }
             object.update({

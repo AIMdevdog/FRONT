@@ -288,14 +288,13 @@ const Room2 = ({ userData }) => {
   const [yCameraPosition, setYCameraPosition] = useState(0);
 
   const onClick = (e) => {
-    console.log(e.key);
     setExitModal(prev => !prev);
   }
 
   const onExitRoom = () => {
     myStream.getTracks().forEach(track => track.stop());
     socket.close();
-    navigate(url, { state: { x: 1008, y: 1072 } });
+    navigate(url, { state: { x: 615, y: 752 } });
   };
 
 
