@@ -435,7 +435,7 @@ const Room2 = ({ userData }) => {
         </ExitModalContainer>
       </ReactModal>
 
-      <StreamsContainer id="streams"></StreamsContainer>
+      {/* <StreamsContainer id="streams"></StreamsContainer> */}
       <MyVideoBox>
         <MyVideo id="myFace" autoPlay="autoplay"></MyVideo>
         <CamBtn id="camBtn">
