@@ -49,6 +49,9 @@ const ExhibitionGuide = ({ title = "안녕", description = "안녕하세요." })
           <h2>{title}</h2>
           <ul>{description}</ul>
         </div>
+        <div style={{width:"500px", height:"500px", backGroundColor: "red"}}>
+
+        </div>
       </ExhibitionGuideContainer>
     </ExhibitionGuideWrap>
   );

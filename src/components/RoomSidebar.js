@@ -395,9 +395,7 @@ const RoomSideBar = ({
   collapsed,
   setCollapsed,
   openDraw,
-  openDraw2,
   setOpenDraw,
-  setOpenDraw2,
   socket,
   characters,
   roomNum,
@@ -434,12 +432,8 @@ const RoomSideBar = ({
   const onExitModal = () => setExitModal(!exitModal);
 
   useEffect(() => {
-    if (openDraw) {
-      setDrawNum(1);
-    } else if (openDraw2) {
-      setDrawNum(2);
-    }
-  }, [openDraw, openDraw2])
+    setDrawNum(openDraw);
+  }, [openDraw])
 
   const escExit = (e) => {
     if (e.key === "Escape") {
@@ -451,7 +445,7 @@ const RoomSideBar = ({
     socket.close();
     if (roomNum === "3") {
       navigate(url, { state: { x: 1584, y: 784 } });
-    }else{
+    } else {
       navigate(url);
     }
   };
@@ -603,10 +597,8 @@ const RoomSideBar = ({
   };
   const onShareAccept = (props) => {
     const num = parseInt(props.target.value);
-    if (num === 1) {
-      setOpenDraw(true);
-    } else if (num === 2) {
-      setOpenDraw2(true);
+    if (num) {
+      setOpenDraw(num);
     }
     socket.emit("openDraw", socket.id, num);
     setSharePrompt(false);
@@ -775,12 +767,12 @@ const RoomSideBar = ({
             </div>
             <div
               onClick={
-                openDraw || openDraw2
+                openDraw
                   ? isShareIconAction
                   : () => alert("그림을 보고 있지 않습니다.")
               }
             >
-              <FaShare color={openDraw || openDraw2 ? "white" : "grey"} size={24} />
+              <FaShare color={openDraw ? "white" : "grey"} size={24} />
             </div>
             <div className="exitBtn" onClick={onExitModal}>
               <ImExit color="white" size={24} />

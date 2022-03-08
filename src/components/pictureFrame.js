@@ -80,23 +80,24 @@ const PictureFrame = ({ socket, drawNum }) => {
       (event.pageY - ref.current.offsetTop) / ref.current.clientHeight;
     socket.emit("cursorPosition", xRatio, yRatio, socket.id);
   }
-
   const throttleUpdateDisplay = throttle(updateDisplay, 48);
-
-  socket.on("drawUser", (nickname, num) => {
-    if (num === drawNum) {
-      setDrawUser((prev) => {
-        if (prev.findIndex((e) => e === nickname) === -1) {
-          return [...prev, nickname];
-        } else {
-          return prev;
-        }
-      });
-    }
-  });
-  socket.on("closeUser", (nickname) => {
-    setDrawUser((prev) => prev.filter((e) => e !== nickname));
-  });
+  useEffect(()=>{
+    socket.on("drawUser", (nickname, num) => {
+      console.log("drawNum, num: ", drawNum, num)
+      if (num === drawNum) {
+        setDrawUser((prev) => {
+          if (prev.findIndex((e) => e === nickname) === -1) {
+            return [...prev, nickname];
+          } else {
+            return prev;
+          }
+        });
+      }
+    });
+    socket.on("closeUser", (nickname) => {
+      setDrawUser((prev) => prev.filter((e) => e !== nickname));
+    });
+  }, [])
 
   return (
     <PictureContainer

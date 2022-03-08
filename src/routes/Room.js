@@ -16,6 +16,7 @@ import LoadingComponent from "../components/Loading.js";
 import PptSlider from "../components/pptSlider";
 import { user } from "../config/api";
 import VisitorsBook from "../components/VisitorBook";
+import ExhibitionGuide from "../components/ExhibitionGuide";
 
 const MyVideoNickname = styled.div`
   position: absolute;
@@ -101,24 +102,42 @@ const Room = ({ userData }) => {
   const roomId = params.roomId;
   const url = "/lobby";
   const [nicknames, setNicknames] = useState([]);
-  const [openDraw, setOpenDraw] = useState(false);
-  const [openDraw2, setOpenDraw2] = useState(false);
+
+  const [openDraw, setOpenDraw] = useState(0);
+
   const [collapsed, setCollapsed] = useState(true);
+
   const [openPPT, setOpenPPT] = useState(false);
   const [openVisitorsBook, setIsOpenVisitorsBook] = useState(false);
+
+  const [openGuide, setOpenGuide] = useState(0);
+
+
   const ppt1Imgs = [
     "https://aim-front.s3.ap-northeast-2.amazonaws.com/2.jpeg",
     "https://aim-front.s3.ap-northeast-2.amazonaws.com/3.jpeg",
     "https://aim-front.s3.ap-northeast-2.amazonaws.com/4.jpeg",
   ];
-  const ppt2Imgs = [
-    // "https://aim-front.s3.ap-northeast-2.amazonaws.com/4.jpeg",
-    // "https://aim-front.s3.ap-northeast-2.amazonaws.com/2.jpeg",
-  ];
-  const [openPPT2, setOpenPPT2] = useState(false);
   const [isCharacter, setIsCharacter] = useState([]);
   const [isUser, setUser] = useState(null);
   const [myStream, setMyStream] = useState(null);
+
+  const room = {
+    RoomSrc:
+      "https://aim-front.s3.ap-northeast-2.amazonaws.com/new_map.png",
+    roomNum: 0,
+    gameObjects: {
+      player: new Person({
+        id: null,
+        isPlayerControlled: true,
+        x: 1552,
+        y: 1424,
+        src:
+          isUser?.character ||
+          "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png",
+      }),
+    },
+  };
 
   useEffect(async () => {
     setMyStream(await navigator.mediaDevices.getUserMedia(cameraConstraints));
@@ -178,22 +197,36 @@ const Room = ({ userData }) => {
       });
     }
   }, [isUser, socket]);
-  const room = {
-    RoomSrc:
-      "https://aim-front.s3.ap-northeast-2.amazonaws.com/new_map.png",
-    roomNum: 0,
-    gameObjects: {
-      player: new Person({
-        id: null,
-        isPlayerControlled: true,
-        x: 1552,
-        y: 1424,
-        src:
-          isUser?.character ||
-          "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png",
-      }),
-    },
-  };
+
+  const openDrawFuction = (openDraw) => {
+    switch (openDraw) {
+      case 1:
+        return <PictureFrame socket={socket} drawNum={1} />;
+      case 2:
+        return <PictureFrame socket={socket} drawNum={2} />;
+      case 3:
+        return <PictureFrame socket={socket} drawNum={3} />;
+      case 4:
+        return <PictureFrame socket={socket} drawNum={4} />;
+      case 5:
+        return <PictureFrame socket={socket} drawNum={5} />;
+      default:
+        return null;
+    }
+  }
+
+  const openGuideFuction = (openGuide) => {
+    switch (openGuide) {
+      case 1:
+        return <ExhibitionGuide title="안녕" description="안녕하세요1" />;
+      case 2:
+        return <ExhibitionGuide title="안녕" description="안녕하세요2" />;
+      case 3:
+        return <ExhibitionGuide title="안녕" description="안녕하세요3" />;
+      default:
+        return null;
+    }
+  }
 
   return (
     <>
@@ -209,36 +242,35 @@ const Room = ({ userData }) => {
               collapsed={collapsed}
               setCollapsed={setCollapsed}
               setOpenDraw={setOpenDraw}
-              setOpenDraw2={setOpenDraw2}
               charMap={charMap}
               characters={isCharacter}
               openDraw={openDraw}
-              openDraw2={openDraw2}
               myStream={myStream}
             />
-            {openDraw ? (
-              <div id="Arts">
-                <PictureFrame socket={socket} drawNum={1} />
-              </div>
+            {/* 그림창 열기 */}
+            {openDrawFuction(openDraw)}
+            {openGuideFuction(openGuide)}
+            {/* {openGuide1 ? (
+              <ExhibitionGuide title="안녕" description="안녕하세요" />
             ) : null}
-            {openDraw2 ? (
-              <div id="Arts">
-                <PictureFrame socket={socket} drawNum={2} />
-              </div>
+            {openGuide2 ? (
+              <ExhibitionGuide title="안녕" description="안녕하세요" />
             ) : null}
+            {openGuide3 ? (
+              <ExhibitionGuide title="안녕" description="안녕하세요" />
+            ) : null} */}
             <CharacterNickname nicknames={nicknames} />
             <Overworld
               myStream={myStream}
               setOpenDraw={setOpenDraw}
-              setOpenDraw2={setOpenDraw2}
               roomId={roomId}
               Room={room}
               charMap={charMap}
               characters={isCharacter}
               socket={socket}
               setOpenPPT={setOpenPPT}
-              setOpenPPT2={setOpenPPT2}
               setIsOpenVisitorsBook={setIsOpenVisitorsBook}
+              setOpenGuide={setOpenGuide}
             />
           </>
         ) : (
