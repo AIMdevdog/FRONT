@@ -122,16 +122,16 @@ const Overworld1 = ({
     var remoteConnection = []; // RTCPeerConnection for the "remote"
     let video_stream;
     let audio_stream;
-    
+
     let videoConstraints = {
       audio: false,
       video: true,
     }
     let audioConstraints = {
-      audio: true, 
+      audio: true,
       video: false,
     }
-    
+
     // WebRTC SFU (mediasoup)
     let params_audio = {
       codecOptions: {
@@ -163,7 +163,7 @@ const Overworld1 = ({
         videoGoogleStartBitrate: 1000,
       },
     };
-    
+
     let device;
     let rtpCapabilities;
     let producerTransport;
@@ -171,7 +171,7 @@ const Overworld1 = ({
     let producer;
     let consumer;
     let isProducer = false;
-    
+
     initCall();
     // 음성 connect
     async function setAudio(peerStream, socketId) {
@@ -277,17 +277,17 @@ const Overworld1 = ({
       const audio_track = myStream.getAudioTracks()[0];
       myFace.srcObject = new MediaStream([video_track]);
 
-        params_audio = {
-          track: audio_track,
-          ...params_audio,
-        };
+      params_audio = {
+        track: audio_track,
+        ...params_audio,
+      };
 
-        params_video = {
-          track: video_track,
-          ...params_video,
-        };
-    } 
-    
+      params_video = {
+        track: video_track,
+        ...params_video,
+      };
+    }
+
     async function initCall() {
       try {
         await getMedia(); // Room.js에 들어있음
@@ -699,10 +699,6 @@ const Overworld1 = ({
                 socket.close();
                 mediaOff();
                 navigate(url, { state: { x: 1584, y: 784 } });
-              } else if (map.roomNum === 2 && object.y > 248) {
-                socket.close();
-                mediaOff();
-                navigate(url, { state: { x: 1008, y: 1072 } });
               }
             }
             object.update({
@@ -913,9 +909,8 @@ const Overworld1 = ({
         </div>
       </GameLayout>
         <StreamsContainer id="streams">
-        <div className="streams-container"></div>
-      </StreamsContainer>
-      
+          <div className="streams-container"></div>
+        </StreamsContainer>
     </>
   );
 };
