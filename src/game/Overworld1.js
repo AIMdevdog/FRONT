@@ -651,250 +651,249 @@ const Overworld1 = ({
     });
   }, []);
 
-  // useEffect(() => {
-  //   const canvas = canvasRef.current;
-  //   const ctx = canvas.getContext("2d");
-  //   let dataBuffer = [];
-  //   let isLoop = true;
-  //   const bufferSend = (player, data) => {
-  //     dataBuffer.push(data);
-  //     let stay_num = dataBuffer.filter(
-  //       (element) =>
-  //         element.direction === undefined &&
-  //         element.x === player.x &&
-  //         element.y === player.y
-  //     ).length;
-  //     if (stay_num > 4) {
-  //       dataBuffer = [];
-  //     }
-  //     if (dataBuffer.length > 4) {
-  //       socket.emit("input", dataBuffer);
-  //       dataBuffer = [];
-  //     }
-  //   };
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    let dataBuffer = [];
+    let isLoop = true;
+    const bufferSend = (player, data) => {
+      dataBuffer.push(data);
+      let stay_num = dataBuffer.filter(
+        (element) =>
+          element.direction === undefined &&
+          element.x === player.x &&
+          element.y === player.y
+      ).length;
+      if (stay_num > 4) {
+        dataBuffer = [];
+      }
+      if (dataBuffer.length > 4) {
+        socket.emit("input", dataBuffer);
+        dataBuffer = [];
+      }
+    };
 
-  //   const startGameLoop = () => {
-  //     const step = () => {
-  //       canvas.width = window.innerWidth;
-  //       canvas.height = window.innerHeight;
+    const startGameLoop = () => {
+      const step = () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-  //       //Clear off the canvas
-  //       ctx.clearRect(0, 0, canvas?.width, canvas?.height);
+        //Clear off the canvas
+        ctx.clearRect(0, 0, canvas?.width, canvas?.height);
 
-  //       //Establish the camera person
-  //       const player = charMap[socket.id] || map.gameObjects.player;
+        //Establish the camera person
+        const player = charMap[socket.id] || map.gameObjects.player;
 
-  //       if (setCameraPosition) {
-  //         setYCameraPosition(-player.y / 80);
-  //         setCameraPosition(-player.x / 80);
-  //       }
+        if (setCameraPosition) {
+          setYCameraPosition(-player.y / 80);
+          setCameraPosition(-player.x / 80);
+        }
 
-  //       //Update all objects
-  //       Object.values(charMap).forEach((object) => {
-  //         if (object.id === socket.id) {
-  //           for (let i = 0; i < otherMaps.length; i++) {
-  //             if (
-  //               (map.roomNum === 3 && object.y > 656) ||
-  //               (object.y < -1250 && object.x > 1232)
-  //             ) {
-  //               socket.close();
-  //               mediaOff();
-  //               navigate(url, { state: { x: 1584, y: 784 } });
-  //             } else if (map.roomNum === 2 && object.y > 248) {
-  //               socket.close();
-  //               mediaOff();
-  //               navigate(url, { state: { x: 1008, y: 1072 } });
-  //             }
-  //           }
-  //           object.update({
-  //             arrow: directionInput.direction,
-  //             map: map,
-  //             // id: socket.id,
-  //           });
-  //         } else {
-  //           object.update({
-  //             arrow: object.nextDirection.shift(),
-  //             map: map,
-  //             // id: socket.id,
-  //           });
-  //           if (
-  //             !object.isUserCalling &&
-  //             Math.abs(player?.x - object.x) < 64 &&
-  //             Math.abs(player?.y - object.y) < 96
-  //           ) {
-  //             //화상 통화 연결
-  //             closer.push(object.id);
-  //             console.log("가까워짐");
-  //             player.isUserCalling = true;
-  //             object.isUserCalling = true;
-  //             socket.emit("user_call", {
-  //               caller: player.id,
-  //               callee: object.id,
-  //             });
-  //           }
-  //           if (
-  //             object.isUserCalling &&
-  //             (Math.abs(player.x - object.x) > 96 ||
-  //               Math.abs(player.y - object.y) > 128)
-  //           ) {
-  //             console.log("멀어짐");
-  //             closer = closer.filter((element) => element !== object.id);
-  //             object.isUserCalling = false;
-  //             object.isUserJoin = false;
-  //           }
-  //         }
-  //       });
-  //       const playercheck = player ? player.isUserCalling : false;
-  //       if (playercheck && closer.length === 0) {
-  //         // 나가는 사람 기준
-  //         const streamContainer = document.querySelector(".streams-container");
-  //         while (streamContainer.hasChildNodes()) {
-  //           // 내가 가지고있는 다른 사람의 영상을 전부 삭제
-  //           streamContainer.removeChild(streamContainer.firstChild);
-  //         }
+        //Update all objects
+        Object.values(charMap).forEach((object) => {
+          if (object.id === socket.id) {
+            for (let i = 0; i < otherMaps.length; i++) {
+              if (
+                (map.roomNum === 3 && object.y > 656) ||
+                (object.y < -1250 && object.x > 1232)
+              ) {
+                socket.close();
+                mediaOff();
+                navigate(url, { state: { x: 1584, y: 784 } });
+              } else if (map.roomNum === 2 && object.y > 248) {
+                socket.close();
+                mediaOff();
+                navigate(url, { state: { x: 1008, y: 1072 } });
+              }
+            }
+            object.update({
+              arrow: directionInput.direction,
+              map: map,
+              // id: socket.id,
+            });
+          } else {
+            object.update({
+              arrow: object.nextDirection.shift(),
+              map: map,
+              // id: socket.id,
+            });
+            if (
+              !object.isUserCalling &&
+              Math.abs(player?.x - object.x) < 64 &&
+              Math.abs(player?.y - object.y) < 96
+            ) {
+              //화상 통화 연결
+              closer.push(object.id);
+              console.log("가까워짐");
+              player.isUserCalling = true;
+              object.isUserCalling = true;
+              socket.emit("user_call", {
+                caller: player.id,
+                callee: object.id,
+              });
+            }
+            if (
+              object.isUserCalling &&
+              (Math.abs(player.x - object.x) > 96 ||
+                Math.abs(player.y - object.y) > 128)
+            ) {
+              console.log("멀어짐");
+              closer = closer.filter((element) => element !== object.id);
+              object.isUserCalling = false;
+              object.isUserJoin = false;
+            }
+          }
+        });
+        const playercheck = player ? player.isUserCalling : false;
+        if (playercheck && closer.length === 0) {
+          // 나가는 사람 기준
+          const streamContainer = document.querySelector(".streams-container");
+          while (streamContainer.hasChildNodes()) {
+            // 내가 가지고있는 다른 사람의 영상을 전부 삭제
+            streamContainer.removeChild(streamContainer.firstChild);
+          }
 
-  //         socket.emit("leave_Group", player.id);
-  //         player.isUserCalling = false;
-  //         player.isUserJoin = false;
-  //       }
-  //       //Draw Lower layer
-  //       map.drawLowerImage(ctx, player);
+          socket.emit("leave_Group", player.id);
+          player.isUserCalling = false;
+          player.isUserJoin = false;
+        }
+        //Draw Lower layer
+        map.drawLowerImage(ctx, player);
 
-  //       //Draw Game Objects
-  //       Object.values(charMap)
-  //         .sort((a, b) => {
-  //           return a.y - b.y;
-  //         })
-  //         .forEach((object) => {
-  //           if (object.id === player.id) {
-  //             object.sprite.draw(ctx, player, map.roomNum, true, rotationAngle);
-  //           } else {
-  //             object.sprite.draw(
-  //               ctx,
-  //               player,
-  //               map.roomNum,
-  //               false,
-  //               rotationAngle
-  //             );
-  //           }
+        //Draw Game Objects
+        Object.values(charMap)
+          .sort((a, b) => {
+            return a.y - b.y;
+          })
+          .forEach((object) => {
+            if (object.id === player.id) {
+              object.sprite.draw(ctx, player, map.roomNum, true, rotationAngle);
+            } else {
+              object.sprite.draw(
+                ctx,
+                player,
+                map.roomNum,
+                false,
+                rotationAngle
+              );
+            }
 
-  //           const objectNicknameContainer = document.getElementById(
-  //             `${object.nickname}`
-  //           );
-  //           // console.dir(objectNicknameContainer);
-  //           if (!objectNicknameContainer) {
-  //             return;
-  //           }
-  //           objectNicknameContainer.style.top =
-  //             object.y +
-  //             225 +
-  //             utils.withGrid(ctx.canvas.clientHeight / 16 / 2) -
-  //             player.y +
-  //             "px";
-  //           objectNicknameContainer.style.left =
-  //             object.x +
-  //             utils.withGrid(ctx.canvas.clientWidth / 16 / 2) -
-  //             player.x +
-  //             "px";
-  //         });
-  //       if (player) {
-  //         const data = {
-  //           id: socket.id,
-  //           x: player.x,
-  //           y: player.y,
-  //           direction: directionInput.direction,
-  //         };
-  //         bufferSend(player, data);
-  //       }
-  //       if (isLoop) {
-  //         requestAnimationFrame(() => {
-  //           step();
-  //         });
-  //       }
-  //     };
-  //     step();
-  //   };
+            const objectNicknameContainer = document.getElementById(
+              `${object.nickname}`
+            );
+            // console.dir(objectNicknameContainer);
+            if (!objectNicknameContainer) {
+              return;
+            }
+            objectNicknameContainer.style.top =
+              object.y +
+              225 +
+              utils.withGrid(ctx.canvas.clientHeight / 16 / 2) -
+              player.y +
+              "px";
+            objectNicknameContainer.style.left =
+              object.x +
+              utils.withGrid(ctx.canvas.clientWidth / 16 / 2) -
+              player.x +
+              "px";
+          });
+        if (player) {
+          const data = {
+            id: socket.id,
+            x: player.x,
+            y: player.y,
+            direction: directionInput.direction,
+          };
+          bufferSend(player, data);
+        }
+        if (isLoop) {
+          requestAnimationFrame(() => {
+            step();
+          });
+        }
+      };
+      step();
+    };
 
-  //   const cameraRotate = (e) => {
-  //     switch (e.key) {
-  //       case "e":
-  //       case "E":
-  //       case "ㄷ":
-  //         rotationAngle += 1;
-  //         if (rotationAngle > 4) {
-  //           rotationAngle = 1;
-  //         }
-  //         characterRotate(rotationAngle);
-  //         break;
-  //       case "q":
-  //       case "Q":
-  //       case "ㅂ":
-  //         rotationAngle -= 1;
-  //         if (rotationAngle < 1) {
-  //           rotationAngle = 4;
-  //         }
-  //         characterRotate(rotationAngle);
-  //         break;
-  //     }
-  //   };
+    const cameraRotate = (e) => {
+      switch (e.key) {
+        case "e":
+        case "E":
+        case "ㄷ":
+          rotationAngle += 1;
+          if (rotationAngle > 4) {
+            rotationAngle = 1;
+          }
+          characterRotate(rotationAngle);
+          break;
+        case "q":
+        case "Q":
+        case "ㅂ":
+          rotationAngle -= 1;
+          if (rotationAngle < 1) {
+            rotationAngle = 4;
+          }
+          characterRotate(rotationAngle);
+          break;
+      }
+    };
 
-  //   const characterRotate = (angle) => {
-  //     const player = charMap[socket.id];
-  //     switch (angle) {
-  //       case 1:
-  //         player.angle = 1;
-  //         directionInput.heldDirections = [];
-  //         directionInput.map = {
-  //           ArrowUp: "up",
-  //           ArrowDown: "down",
-  //           ArrowLeft: "left",
-  //           ArrowRight: "right",
-  //         };
-  //         break;
-  //       case 2:
-  //         player.angle = 2;
-  //         directionInput.heldDirections = [];
-  //         directionInput.map = {
-  //           ArrowUp: "right",
-  //           ArrowDown: "left",
-  //           ArrowLeft: "up",
-  //           ArrowRight: "down",
-  //         };
-  //         break;
-  //       case 3:
-  //         player.angle = 3;
-  //         directionInput.heldDirections = [];
-  //         directionInput.map = {
-  //           ArrowUp: "down",
-  //           ArrowDown: "up",
-  //           ArrowLeft: "right",
-  //           ArrowRight: "left",
-  //         };
-  //         break;
-  //       case 4:
-  //         player.angle = 4;
-  //         directionInput.heldDirections = [];
-  //         directionInput.map = {
-  //           ArrowUp: "left",
-  //           ArrowDown: "right",
-  //           ArrowLeft: "down",
-  //           ArrowRight: "up",
-  //         };
-  //         break;
-  //     }
-  //   };
-  //   if (map.roomNum === 3) {
-  //     document.addEventListener("keydown", cameraRotate);
-  //   }
-
-  //   startGameLoop();
-  //   return () => {
-  //     if (map.roomNum === 3) {
-  //       document.removeEventListener("keydown", cameraRotate);
-  //     }
-  //     isLoop = false;
-  //   };
-  // }, []);
+    const characterRotate = (angle) => {
+      const player = charMap[socket.id];
+      switch (angle) {
+        case 1:
+          player.angle = 1;
+          directionInput.heldDirections = [];
+          directionInput.map = {
+            ArrowUp: "up",
+            ArrowDown: "down",
+            ArrowLeft: "left",
+            ArrowRight: "right",
+          };
+          break;
+        case 2:
+          player.angle = 2;
+          directionInput.heldDirections = [];
+          directionInput.map = {
+            ArrowUp: "right",
+            ArrowDown: "left",
+            ArrowLeft: "up",
+            ArrowRight: "down",
+          };
+          break;
+        case 3:
+          player.angle = 3;
+          directionInput.heldDirections = [];
+          directionInput.map = {
+            ArrowUp: "down",
+            ArrowDown: "up",
+            ArrowLeft: "right",
+            ArrowRight: "left",
+          };
+          break;
+        case 4:
+          player.angle = 4;
+          directionInput.heldDirections = [];
+          directionInput.map = {
+            ArrowUp: "left",
+            ArrowDown: "right",
+            ArrowLeft: "down",
+            ArrowRight: "up",
+          };
+          break;
+      }
+    };
+    if (map.roomNum === 3) {
+      document.addEventListener("keydown", cameraRotate);
+      startGameLoop();
+    }
+    return () => {
+      if (map.roomNum === 3) {
+        document.removeEventListener("keydown", cameraRotate);
+      }
+      isLoop = false;
+    };
+  }, []);
 
   return (
     <>
