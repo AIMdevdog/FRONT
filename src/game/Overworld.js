@@ -15,7 +15,7 @@ const StreamsContainer = styled.div`
   left: 64px;
   top: 20px;
   width: 100%;
-  z-index: 99;
+  z-index: 1;
 
   .streams-container {
     max-width: 1024px;
@@ -61,8 +61,6 @@ const StreamsContainer = styled.div`
   }
 `;
 
-
-
 // ------------------------------------^ SFU
 
 let peopleInRoom = 1;
@@ -85,7 +83,7 @@ const Overworld = ({
   const canvasRef = useRef();
   const navigate = useNavigate();
   let reduplication = []; //해결하고 지울게요 ㅜㅜ
-  let audio_reduplication = [];  //해결하고 지울게요 ㅜㅜ
+  let audio_reduplication = []; //해결하고 지울게요 ㅜㅜ
   const directionInput = new DirectionInput();
   directionInput.init();
 
@@ -144,7 +142,12 @@ const Overworld = ({
         player.y === 784
       ) {
         setOpenPPT2((prev) => !prev);
-      } else if ((e.key === "x" || e.key === "X" || e.key === "ㅌ") || directionInput.direction) {
+      } else if (
+        e.key === "x" ||
+        e.key === "X" ||
+        e.key === "ㅌ" ||
+        directionInput.direction
+      ) {
         setOpenPPT2(false);
         setOpenPPT(false);
         setOpenDraw((prev) => {
@@ -187,11 +190,11 @@ const Overworld = ({
     let videoConstraints = {
       audio: false,
       video: true,
-    }
+    };
     let audioConstraints = {
       audio: true,
       video: false,
-    }
+    };
 
     // WebRTC SFU (mediasoup)
     let params_audio = {
@@ -233,8 +236,6 @@ const Overworld = ({
     let consumer;
     let isProducer = false;
 
-
-
     initCall();
 
     // async function handleAddStream(event, remoteSocketId) {
@@ -267,7 +268,7 @@ const Overworld = ({
       streamContainer.appendChild(div);
     }
 
-    async function removeAudio(peerStream, socketId) { }
+    async function removeAudio(peerStream, socketId) {}
     // 영상 connect
     async function paintPeerFace(peerStream, socketId) {
       console.log(`socketID ${socketId} peer의 vidoe 태그 생성`);
@@ -470,7 +471,6 @@ const Overworld = ({
         // myStream // mute default
         //   .getAudioTracks()
         //   .forEach((track) => (console.log("@@@@@@@@@@@@@@@@@ track.enabled", track.enabled)));
-
 
         params_audio = {
           track: audio_track,
@@ -842,8 +842,12 @@ const Overworld = ({
     // ---------------------------------------- ^ SFU
 
     socket.on("remove_reduplication", (remoteSocketId) => {
-      reduplication = reduplication.filter((element) => element !== remoteSocketId)
-      audio_reduplication = audio_reduplication.filter((element) => element !== remoteSocketId)
+      reduplication = reduplication.filter(
+        (element) => element !== remoteSocketId
+      );
+      audio_reduplication = audio_reduplication.filter(
+        (element) => element !== remoteSocketId
+      );
     });
 
     // 남는 사람 기준
@@ -852,9 +856,17 @@ const Overworld = ({
       const user = charMap[data.removeSid];
       user.isUserJoin = false;
       user.groupName = 0;
-      reduplication = reduplication.filter((element) => element !== data.removeSid)
-      audio_reduplication = audio_reduplication.filter((element) => element !== data.remveSid)
-      console.log("reduplication video, audio ", reduplication, audio_reduplication)
+      reduplication = reduplication.filter(
+        (element) => element !== data.removeSid
+      );
+      audio_reduplication = audio_reduplication.filter(
+        (element) => element !== data.remveSid
+      );
+      console.log(
+        "reduplication video, audio ",
+        reduplication,
+        audio_reduplication
+      );
       removePeerFace(data.removeSid);
     });
 
@@ -1038,8 +1050,8 @@ const Overworld = ({
           player.isUserCalling = false;
           player.isUserJoin = false;
           // console.log(`video ${reduplication}, audio ${audio_reduplication}`)
-          reduplication = []
-          audio_reduplication = []
+          reduplication = [];
+          audio_reduplication = [];
           // console.log(`video ${reduplication}, audio ${audio_reduplication}`)
         }
         //Draw Lower layer
@@ -1056,13 +1068,25 @@ const Overworld = ({
             const objectNicknameContainer = document.getElementById(
               `${object.nickname}`
             );
-            const x = object.x + utils.withGrid(ctx.canvas.clientWidth / 16 / 2) - cameraPerson.x;
-            const y = object.y - 25 + utils.withGrid(ctx.canvas.clientHeight / 16 / 2) - cameraPerson.y;
+            const x =
+              object.x +
+              utils.withGrid(ctx.canvas.clientWidth / 16 / 2) -
+              cameraPerson.x;
+            const y =
+              object.y -
+              25 +
+              utils.withGrid(ctx.canvas.clientHeight / 16 / 2) -
+              cameraPerson.y;
             // console.dir(objectNicknameContainer);
             if (!objectNicknameContainer) {
               return;
             }
-            if (x < 0 || x > window.innerWidth || y < 0 || y > window.innerHeight) {
+            if (
+              x < 0 ||
+              x > window.innerWidth ||
+              y < 0 ||
+              y > window.innerHeight
+            ) {
               objectNicknameContainer.style.left = 0;
               objectNicknameContainer.style.top = 0;
             } else {
