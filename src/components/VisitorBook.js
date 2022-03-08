@@ -89,7 +89,7 @@ const VisitorBookListContainer = styled.div`
   }
 `;
 
-const VisitorContentItem = styled.li`
+const VisitorContentItemContainer = styled.li`
   position: relative;
   border-bottom: 2px solid rgba(255, 255, 255, 0.1);
   padding-bottom: 20px;
@@ -98,26 +98,97 @@ const VisitorContentItem = styled.li`
     border: none;
   }
 
-  img {
-    object-fit: none;
-    object-position: 0px -20px;
-    margin-right: 6px;
-    width: 32px;
-    height: 36px;
-    image-rendering: pixelated;
-    -webkit-transform: scale(1.25);
-    -ms-transform: scale(1.25);
-    -webkit-transform: scale(1);
-    -ms-transform: scale(1);
-    -webkit-transform: scale(1);
-    -ms-transform: scale(1);
-    transform: scale(1);
-  }
-
   button {
     cursor: pointer;
     background-color: transparent;
     border: none;
+  }
+`;
+
+const VisitorEditDeleteBox = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  position: absolute;
+  right: 0;
+  top: 12px;
+
+  span {
+    color: rgb(202, 216, 255);
+    font-size: 12px;
+  }
+`;
+
+const VisitorContentBox = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: 10px;
+  margin-bottom: 10px;
+
+  div {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-end;
+
+    p {
+      text-align: right;
+
+      span {
+        color: rgb(202, 216, 255);
+        font-size: 12px;
+      }
+
+      img {
+        object-fit: none;
+        object-position: 0px -20px;
+        margin-right: 6px;
+        width: 32px;
+        height: 36px;
+        image-rendering: pixelated;
+        -webkit-transform: scale(1.25);
+        -ms-transform: scale(1.25);
+        -webkit-transform: scale(1);
+        -ms-transform: scale(1);
+        -webkit-transform: scale(1);
+        -ms-transform: scale(1);
+        transform: scale(1);
+      }
+    }
+  }
+`;
+
+const VisitorContentTextBox = styled.p`
+  width: 100%;
+  padding: 20px;
+  background-color: rgb(84, 92, 143);
+  border-radius: 10px;
+
+  span {
+    color: white;
+  }
+`;
+
+const VisitorContentTimestamp = styled.p`
+  margin-top: 10px;
+  text-align: right;
+
+  span {
+    color: #adadad;
+    font-size: 12px;
+  }
+`;
+
+const EmptyContentContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+
+  div {
+    margin-left: 20px;
+    line-height: 22px;
+    color: rgb(202, 216, 255);
   }
 `;
 
@@ -208,18 +279,9 @@ const VisitorsBook = (props) => {
                       id,
                     } = content;
                     return (
-                      <VisitorContentItem key={idx}>
+                      <VisitorContentItemContainer key={idx}>
                         {userId === isUser?.id && (
-                          <div
-                            style={{
-                              display: "flex",
-                              justifyContent: "flex-end",
-                              alignItems: "center",
-                              position: "absolute",
-                              right: 0,
-                              top: 12,
-                            }}
-                          >
+                          <VisitorEditDeleteBox>
                             {/* <button style={{ marginRight: 10 }}>
                           <span
                             style={{ color: "rgb(202,216,255)", fontSize: 12 }}
@@ -228,70 +290,33 @@ const VisitorsBook = (props) => {
                           </span>
                         </button> */}
                             <button onClick={() => onContentDelete(id)}>
-                              <span
-                                style={{
-                                  color: "rgb(202,216,255)",
-                                  fontSize: 12,
-                                }}
-                              >
-                                삭제
-                              </span>
+                              <span>삭제</span>
                             </button>
-                          </div>
+                          </VisitorEditDeleteBox>
                         )}
 
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "flex-start",
-                            marginTop: 10,
-                            marginBottom: 10,
-                          }}
-                        >
-                          <div
-                            style={{
-                              display: "flex",
-                              justifyContent: "flex-start",
-                              alignItems: "flex-end",
-                            }}
-                          >
-                            <p style={{ alignItems: "right" }}>
+                        <VisitorContentBox>
+                          <div>
+                            <p>
                               <img src={character} alt="character" />
                             </p>
-                            <p style={{ textAlign: "right" }}>
-                              <span
-                                style={{
-                                  color: "rgb(202,216,255)",
-                                  fontSize: 12,
-                                }}
-                              >
-                                {nickname}
-                              </span>
+                            <p>
+                              <span>{nickname}</span>
                             </p>
                           </div>
-                        </div>
-                        <p
-                          style={{
-                            width: "100%",
-                            padding: 20,
-                            backgroundColor: "rgb(84,92,143)",
-                            borderRadius: 10,
-                          }}
-                        >
-                          <span style={{ color: "white" }}>{contents}</span>
-                        </p>
-                        <p style={{ marginTop: 10, textAlign: "right" }}>
-                          <span style={{ color: "#adadad", fontSize: 12 }}>
-                            {moment(createdAt).fromNow()}
-                          </span>
-                        </p>
-                      </VisitorContentItem>
+                        </VisitorContentBox>
+                        <VisitorContentTextBox>
+                          <span>{contents}</span>
+                        </VisitorContentTextBox>
+                        <VisitorContentTimestamp>
+                          <span>{moment(createdAt).fromNow()}</span>
+                        </VisitorContentTimestamp>
+                      </VisitorContentItemContainer>
                     );
                   })}
                 </>
               ) : (
-                <div
+                <EmptyContentContainer
                   style={{
                     display: "flex",
                     justifyContent: "center",
@@ -300,18 +325,12 @@ const VisitorsBook = (props) => {
                   }}
                 >
                   <GiBroom color="white" size="40" />
-                  <div
-                    style={{
-                      marginLeft: 20,
-                      lineHeight: "22px",
-                      color: "rgb(202,216,255)",
-                    }}
-                  >
+                  <div>
                     <span>방명록이 없습니다.</span>
                     <br />
                     <span>방명록을 작성해주세요.</span>
                   </div>
-                </div>
+                </EmptyContentContainer>
               )}
             </ul>
           </VisitorBookListContainer>
