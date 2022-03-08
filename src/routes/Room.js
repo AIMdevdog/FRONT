@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router";
+import { useLocation, useParams } from "react-router";
 import Overworld from "../game/Overworld";
 import { Person } from "../game/Person";
 import React from "react";
@@ -7,7 +7,6 @@ import RoomSideBar from "../components/RoomSidebar";
 import styled from "styled-components";
 import VideoButton from "../components/VideoButton";
 import { connect } from "react-redux";
-import ScreenBottomBar from "../components/ScreenBottomBar";
 import PictureFrame from "../components/pictureFrame";
 import { joinUser, updateLocation } from "../utils/game/character";
 import { io } from "socket.io-client";
@@ -257,10 +256,6 @@ const Room = ({ userData }) => {
         </CamBtn>
         <MyVideoNickname>{isUser?.nickname}</MyVideoNickname>
       </MyVideoBox>
-      <ScreenBottomBar />
-      {/* <div id="share" style={{position: 'absolute', top: 0, right: 0}}>
-          <button>share</button>
-        </div> */}
     </>
   );
 };

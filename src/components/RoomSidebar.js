@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { ProSidebar } from "react-pro-sidebar";
-import { FaArrowLeft, FaArrowRight, FaShare } from "react-icons/fa";
+import { FaShare } from "react-icons/fa";
 import { IoChatbubblesSharp } from "react-icons/io5";
 import { ImExit } from "react-icons/im";
 import { IoSend } from "react-icons/io5";
-import { FaArrowUp, FaArrowDown } from "react-icons/fa";
 import "react-pro-sidebar/dist/css/styles.css";
 import styled from "styled-components";
 import ReactModal from "react-modal";
@@ -205,7 +204,7 @@ const MessageCharSelectBox = styled.div`
       border: none;
       background-color: transparent;
       color: ${(props) =>
-        props.isChatTarget ? "rgb(6, 214, 160)" : "rgb(255, 126, 227)"};
+    props.isChatTarget ? "rgb(6, 214, 160)" : "rgb(255, 126, 227)"};
       font-size: 16px;
     }
   }
@@ -391,6 +390,7 @@ const ShareButton = styled.button`
 `;
 
 const RoomSideBar = ({
+  url,
   myStream,
   collapsed,
   setCollapsed,
@@ -400,7 +400,7 @@ const RoomSideBar = ({
   setOpenDraw2,
   socket,
   characters,
-  charMap,
+  roomNum,
 }) => {
   const navigate = useNavigate();
   const [exitModal, setExitModal] = useState(false);
@@ -433,10 +433,10 @@ const RoomSideBar = ({
 
   const onExitModal = () => setExitModal(!exitModal);
 
-  useEffect(()=>{
-    if(openDraw){
+  useEffect(() => {
+    if (openDraw) {
       setDrawNum(1);
-    }else if(openDraw2){
+    } else if (openDraw2) {
       setDrawNum(2);
     }
   }, [openDraw, openDraw2])
@@ -449,7 +449,11 @@ const RoomSideBar = ({
   const onExitRoom = () => {
     myStream.getTracks().forEach(track => track.stop());
     socket.close();
-    navigate("/lobby");
+    if (roomNum === "3") {
+      navigate(url, { state: { x: 1584, y: 784 } });
+    }else{
+      navigate(url);
+    }
   };
 
   useEffect(() => {
@@ -599,9 +603,9 @@ const RoomSideBar = ({
   };
   const onShareAccept = (props) => {
     const num = parseInt(props.target.value);
-    if(num === 1){
+    if (num === 1) {
       setOpenDraw(true);
-    }else if(num === 2){
+    } else if (num === 2) {
       setOpenDraw2(true);
     }
     socket.emit("openDraw", socket.id, num);
@@ -680,11 +684,6 @@ const RoomSideBar = ({
                           </OpenTargetList>
                         )}
                         <button>{isChatTarget ? "Everyone" : "Nearby"}</button>
-                        {isOpenTargetList ? (
-                          <FaArrowDown color="white" />
-                        ) : (
-                          <FaArrowUp color="white" />
-                        )}
                       </div>
                     </MessageCharSelectBox>
                     <InputContainer>
@@ -755,11 +754,6 @@ const RoomSideBar = ({
         </aside>
         <main className="content">
           <div className="btn" onClick={() => setCollapsed(!collapsed)}>
-            {collapsed ? (
-              <FaArrowRight size={24} color="white" />
-            ) : (
-              <FaArrowLeft size={24} color="white" />
-            )}
           </div>
 
           <IconActionContainer>
@@ -795,6 +789,7 @@ const RoomSideBar = ({
           <ReactModal
             style={customStyles}
             isOpen={exitModal}
+            shouldCloseOnOverlayClick={false}
             onRequestClose={onExitModal}
           >
             <ExitModalContainer>

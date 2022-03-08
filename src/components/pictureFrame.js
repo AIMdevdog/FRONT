@@ -6,7 +6,7 @@ import DrawCursor from "./Cursor";
 const PictureContainer = styled.div`
   display: flex;
   position: absolute;
-  z-index: 0;
+  z-index: 10;
   width: 100vw;
   height: 100vh;
   margin: 0px;

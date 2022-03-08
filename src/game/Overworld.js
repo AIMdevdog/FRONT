@@ -1020,10 +1020,7 @@ const Overworld = ({
                 callee: object.id,
               });
             }
-            // console.log(player.groupName);
-            // console.log(object.groupName);
             if (
-              //기존 object.isUserCalling에서 아래로 대체함 (전에 groupName 고정되어있을때 사용했었음)
               //그룹이 같다.
               object.isUserCalling &&
               // object.groupName &&
