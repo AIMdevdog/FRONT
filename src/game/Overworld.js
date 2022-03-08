@@ -999,7 +999,7 @@ const Overworld = ({
             ) {
               //화상 통화 연결
               closer += 1;
-              console.log("가까워짐");
+              console.log("가까워짐 closer: ", closer);
               player.isUserCalling = true;
               object.isUserCalling = true;
               socket.emit("user_call", {
@@ -1017,8 +1017,8 @@ const Overworld = ({
               (Math.abs(player?.x - object.x) > 96 ||
                 Math.abs(player?.y - object.y) > 128)
             ) {
-              console.log("멀어짐");
               closer -= 1;
+              console.log("멀어짐 closer: ", closer);
               object.isUserCalling = false;
               object.isUserJoin = false;
             }
