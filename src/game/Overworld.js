@@ -75,6 +75,7 @@ const Overworld = ({
   socket,
   setOpenPPT,
   setOpenPPT2,
+  setIsOpenVisitorsBook,
 }) => {
   const mediasoupClient = require("mediasoup-client");
   const [isLoading, setIsLoading] = useState(true);
@@ -141,7 +142,7 @@ const Overworld = ({
         player.x === 1456 &&
         player.y === 784
       ) {
-        setOpenPPT2((prev) => !prev);
+        setIsOpenVisitorsBook((prev) => !prev);
       } else if (
         e.key === "x" ||
         e.key === "X" ||
