@@ -278,6 +278,7 @@ const Overworld = ({
       const nicknameDiv = document.createElement("div");
       nicknameDiv.className = "videoNickname";
       nicknameDiv.innerText = user.nickname;
+      console.log(user.nickname)
       // div.classList.add("userVideoContainer");
       div.id = socketId;
 

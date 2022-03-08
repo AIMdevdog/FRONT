@@ -213,11 +213,11 @@ const Overworld1 = ({
         div.appendChild(nicknameDiv);
         streamContainer.appendChild(div);
 
-        const divSelector = document.querySelectorAll(".streams-container div");
+        // const divSelector = document.querySelectorAll(".streams-container div");
 
-        if (divSelector?.length > 4) {
-          streamContainer.style.justifyContent = "flex-start";
-        }
+        // if (divSelector?.length > 4) {
+        //   streamContainer.style.justifyContent = "flex-start";
+        // }
         // await sortStreams();
       } catch (err) {
         console.error(err);
@@ -752,10 +752,13 @@ const Overworld1 = ({
             // 내가 가지고있는 다른 사람의 영상을 전부 삭제
             streamContainer.removeChild(streamContainer.firstChild);
           }
-
           socket.emit("leave_Group", player.id);
           player.isUserCalling = false;
           player.isUserJoin = false;
+          // console.log(`video ${reduplication}, audio ${audio_reduplication}`)
+          reduplication = [];
+          audio_reduplication = [];
+          // console.log(`video ${reduplication}, audio ${audio_reduplication}`)
         }
         //Draw Lower layer
         map.drawLowerImage(ctx, player);
@@ -909,10 +912,10 @@ const Overworld1 = ({
         >
           <canvas ref={canvasRef} className="game-canvas"></canvas>
         </div>
+      </GameLayout>
         <StreamsContainer id="streams">
         <div className="streams-container"></div>
       </StreamsContainer>
-      </GameLayout>
       
     </>
   );
