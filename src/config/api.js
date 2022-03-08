@@ -19,8 +19,18 @@ export const user = {
 };
 
 export const room = {
+  // lobby room
   getRoom: () => axios.get("/userRoom"),
+  deleteRoom: (roomId) => axios.post("/userRoom/delete", { roomId }),
   createRoom: (mapId, title, description) =>
     axios.post("/room/create", { mapId, title, description }),
-  deleteRoom: (roomId) => axios.post("/userRoom/delete", { roomId }),
+
+  // in room
+  getVisitorBookComment: (roomId) => axios.get(`/board/read/${roomId}`),
+  createVisitorBookComment: (roomId, contents) =>
+    axios.post("/board/create", { roomId, contents }),
+  editVisitorBookComment: (boardId, contents) =>
+    axios.put("/board/update", { boardId, contents }),
+  deleteVisitorBookComment: (boardId) =>
+    axios.post("/board/delete", { boardId }),
 };
