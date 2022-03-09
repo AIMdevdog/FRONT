@@ -1019,7 +1019,7 @@ const Overworld = ({
         }        
       }
     };
-    for (let i = 631; i < 1271; i += 32) {
+    for (let i = 631; i < 1272; i += 32) {
       map.walls[`${i},848`] = true
     }
     const startGameLoop = () => {
@@ -1054,14 +1054,14 @@ const Overworld = ({
         Object.values(charMap).forEach((object) => {
           if (object.id === socket.id) {
             // console.log(object.x, object.y);
-            if (object.x >= 1159 && object.x <= 1223 && object.y <= 400) {
+            if (object.x >= 951 && object.x <= 1015 && object.y <= 1132) {
               socket.close();
               mediaOff();
               navigate(`/room1/${roomId}`);
             } else if (
-              object.x >= 583 &&
-              object.x <= 647 &&
-              object.y >= 784
+              object.x >= 1527 &&
+              object.x <= 1591 &&
+              object.y >= 736
             ) {
               socket.close();
               mediaOff();
