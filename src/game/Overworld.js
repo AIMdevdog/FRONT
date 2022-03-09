@@ -61,9 +61,6 @@ const StreamsContainer = styled.div`
   }
 `;
 
-// ------------------------------------^ SFU
-
-let peopleInRoom = 1;
 let producer;
 
 const Overworld = ({
@@ -654,10 +651,6 @@ const Overworld = ({
                     callback({ id });
 
                     // if producers exist, then join room
-                    // console.log(
-                    //   "############# producersExist : ",
-                    //   producersExist
-                    // );
                     if (producersExist) getProducers(kind);
                   }
                 );

@@ -69,6 +69,8 @@ const StreamsContainer = styled.div`
   }
 `;
 
+let producer;
+
 const Overworld1 = ({
   myStream,
   url,
@@ -383,7 +385,7 @@ const Overworld1 = ({
                     rtpParameters: parameters.rtpParameters,
                     appData: parameters.appData,
                   },
-                  ({ id, producersExist }) => {
+                  ({ id, producersExist, kind }) => {
                     // Tell the transport that parameters were transmitted and provide it with the
                     // server side producer's id.
                     callback({ id });
@@ -393,7 +395,7 @@ const Overworld1 = ({
                     //   "############# producersExist : ",
                     //   producersExist
                     // );
-                    if (producersExist) getProducers();
+                    if (producersExist) getProducers(kind);
                   }
                 );
               } catch (error) {
@@ -431,10 +433,10 @@ const Overworld1 = ({
       signalNewConsumerTransport(producerId, socketId)
     );
 
-    const getProducers = () => {
+    const getProducers = (kind) => {
       // console.log("getProducers 실행");
 
-      socket.emit("getProducers", (producerIds) => {
+      socket.emit("getProducers", {kind}, (producerIds) => {
         // console.log("getProducers 콜백 실행");
 
         console.log("==========", producerIds);
