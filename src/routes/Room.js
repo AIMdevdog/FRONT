@@ -200,6 +200,7 @@ const Room = ({ userData }) => {
 
       socket.on("update_state", function (data) {
         Object.values(charMap).forEach((character, i) => {
+          // console.log(data[i]);
           updateLocation(data[i], character, socket.id);
         });
       });

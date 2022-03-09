@@ -86,7 +86,7 @@ const Overworld = ({
 
   const map = new OverworldMap(Room);
 
-  let closer = [];
+  let closer = 0;
   const mediaOff = () => {
     myStream.getTracks().forEach((track) => track.stop());
   };
@@ -700,7 +700,7 @@ const Overworld = ({
       //   console.log("producer");
       //   console.log("transport ended");
 
-        // close video track
+      // close video track
       // });
     };
 
@@ -711,7 +711,7 @@ const Overworld = ({
 
     const getProducers = (kind) => {
       // console.log("getProducers 실행");
-      socket.emit("getProducers", {kind}, (producerIds) => {
+      socket.emit("getProducers", { kind }, (producerIds) => {
         // console.log("getProducers 콜백 실행");
 
         console.log("", producerIds);
@@ -1001,16 +1001,25 @@ const Overworld = ({
           element.x === player.x &&
           element.y === player.y
       ).length;
-      if (stay_num > 4) {
-        dataBuffer = [];
-      }
-      if (dataBuffer.length > 4) {
-        socket.emit("input", dataBuffer);
-        dataBuffer = [];
+      if (closer < 7){
+        if (stay_num > 4) {
+          dataBuffer = [];
+        }
+        if (dataBuffer.length > 4) {
+          socket.emit("input", dataBuffer);
+          dataBuffer = [];
+        }
+      }else{
+        if (stay_num > 8) {
+          dataBuffer = [];
+        }
+        if (dataBuffer.length > 8) {
+          socket.emit("input", dataBuffer);
+          dataBuffer = [];
+        }        
       }
     };
     for (let i = 263; i < 936; i += 32) {
-      console.log(`${i},496`);
       map.walls[`${i},496`] = true
     }
     const startGameLoop = () => {
@@ -1063,10 +1072,16 @@ const Overworld = ({
               map: map,
             });
           } else {
+            const next = object.nextDirection.shift();
+            if (next) {
+              object.x = next.x;
+              object.y = next.y;
+            }
             object.update({
-              arrow: object.nextDirection.shift(),
+              arrow: next?.direction,
               map: map,
             });
+
             if (
               //기존 !object.isUserCalling에서 아래로 대체함 (전에 groupName 고정되어있을때 사용했었음)
               //그룹이
@@ -1076,7 +1091,7 @@ const Overworld = ({
               Math.abs(player?.y - object.y) < 96
             ) {
               //화상 통화 연결
-              closer.push(object.id);
+              closer += 1;
               console.log("가까워짐");
               player.isUserCalling = true;
               object.isUserCalling = true;
@@ -1093,7 +1108,8 @@ const Overworld = ({
                 Math.abs(player?.y - object.y) > 128)
             ) {
               console.log("멀어짐");
-              closer = closer.filter((element) => element !== object.id);
+              // closer = closer.filter((element) => element !== object.id);
+              closer -= 1
               object.isUserCalling = false;
               object.isUserJoin = false;
             }
@@ -1101,7 +1117,7 @@ const Overworld = ({
         });
         const playercheck = player ? player.isUserCalling : false;
         // console.log("멀어짐 로직 player.socketId", player.socketId,"근처에 있는",closer)
-        if (playercheck && closer.length === 0) {
+        if (playercheck && closer === 0) {
           // 나가는 사람 기준
           const streamContainer = document.querySelector(".streams-container");
           while (streamContainer.hasChildNodes()) {

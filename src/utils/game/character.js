@@ -11,17 +11,15 @@ export const joinUser = (id, x, y, nickname, src) => {
     character.y = y;
     character.nickname = nickname;
     character.sprite.image.src = src;
-    // character.sprite.xaxios = adjustValue.xaxios;
-    // character.sprite.yaxios = adjustValue.yaxios;
-    // character.sprite.yratio = adjustValue.yratio;
     return character;
 };
 
 export const updateLocation = (data, character, socketId) => {
-    if(character.id === socketId){
+    if(character.id === socketId || !data){
         return;
     }
-    character.nextDirection.unshift(data.direction);
-    character.x = data.x;
-    character.y = data.y;
+    // console.log(data);
+    character.nextDirection.push(...data);
+    // character.x = data.x;
+    // character.y = data.y;
 };
