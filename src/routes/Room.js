@@ -17,6 +17,7 @@ import PptSlider from "../components/pptSlider";
 import { user } from "../config/api";
 import VisitorsBook from "../components/VisitorBook";
 import ExhibitionGuide from "../components/ExhibitionGuide";
+import mapImage from "../assets/images/game/mapImage.png";
 
 const MyVideoNickname = styled.div`
   position: absolute;
@@ -123,20 +124,27 @@ const Room = ({ userData }) => {
   const [myStream, setMyStream] = useState(null);
 
   const room = {
-    RoomSrc:
-      "https://aim-front.s3.ap-northeast-2.amazonaws.com/new_map.png",
+    RoomSrc: mapImage,
+    // "https://aim-front.s3.ap-northeast-2.amazonaws.com/new_map.png",
     roomNum: 0,
     gameObjects: {
       player: new Person({
         id: null,
         isPlayerControlled: true,
-        x: 1552,
-        y: 1424,
+        x: 1183,
+        y: 1072,
         src:
           isUser?.character ||
           "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png",
       }),
     },
+    walls: {
+      [`1287,976`]: true,
+      [`1255,432`]: true,
+      [`935,528`]: true,
+      [`551,752`]: true,
+
+    }
   };
 
   useEffect(async () => {
@@ -227,7 +235,6 @@ const Room = ({ userData }) => {
         return null;
     }
   }
-
   return (
     <>
       <div className="roomContainer" style={{ display: "flex" }}>

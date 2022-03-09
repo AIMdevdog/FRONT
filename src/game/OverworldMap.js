@@ -22,13 +22,11 @@ export class OverworldMap {
   }
 
   drawLowerImage(ctx, cameraPerson) {
-      this.isImageLoaded && ctx.drawImage(
-        this.lowerImage,
-        // utils.withGrid(10.5) - cameraPerson.x,
-        // utils.withGrid(6) - cameraPerson.y
-        Math.floor(utils.withGrid(ctx.canvas.clientWidth / 16 / 2) - cameraPerson.x + 24),
-        Math.floor(utils.withGrid(ctx.canvas.clientHeight / 16 / 2) - cameraPerson.y)
-      );
+    this.isImageLoaded && ctx.drawImage(
+      this.lowerImage,
+      ctx.canvas.clientWidth / 2 - cameraPerson.x,
+      ctx.canvas.clientHeight / 2 - cameraPerson.y
+    );
   }
   isSpaceTaken(currentX, currentY, direction) {
     const { x, y } = utils.nextPosition(currentX, currentY, direction);

@@ -13,10 +13,7 @@ export class GameObject {
       src: config.src,
     });
     this.nickname = "";
-
-    this.behaviorLoop = config.behaviorLoop || [];
-    this.behaviorLoopIndex = 0;
-    this.talking = config.talking || [];
+    
   }
 
   mount(map) {

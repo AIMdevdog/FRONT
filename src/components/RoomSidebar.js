@@ -444,7 +444,7 @@ const RoomSideBar = ({
     myStream.getTracks().forEach(track => track.stop());
     socket.close();
     if (roomNum === "3") {
-      navigate(url, { state: { x: 1584, y: 784 } });
+      navigate(url, { state: { x: 1191, y: 464 } });
     } else {
       navigate(url);
     }
@@ -597,9 +597,7 @@ const RoomSideBar = ({
   };
   const onShareAccept = (props) => {
     const num = parseInt(props.target.value);
-    if (num) {
-      setOpenDraw(num);
-    }
+    setOpenDraw(num);
     socket.emit("openDraw", socket.id, num);
     setSharePrompt(false);
   };
