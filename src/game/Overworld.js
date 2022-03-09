@@ -5,7 +5,7 @@ import _const from "../config/const.js";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import styled from "styled-components";
-import { throttle } from "lodash";
+import { max, min, throttle } from "lodash";
 import { cloneDeep } from "lodash";
 
 const StreamsContainer = styled.div`
@@ -104,7 +104,6 @@ const Overworld = ({
       const player = charMap[socket.id];
       if (player.y === 880 && !directionInput.direction) {
         if (player.x === 695 || player.x === 727 || player.x === 759) {
-          console.log("openDraw1");
           setOpenDraw((prev) => {
             if (prev) {
               socket.emit("closeDraw", player.nickname, 1);
@@ -115,7 +114,6 @@ const Overworld = ({
             }
           });
         } else if (player.x === 823 || player.x === 855) {
-          console.log("openDraw2");
           setOpenDraw((prev) => {
             if (prev) {
               socket.emit("closeDraw", player.nickname, 2);
@@ -126,7 +124,6 @@ const Overworld = ({
             }
           });
         } else if (player.x === 919 || player.x === 951 || player.x === 983) {
-          console.log("openDraw3");
           setOpenDraw((prev) => {
             if (prev) {
               socket.emit("closeDraw", player.nickname, 3);
@@ -137,7 +134,6 @@ const Overworld = ({
             }
           });
         } else if (player.x === 1047 || player.x === 1079 || player.x === 1111) {
-          console.log("openDraw4");
           setOpenDraw((prev) => {
             if (prev) {
               socket.emit("closeDraw", player.nickname, 4);
@@ -148,7 +144,6 @@ const Overworld = ({
             }
           });
         } else if (player.x === 1175 || player.x === 1207 || player.x === 1239) {
-          console.log("openDraw5");
           setOpenDraw((prev) => {
             if (prev) {
               socket.emit("closeDraw", player.nickname, 5);
@@ -156,6 +151,14 @@ const Overworld = ({
             } else {
               socket.emit("openDraw", socket.id, 5);
               return 5;
+            }
+          });
+        } else if (player.x === 1303) {
+          setOpenGuide((prev) => {
+            if (prev) {
+              return 0;
+            } else {
+              return 1;
             }
           });
         }
@@ -169,17 +172,6 @@ const Overworld = ({
         player.y === 784 && !directionInput.direction
       ) {
         setIsOpenVisitorsBook((prev) => !prev);
-      } else if (
-        player.x === 1303 &&
-        player.y === 880 && !directionInput.direction
-      ) {
-        setOpenGuide((prev) => {
-          if (prev) {
-            return 0;
-          } else {
-            return 1;
-          }
-        });
       } else if (
         player.x === 919 &&
         player.y === 1040 && !directionInput.direction
@@ -991,6 +983,7 @@ const Overworld = ({
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d", { alpha: false });
+    let minX, minY, maxX, maxY;
     let dataBuffer = [];
     let isLoop = true;
     const bufferSend = (player, data) => {
@@ -1001,7 +994,7 @@ const Overworld = ({
           element.x === player.x &&
           element.y === player.y
       ).length;
-      if (closer < 7){
+      if (closer < 7) {
         if (stay_num > 4) {
           dataBuffer = [];
         }
@@ -1009,19 +1002,23 @@ const Overworld = ({
           socket.emit("input", dataBuffer);
           dataBuffer = [];
         }
-      }else{
+      } else {
         if (stay_num > 8) {
           dataBuffer = [];
         }
         if (dataBuffer.length > 8) {
           socket.emit("input", dataBuffer);
           dataBuffer = [];
-        }        
+        }
       }
     };
-    for (let i = 631; i < 1272; i += 32) {
+    for (let i = 631; i < 1304; i += 32) {
       map.walls[`${i},848`] = true
     }
+    minX = min([503, 1572 - window.innerWidth / 2]);
+    minY = min([400, 1232 - window.innerWidth / 2]);
+    maxX = max([2039, 1572 + window.innerHeight/ 2]);
+    maxY = max([1552, 1232 + window.innerHeight / 2]);
     const startGameLoop = () => {
       console.log("StartGameLoop");
       const step = () => {
@@ -1035,33 +1032,32 @@ const Overworld = ({
 
         //Establish the camera person
         const cameraPerson = cloneDeep(charMap[socket.id]) || cloneDeep(map.gameObjects.player);
-        if (cameraPerson.x - halfWidth < 23) {
-          cameraPerson.x = halfWidth + 23;
-        }
-        else
-          if (cameraPerson.x + halfWidth > 1719) {
-            cameraPerson.x = 1719 - halfWidth;
-          }
-        if (cameraPerson.y - halfHeight < 0) {
-          cameraPerson.y = halfHeight;
-        } else if (cameraPerson.y + halfHeight > 1232) {
-          cameraPerson.y = 1232 - halfHeight;
-        }
+        // if (cameraPerson.x - halfWidth < minX) {
+        //   cameraPerson.x = halfWidth + minX;
+        // }
+        // else if (cameraPerson.x + halfWidth > maxX) {
+        //     cameraPerson.x = maxX - halfWidth;
+        //   }
+        // if (cameraPerson.y - halfHeight < minY) {
+        //   cameraPerson.y = halfHeight + minY;
+        // } else if (cameraPerson.y + halfHeight > maxY) {
+        //   cameraPerson.y = maxY - halfHeight;
+        // }
         const player = charMap[socket.id];
         // console.log(player?.y, cameraPerson.y, halfHeight);
 
         //Update all objects
         Object.values(charMap).forEach((object) => {
           if (object.id === socket.id) {
-            // console.log(object.x, object.y);
-            if (object.x >= 951 && object.x <= 1015 && object.y <= 1132) {
+            console.log(object.x, object.y);
+            if (object.x >= 1527 && object.x <= 1591 && object.y <= 736) {
               socket.close();
               mediaOff();
               navigate(`/room1/${roomId}`);
             } else if (
-              object.x >= 1527 &&
-              object.x <= 1591 &&
-              object.y >= 736
+              object.x >= 951 &&
+              object.x <= 1015 &&
+              object.y >= 1132
             ) {
               socket.close();
               mediaOff();

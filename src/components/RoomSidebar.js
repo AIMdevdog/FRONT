@@ -34,6 +34,7 @@ const Layout = styled.div`
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
+    z-index: 10;
   }
 
   .pro-sidebar {
@@ -245,6 +246,7 @@ const customStyles = {
   },
   overlay: {
     background: "rgba(0, 0, 0, 0.6)",
+    zIndex: 10,
   },
 };
 
@@ -399,6 +401,7 @@ const RoomSideBar = ({
   socket,
   characters,
   roomNum,
+  setZIndex,
 }) => {
   const navigate = useNavigate();
   const [exitModal, setExitModal] = useState(false);
@@ -429,7 +432,9 @@ const RoomSideBar = ({
     },
   ];
 
-  const onExitModal = () => setExitModal(!exitModal);
+  const onExitModal = () => {
+    setExitModal(!exitModal);
+  }
 
   useEffect(() => {
     setDrawNum(openDraw);

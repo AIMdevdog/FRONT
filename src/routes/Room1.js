@@ -72,23 +72,6 @@ const images = [
     url: pexel(358574),
     half: "half",
   },
-  // BACK left
-  {
-    position: [-1.6, 0, -10 * GOLDENRATIO - 3.0],
-    rotation: [0, 0, 0],
-    url: "https://images.pexels.com/photos/8152322/pexels-photo-8152322.png?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-  },
-  {
-    position: [5 * GOLDENRATIO - 1.6, 0, -10 * GOLDENRATIO - 3.0],
-    rotation: [0, 0, 0],
-    url: "https://images.pexels.com/photos/8152335/pexels-photo-8152335.png?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-  },
-  {
-    position: [8 * GOLDENRATIO - 0.5, 0, -11 * GOLDENRATIO - 3.4],
-    rotation: [0, Math.PI, 0],
-    url: pexel(3156125),
-    half: "half",
-  },
   //BACK right
   {
     position: [2.6 + 5 * GOLDENRATIO, 0, -5.35 * GOLDENRATIO - 0.2],
@@ -106,6 +89,46 @@ const images = [
     rotation: [-Math.PI / 2, 0, 0],
     url: pexel(4175054),
     ceil: "ceil",
+  },
+];
+
+const images2 = [
+  // BACK left
+  {
+    position: [-3.6, 0, -10 * GOLDENRATIO - 3.03],
+    rotation: [0, 0, 0],
+    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/BB1.jpg",
+    half: "half",
+  },
+  {
+    position: [0, 0, -10 * GOLDENRATIO - 3.03],
+    rotation: [0, 0, 0],
+    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/BB2.jpeg",
+    half: "half",
+  },
+  {
+    position: [3.6, 0, -10 * GOLDENRATIO - 3.03],
+    rotation: [0, 0, 0],
+    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/BB3.jpg",
+    half: "half",
+  },
+  {
+    position: [7.2, 0, -10 * GOLDENRATIO - 3.03],
+    rotation: [0, 0, 0],
+    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/BB4.jpg",
+    half: "half",
+  },
+  {
+    position: [10.8, 0, -10 * GOLDENRATIO - 3.03],
+    rotation: [0, 0, 0],
+    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/BB5.jpeg",
+    half: "half",
+  },
+  {
+    position: [14.4, 0, -10 * GOLDENRATIO - 3.03],
+    rotation: [0, 0, 0],
+    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/BB6.jpeg",
+    half: "half",
   },
 ];
 
@@ -221,6 +244,8 @@ const CamBtn = styled.div`
   }
 `;
 const ThreeCanvas = styled.div`
+  position: fixed;
+  z-index: ${(props)=> (props.zIdx)};
   canvas {
     width: 100vw;
     height: 100%;
@@ -248,7 +273,7 @@ const Room1 = ({ userData }) => {
   const [isUser, setUser] = useState(null);
 
   const url = `/room/${roomId}`;
-
+  const [zIdx ,setZIndex] = useState(0);
   const [cameraPosition, setCameraPosition] = useState(0);
   const [yCameraPosition, setYCameraPosition] = useState(0);
 
@@ -318,13 +343,6 @@ const Room1 = ({ userData }) => {
       }),
     },
   };
-  const otherMaps = [
-    {
-      x: 16,
-      y: 448,
-      url: `/room3/${roomId}`,
-    },
-  ];
 
   return (
     <>
@@ -338,15 +356,21 @@ const Room1 = ({ userData }) => {
               collapsed={collapsed}
               setCollapsed={setCollapsed}
               characters={isCharacter}
+              setZIndex={setZIndex}
               roomNum="3"
             />
+            <ThreeCanvas className="gallery" zIdx={zIdx}>
+              <Suspense fallback={null}>
+                <Gallery3 images={images2} roomId={roomId} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
+              </Suspense>
+            </ThreeCanvas>
             <Overworld1
               myStream={myStream}
               Room={room}
               url={url}
-              otherMaps={otherMaps}
               charMap={charMap}
               socket={socket}
+              setZIndex={setZIndex}
               setCameraPosition={setCameraPosition}
               setYCameraPosition={setYCameraPosition}
             />

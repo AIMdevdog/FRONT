@@ -159,7 +159,7 @@ background-color: black;
   }
 `;
 const ExitButton = styled.button`
-  cursor: pointer;
+    cursor: pointer;
     position: absolute;
     top: 10px;
     right: 20px;
@@ -182,6 +182,7 @@ const ExitButton = styled.button`
     border-radius: 12px;
     font-size: 15px;
     color: rgb(40, 45, 78) !important;
+    z-index: 100;
 `;
 const ExitModalContainer = styled.div`
   display: flex;

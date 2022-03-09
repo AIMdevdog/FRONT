@@ -138,10 +138,14 @@ const Room = ({ userData }) => {
       }),
     },
     walls: {
-      [`1287,976`]: true,
-      [`1255,432`]: true,
-      [`935,528`]: true,
-      [`551,752`]: true,
+//       1655 1296
+// 1623 752
+// 1431 752
+// 919 1072
+      [`1655,1296`]: true,
+      [`1623,752`]: true,
+      [`1431,752`]: true,
+      [`919,1072`]: true,
 
     }
   };
@@ -225,11 +229,11 @@ const Room = ({ userData }) => {
   const openGuideFuction = (openGuide) => {
     switch (openGuide) {
       case 1:
-        return <ExhibitionGuide title="안녕" description="안녕하세요1" />;
+        return <ExhibitionGuide title="안녕1" description="안녕하세요1" />;
       case 2:
-        return <ExhibitionGuide title="안녕" description="안녕하세요2" />;
+        return <ExhibitionGuide title="안녕2" description="안녕하세요2" />;
       case 3:
-        return <ExhibitionGuide title="안녕" description="안녕하세요3" />;
+        return <ExhibitionGuide title="안녕3" description="안녕하세요3" />;
       default:
         return null;
     }

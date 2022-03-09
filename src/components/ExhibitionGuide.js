@@ -35,7 +35,7 @@ const ExhibitionGuideContainer = styled.div`
       margin-bottom: 10px;
       padding-bottom: 10px;
       border-bottom: 1px solid #e0e0e0;
-      color: white;
+      // color: white;
       width: 100%;
     }
   }
@@ -48,9 +48,6 @@ const ExhibitionGuide = ({ title = "안녕", description = "안녕하세요." })
         <div>
           <h2>{title}</h2>
           <ul>{description}</ul>
-        </div>
-        <div style={{width:"500px", height:"500px", backGroundColor: "red"}}>
-
         </div>
       </ExhibitionGuideContainer>
     </ExhibitionGuideWrap>

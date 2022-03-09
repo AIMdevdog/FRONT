@@ -2,7 +2,7 @@ import { OverworldMap } from "./OverworldMap.js";
 import { DirectionInput } from "./DirectionInput.js";
 import utils from "./utils.js";
 import _const from "../config/const.js";
-import { useEffect, useRef} from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import styled from "styled-components";
 const GameLayout = styled.div`
@@ -22,7 +22,7 @@ const StreamsContainer = styled.div`
   left: 64px;
   top: 20px;
   width: 100%;
-  z-index: 99;
+  z-index: 90;
 
   .streams-container {
     max-width: 1024px;
@@ -75,10 +75,10 @@ const Overworld1 = ({
   url,
   Room,
   charMap,
-  otherMaps,
   socket,
   setCameraPosition,
   setYCameraPosition,
+  setZIndex,
 }) => {
   const mediasoupClient = require("mediasoup-client");
   const containerEl = useRef();
@@ -89,7 +89,7 @@ const Overworld1 = ({
   directionInput.init();
 
   const map = new OverworldMap(Room);
-
+  let flag = true;
   let closer = [];
   let reduplication = []; //해결하고 지울게요 ㅜㅜ
   let audio_reduplication = [];  //해결하고 지울게요 ㅜㅜ
@@ -169,7 +169,6 @@ const Overworld1 = ({
     let rtpCapabilities;
     let producerTransport;
     let consumerTransports = [];
-    let producer;
     let consumer;
     let isProducer = false;
 
@@ -435,7 +434,7 @@ const Overworld1 = ({
     const getProducers = (kind) => {
       // console.log("getProducers 실행");
 
-      socket.emit("getProducers", {kind}, (producerIds) => {
+      socket.emit("getProducers", { kind }, (producerIds) => {
         // console.log("getProducers 콜백 실행");
 
         console.log("==========", producerIds);
@@ -692,15 +691,19 @@ const Overworld1 = ({
         //Update all objects
         Object.values(charMap).forEach((object) => {
           if (object.id === socket.id) {
-            for (let i = 0; i < otherMaps.length; i++) {
-              if (
-                (map.roomNum === 3 && object.y > 656) ||
-                (object.y < -1250 && object.x > 1232)
-              ) {
-                socket.close();
-                mediaOff();
-                navigate(url, { state: { x: 1559, y: 784 } });
-              }
+            // console.log(object.x, object.y);
+            console.log(flag);
+            if (
+              (map.roomNum === 3 && object.y > 656) ||
+              (object.y < -1250 && object.x > 1232)
+            ) {
+              socket.close();
+              mediaOff();
+              navigate(url, { state: { x: 1559, y: 784 } });
+            } else if(flag && object.y < -1120){
+              setZIndex(5);
+            } else if(!flag ||object.y > -1120){
+              setZIndex(0);
             }
             object.update({
               arrow: directionInput.direction,
@@ -708,10 +711,14 @@ const Overworld1 = ({
               // id: socket.id,
             });
           } else {
+            const next = object.nextDirection.shift();
+            if (next) {
+              object.x = next.x;
+              object.y = next.y;
+            }
             object.update({
-              arrow: object.nextDirection.shift(),
+              arrow: next?.direction,
               map: map,
-              // id: socket.id,
             });
             if (
               !object.isUserCalling &&
@@ -909,9 +916,9 @@ const Overworld1 = ({
           <canvas ref={canvasRef} className="game-canvas"></canvas>
         </div>
       </GameLayout>
-        <StreamsContainer id="streams">
-          <div className="streams-container"></div>
-        </StreamsContainer>
+      <StreamsContainer id="streams">
+        <div className="streams-container"></div>
+      </StreamsContainer>
     </>
   );
 };
