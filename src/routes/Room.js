@@ -124,8 +124,7 @@ const Room = ({ userData }) => {
   const [myStream, setMyStream] = useState(null);
 
   const room = {
-    RoomSrc: mapImage,
-    // "https://aim-front.s3.ap-northeast-2.amazonaws.com/new_map.png",
+    RoomSrc: "https://aim-front.s3.ap-northeast-2.amazonaws.com/new_map.png",
     roomNum: 0,
     gameObjects: {
       player: new Person({
@@ -200,7 +199,6 @@ const Room = ({ userData }) => {
 
       socket.on("update_state", function (data) {
         Object.values(charMap).forEach((character, i) => {
-          // console.log(data[i]);
           updateLocation(data[i], character, socket.id);
         });
       });

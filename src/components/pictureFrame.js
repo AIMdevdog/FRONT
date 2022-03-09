@@ -62,16 +62,17 @@ const InfoInnerContainer = styled.div`
   }
 `;
 
-// const Comp = styled.div.attrs({
-//   style: ({ background }) => ({
-//     background
-//   }),
-// })``
 
 const PictureFrame = ({ socket, drawNum }) => {
   const ref = useRef();
   const [drawUser, setDrawUser] = useState([]);
   const color = ["red", "green", "blue", "orange", "yellow", "purple"];
+  const image = ["https://aim-front.s3.ap-northeast-2.amazonaws.com/basic1.jpeg",
+    "https://aim-front.s3.ap-northeast-2.amazonaws.com/basic2.jpeg",
+    "https://aim-front.s3.ap-northeast-2.amazonaws.com/basic3.jpeg",
+    "https://aim-front.s3.ap-northeast-2.amazonaws.com/basic4.jpeg",
+    "https://aim-front.s3.ap-northeast-2.amazonaws.com/basic5.jpeg",
+  ]
 
   function updateDisplay(event) {
     const xRatio =
@@ -81,7 +82,7 @@ const PictureFrame = ({ socket, drawNum }) => {
     socket.emit("cursorPosition", xRatio, yRatio, socket.id);
   }
   const throttleUpdateDisplay = throttle(updateDisplay, 48);
-  useEffect(()=>{
+  useEffect(() => {
     socket.on("drawUser", (nickname, num) => {
       console.log("drawNum, num: ", drawNum, num)
       if (num === drawNum) {
@@ -112,13 +113,13 @@ const PictureFrame = ({ socket, drawNum }) => {
             <DrawCursor
               socket={socket}
               key={data + i}
-              color={color[i]}
+              color={color[i] || "black"}
               nickname={data}
             />
           ))}
           <img
             className="picture"
-            src="https://weekly.cnbnews.com/data/photos/20160831/art_1470374545.jpg"
+            src={image[`${drawNum-1}`]}
             alt="image1"
           />
         </Frame>
