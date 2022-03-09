@@ -89,7 +89,6 @@ const Overworld1 = ({
   directionInput.init();
 
   const map = new OverworldMap(Room);
-  let flag = true;
   let closer = [];
   let reduplication = []; //해결하고 지울게요 ㅜㅜ
   let audio_reduplication = [];  //해결하고 지울게요 ㅜㅜ
@@ -692,7 +691,6 @@ const Overworld1 = ({
         Object.values(charMap).forEach((object) => {
           if (object.id === socket.id) {
             // console.log(object.x, object.y);
-            console.log(flag);
             if (
               (map.roomNum === 3 && object.y > 656) ||
               (object.y < -1250 && object.x > 1232)
@@ -700,9 +698,9 @@ const Overworld1 = ({
               socket.close();
               mediaOff();
               navigate(url, { state: { x: 1559, y: 784 } });
-            } else if(flag && object.y < -1120){
+            } else if(object.y < -1120){
               setZIndex(5);
-            } else if(!flag ||object.y > -1120){
+            } else if(object.y > -1120){
               setZIndex(0);
             }
             object.update({

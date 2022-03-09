@@ -346,7 +346,7 @@ const Room1 = ({ userData }) => {
 
   return (
     <>
-      <div className="roomContainer" style={{ backgroundColor: "rgb(19,19,20)", display: "flex", height: "100vh" }}>
+      <div className="roomContainer" style={{ backgroundColor: "gray", display: "flex", height: "100vh" }}>
         {socket && myStream ? (
           <>
             <RoomSideBar

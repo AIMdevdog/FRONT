@@ -109,7 +109,7 @@ const Overworld = ({
               socket.emit("closeDraw", player.nickname, 1);
               return 0;
             } else {
-              socket.emit("openDraw", socket.id, 1);
+              // socket.emit("openDraw", socket.id, 1);
               return 1;
             }
           });
@@ -119,7 +119,7 @@ const Overworld = ({
               socket.emit("closeDraw", player.nickname, 2);
               return 0;
             } else {
-              socket.emit("openDraw", socket.id, 2);
+              // socket.emit("openDraw", socket.id, 2);
               return 2;
             }
           });
@@ -129,7 +129,7 @@ const Overworld = ({
               socket.emit("closeDraw", player.nickname, 3);
               return 0;
             } else {
-              socket.emit("openDraw", socket.id, 3);
+              // socket.emit("openDraw", socket.id, 3);
               return 3;
             }
           });
@@ -139,7 +139,7 @@ const Overworld = ({
               socket.emit("closeDraw", player.nickname, 4);
               return 0;
             } else {
-              socket.emit("openDraw", socket.id, 4);
+              // socket.emit("openDraw", socket.id, 4);
               return 4;
             }
           });
@@ -149,7 +149,7 @@ const Overworld = ({
               socket.emit("closeDraw", player.nickname, 5);
               return 0;
             } else {
-              socket.emit("openDraw", socket.id, 5);
+              // socket.emit("openDraw", socket.id, 5);
               return 5;
             }
           });
@@ -1015,10 +1015,12 @@ const Overworld = ({
     for (let i = 631; i < 1304; i += 32) {
       map.walls[`${i},848`] = true
     }
-    minX = min([503, 1572 - window.innerWidth / 2]);
-    minY = min([400, 1232 - window.innerWidth / 2]);
+    minX = min([503, 1047 - window.innerWidth / 2]);
+    minY = min([400, 880 - window.innerWidth / 2]);
     maxX = max([2039, 1572 + window.innerHeight/ 2]);
     maxY = max([1552, 1232 + window.innerHeight / 2]);
+
+
     const startGameLoop = () => {
       console.log("StartGameLoop");
       const step = () => {
@@ -1032,24 +1034,31 @@ const Overworld = ({
 
         //Establish the camera person
         const cameraPerson = cloneDeep(charMap[socket.id]) || cloneDeep(map.gameObjects.player);
-        // if (cameraPerson.x - halfWidth < minX) {
-        //   cameraPerson.x = halfWidth + minX;
-        // }
-        // else if (cameraPerson.x + halfWidth > maxX) {
-        //     cameraPerson.x = maxX - halfWidth;
-        //   }
-        // if (cameraPerson.y - halfHeight < minY) {
-        //   cameraPerson.y = halfHeight + minY;
-        // } else if (cameraPerson.y + halfHeight > maxY) {
-        //   cameraPerson.y = maxY - halfHeight;
-        // }
+        if (cameraPerson.x - halfWidth < minX) {
+          cameraPerson.x = halfWidth + minX;
+        }
+        else if (cameraPerson.x + halfWidth > maxX) {
+            cameraPerson.x = maxX - halfWidth;
+          }
+        if (cameraPerson.y - halfHeight < minY) {
+          cameraPerson.y = halfHeight + minY;
+        } else if (cameraPerson.y + halfHeight > maxY) {
+          cameraPerson.y = maxY - halfHeight;
+        }
+        if(cameraPerson.x < halfWidth){
+          cameraPerson.x = halfWidth;
+        }
+        if(cameraPerson.y < halfHeight){
+          cameraPerson.y = halfHeight;
+        }
+
         const player = charMap[socket.id];
         // console.log(player?.y, cameraPerson.y, halfHeight);
 
         //Update all objects
         Object.values(charMap).forEach((object) => {
           if (object.id === socket.id) {
-            console.log(object.x, object.y);
+            // console.log(object.x, object.y);
             if (object.x >= 1527 && object.x <= 1591 && object.y <= 736) {
               socket.close();
               mediaOff();
