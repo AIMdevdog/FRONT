@@ -699,7 +699,7 @@ const Overworld1 = ({
               ) {
                 socket.close();
                 mediaOff();
-                navigate(url, { state: { x: 1191, y: 464 } });
+                navigate(url, { state: { x: 1559, y: 784 } });
               }
             }
             object.update({

@@ -102,8 +102,8 @@ const Overworld = ({
         return;
       }
       const player = charMap[socket.id];
-      if (player.y === 528 && !directionInput.direction) {
-        if (player.x === 327 || player.x === 359 || player.x === 391) {
+      if (player.y === 880 && !directionInput.direction) {
+        if (player.x === 695 || player.x === 727 || player.x === 759) {
           console.log("openDraw1");
           setOpenDraw((prev) => {
             if (prev) {
@@ -114,7 +114,7 @@ const Overworld = ({
               return 1;
             }
           });
-        } else if (player.x === 455 || player.x === 487) {
+        } else if (player.x === 823 || player.x === 855) {
           console.log("openDraw2");
           setOpenDraw((prev) => {
             if (prev) {
@@ -125,7 +125,7 @@ const Overworld = ({
               return 2;
             }
           });
-        } else if (player.x === 551 || player.x === 583 || player.x === 615) {
+        } else if (player.x === 919 || player.x === 951 || player.x === 983) {
           console.log("openDraw3");
           setOpenDraw((prev) => {
             if (prev) {
@@ -136,7 +136,7 @@ const Overworld = ({
               return 3;
             }
           });
-        } else if (player.x === 679 || player.x === 711 || player.x === 743) {
+        } else if (player.x === 1047 || player.x === 1079 || player.x === 1111) {
           console.log("openDraw4");
           setOpenDraw((prev) => {
             if (prev) {
@@ -147,7 +147,7 @@ const Overworld = ({
               return 4;
             }
           });
-        } else if (player.x === 807 || player.x === 839 || player.x === 871) {
+        } else if (player.x === 1175 || player.x === 1207 || player.x === 1239) {
           console.log("openDraw5");
           setOpenDraw((prev) => {
             if (prev) {
@@ -160,18 +160,18 @@ const Overworld = ({
           });
         }
       } else if (
-        player.x === 1287 &&
-        player.y === 1008 && !directionInput.direction
+        player.x === 1655 &&
+        player.y === 1328 && !directionInput.direction
       ) {
         setOpenPPT((prev) => !prev);
       } else if (
-        player.x === 1063 &&
-        player.y === 432 && !directionInput.direction
+        player.x === 1431 &&
+        player.y === 784 && !directionInput.direction
       ) {
         setIsOpenVisitorsBook((prev) => !prev);
       } else if (
-        player.x === 935 &&
-        player.y === 560 && !directionInput.direction
+        player.x === 1303 &&
+        player.y === 880 && !directionInput.direction
       ) {
         setOpenGuide((prev) => {
           if (prev) {
@@ -181,8 +181,8 @@ const Overworld = ({
           }
         });
       } else if (
-        player.x === 551 &&
-        player.y === 720 && !directionInput.direction
+        player.x === 919 &&
+        player.y === 1040 && !directionInput.direction
       ) {
         setOpenGuide((prev) => {
           if (prev) {
@@ -192,8 +192,8 @@ const Overworld = ({
           }
         });
       } else if (
-        player.x === 1255 &&
-        player.y === 464 && !directionInput.direction
+        player.x === 1623 &&
+        player.y === 784 && !directionInput.direction
       ) {
         setOpenGuide((prev) => {
           if (prev) {
@@ -1019,8 +1019,8 @@ const Overworld = ({
         }        
       }
     };
-    for (let i = 263; i < 936; i += 32) {
-      map.walls[`${i},496`] = true
+    for (let i = 631; i < 1271; i += 32) {
+      map.walls[`${i},848`] = true
     }
     const startGameLoop = () => {
       console.log("StartGameLoop");

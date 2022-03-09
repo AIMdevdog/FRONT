@@ -294,7 +294,7 @@ const Room2 = ({ userData }) => {
   const onExitRoom = () => {
     myStream.getTracks().forEach(track => track.stop());
     socket.close();
-    navigate(url, { state: { x: 615, y: 752 } });
+    navigate(url, { state: { x: 983, y: 1072 } });
   };
 
 
