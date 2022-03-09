@@ -1,8 +1,7 @@
 import { Suspense, useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { Person } from "../game/Person";
 import React from "react";
-import RoomSideBar from "../components/RoomSidebar";
 import styled from "styled-components";
 import VideoButton from "../components/VideoButton";
 import { connect } from "react-redux";
@@ -11,47 +10,57 @@ import { io } from "socket.io-client";
 import _const from "../config/const";
 import Overworld1 from "../game/Overworld1";
 import Gallery2 from "../components/Gallery2";
-import LoadingComponent from "../components/Loading.js";
-
-const pexel = (id) =>
-  `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260`;
-const GOLDENRATIO = 1.61803398875;
+import { user } from "../config/api";
+import ReactModal from "react-modal";
 
 const images = [
   {
-    position: [-11 * GOLDENRATIO + 1.17, 0.018, -3.5],
-    rotation: [0, Math.PI / 4, 0],
-    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/city-3021474+3.png",
+    position: [-23.4, 0, -2.3],
+    rotation: [0, Math.PI / 180 * 30, 0],
+    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/panorama_far_left_3.png",
   },
   {
-    position: [0.5, 0, -9],
+    position: [-14.5, 0, -6],
+    rotation: [0, Math.PI / 180 * 15, 0],
+    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/panorama_left_3.png",
+  },
+  {
+    position: [-5, 0, -7.3],
     rotation: [0, 0, 0],
-    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/city-3021474+4.png",
-    middle: "middle",
+    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/panorama_left_center_3.png",
   },
   {
-    position: [11 * GOLDENRATIO - 0.17, 0.018, -3.5],
-    rotation: [0, -Math.PI / 4, 0],
-    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/city-3021474+2.png",
+    position: [5, 0, -7.3],
+    rotation: [0, 0, 0],
+    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/panorama_right_center_3.png",
   },
   {
-    position: [0, 13, -5],
-    rotation: [-Math.PI / 2, 0, 0],
-    url: pexel(4175054),
-    ceil: "ceil",
+    position: [14.5, 0, -6],
+    rotation: [0, -Math.PI / 180 * 15, 0],
+    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/panorama_right_3.png",
   },
   {
-    position: [25, 0, 9.5],
-    rotation: [0, Math.PI / 2, 0],
-    url: pexel(2860810),
+    position: [23.4, 0, -2.3],
+    rotation: [0, -Math.PI / 180 * 30, 0],
+    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/panorama_far_right_3.png",
   },
-  {
-    position: [-24, 0, 9.5],
-    rotation: [0, -Math.PI / 2, 0],
-    url: pexel(3156125),
-  }
+  // {
+  //   position: [0.5, -8.3, 0.8],
+  //   rotation: [-Math.PI / 2, 0, 0],
+  //   url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/panorama_bottom.png",
+  //   ceil: "ceil",
+  // },
+  // {
+  //   position: [25, 0, 9.5],
+  //   rotation: [0, Math.PI / 2, 0],
+  //   url: pexel(2860810),
+  // },
+  // {
+  //   position: [-24, 0, 9.5],
+  //   rotation: [0, -Math.PI / 2, 0],
+  //   url: pexel(3156125),
+  // }
 ];
-
 const StreamsContainer = styled.div`
   position: fixed;
   display: flex;
@@ -82,7 +91,6 @@ const StreamsContainer = styled.div`
     }
   }
 `;
-
 const MyVideoBox = styled.div`
   position: absolute;
   right: 30px;
@@ -94,7 +102,6 @@ const MyVideoBox = styled.div`
     cursor: pointer;
   }
 `;
-
 const MyVideo = styled.video`
   width: 100%;
   height: 100%;
@@ -103,7 +110,6 @@ const MyVideo = styled.video`
   -webkit-transform: rotateY(180deg); /* Safari and Chrome */
   -moz-transform: rotateY(180deg); /* Firefox */
 `;
-
 const CamBtn = styled.div`
   /* display: none;
   position: relative;
@@ -142,6 +148,7 @@ const CamBtn = styled.div`
   }
 `;
 const ThreeCanvas = styled.div`
+background-color: black;
   display:block;
   canvas {
     width: 100vw;
@@ -151,6 +158,108 @@ const ThreeCanvas = styled.div`
     overflow: hidden;
   }
 `;
+const ExitButton = styled.button`
+  cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    box-sizing: border-box;
+    outline: none;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    justify-content: center;
+    font-family: inherit;
+    font-weight: 700;
+    transition: background-color 200ms ease 0s, border-color 200ms ease 0s;
+    opacity: 1;
+    overflow: hidden;
+    background-color: rgb(6, 214, 160);
+    border: 2px solid transparent;
+    padding: 0px 12px;
+    width: auto;
+    height: 35px;
+    border-radius: 12px;
+    font-size: 15px;
+    color: rgb(40, 45, 78) !important;
+`;
+const ExitModalContainer = styled.div`
+  display: flex;
+  background-color: rgb(40, 45, 78);
+  flex-direction: column;
+  padding: 32px;
+  z-index: 7;
+  position: relative;
+`;
+const ExitText = styled.div`
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 16px;
+
+  span {
+    color: rgb(255, 255, 255);
+    font-family: "DM Sans", sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    display: block;
+  }
+`;
+const SetButtonContainer = styled.div`
+  display: flex;
+  margin-top: 16px;
+  justify-content: space-between;
+
+  div {
+    display: flex;
+    margin: 8px;
+  }
+  button {
+    display: flex;
+    position: relative;
+    box-sizing: border-box;
+    outline: none;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    justify-content: center;
+    font-family: inherit;
+    font-weight: 700;
+    transition: background-color 200ms ease 0s, border-color 200ms ease 0s;
+    cursor: pointer;
+    opacity: 1;
+    overflow: hidden;
+    background-color: rgb(6, 214, 160);
+    border: 2px solid transparent;
+    padding: 0px 16px;
+    width: 80px;
+    height: 40px;
+    border-radius: 16px;
+    font-size: 15px;
+    color: rgb(40, 45, 78);
+  }
+`;
+const customStyles = {
+  content: {
+    top: "50%",
+    left: "50%",
+    right: "auto",
+    bottom: "auto",
+    marginRight: "-50%",
+    transform: "translate(-50%, -50%)",
+    padding: 0,
+    borderRadius: 16,
+    border: "none",
+    background: "transparent",
+    boxShadow: "rgba(0, 0, 0, 0.08) 0px 1px 12px",
+  },
+  overlay: {
+    background: "rgba(0, 0, 0, 0.6)",
+  },
+};
+
+
 
 const cameraConstraints = {
   audio: true,
@@ -160,26 +269,53 @@ const cameraConstraints = {
 const Room2 = ({ userData }) => {
   const charMap = {};
   const params = useParams();
+  const navigate = useNavigate();
   const roomId = params.roomId;
+  const url = `/room/${roomId}`;
+
   const [socket, setSocket] = useState(null);
   const [myStream, setMyStream] = useState(null);
 
   const [nicknames, setNicknames] = useState([]);
-  const [collapsed, setCollapsed] = useState(true);
   const [isCharacter, setIsCharacter] = useState([]);
   const [isUser, setUser] = useState(null);
 
-  const url = `/room/${roomId}`;
+
+  const [exitModal, setExitModal] = useState(false);
+  const onExitModal = () => setExitModal(!exitModal);
 
   const [cameraPosition, setCameraPosition] = useState(0);
   const [yCameraPosition, setYCameraPosition] = useState(0);
 
+  const onClick = (e) => {
+    setExitModal(prev => !prev);
+  }
+
+  const onExitRoom = () => {
+    myStream.getTracks().forEach(track => track.stop());
+    socket.close();
+    navigate(url, { state: { x: 615, y: 752 } });
+  };
+
+
   useEffect(async () => {
     setMyStream(await navigator.mediaDevices.getUserMedia(cameraConstraints));
-    userData.then((data) => {
-      setUser(data);
-      setSocket(io(_const.HOST));
-    });
+    const getUser = async () => {
+      try {
+        const requestUserData = await user.getUserInfo();
+        const {
+          data: { result },
+        } = requestUserData;
+        if (result) {
+          setUser(result);
+          setSocket(io(_const.HOST));
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    getUser();
   }, []);
 
   useEffect(() => {
@@ -191,7 +327,8 @@ const Room2 = ({ userData }) => {
           x: 80,
           y: 80,
           nickname: isUser.nickname,
-          roomId: "room2" + roomId,
+          roomId: "room2/" + roomId,
+          roomNum: 2
         });
       });
 
@@ -240,47 +377,54 @@ const Room2 = ({ userData }) => {
       }),
     },
   };
-  const otherMaps = [
-    {
-      x: 16,
-      y: 448,
-      url: `/room3/${roomId}`,
-    },
-  ];
 
   return (
     <>
       <div className="roomContainer" style={{ display: "flex", height: "100vh" }}>
-        {socket && myStream ? (
-          <>
-            <RoomSideBar
-              myStream={myStream}
-              socket={socket}
-              collapsed={collapsed}
-              setCollapsed={setCollapsed}
-              characters={isCharacter}
-            />
-            <Overworld1
-              myStream={myStream}
-              Room={room}
-              url={url}
-              otherMaps={otherMaps}
-              charMap={charMap}
-              socket={socket}
-              setCameraPosition={setCameraPosition}
-              setYCameraPosition={setYCameraPosition}
-            />
-            <ThreeCanvas className="gallery">
-              <Suspense fallback={null}>
-                <Gallery2 images={images} roomId={roomId} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
-              </Suspense>
-            </ThreeCanvas>
-            {/* <CharacterNickname nicknames={nicknames} /> */}
-          </>
-        ) : <LoadingComponent/>}
+        <>
+          <ThreeCanvas className="gallery">
+            <Suspense fallback={null}>
+              <Gallery2 images={images} roomId={roomId} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
+            </Suspense>
+          </ThreeCanvas>
+          {socket ? <Overworld1
+            myStream={myStream}
+            Room={room}
+            url={url}
+            charMap={charMap}
+            socket={socket}
+            setCameraPosition={setCameraPosition}
+            setYCameraPosition={setYCameraPosition}
+          /> : null}
+          {/* <CharacterNickname nicknames={nicknames} /> */}
+        </>
       </div>
+      <ExitButton onClick={onClick}>
+        나가기
+      </ExitButton>
+      <ReactModal
+        style={customStyles}
+        isOpen={exitModal}
+        shouldCloseOnOverlayClick={false}
+        onRequestClose={onExitModal}
+      >
+        <ExitModalContainer>
+          <ExitText>
+            <span> 방에서 나가시겠습니까? </span>
+          </ExitText>
+          <SetButtonContainer>
+            <button onClick={onExitRoom}> 예 </button>
+            <button
+              onClick={onExitModal}
+              style={{ backgroundColor: "rgb(169,169,169)" }}
+            >
+              아니요
+            </button>
+          </SetButtonContainer>
+        </ExitModalContainer>
+      </ReactModal>
 
-      <StreamsContainer id="streams"></StreamsContainer>
+      {/* <StreamsContainer id="streams"></StreamsContainer> */}
       <MyVideoBox>
         <MyVideo id="myFace" autoPlay="autoplay"></MyVideo>
         <CamBtn id="camBtn">

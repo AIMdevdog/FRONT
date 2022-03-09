@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import styled from "styled-components";
 import { throttle } from "lodash";
+import { cloneDeep } from "lodash";
 
 const StreamsContainer = styled.div`
   position: fixed;
@@ -15,7 +16,7 @@ const StreamsContainer = styled.div`
   left: 64px;
   top: 20px;
   width: 100%;
-  z-index: 99;
+  z-index: 1;
 
   .streams-container {
     max-width: 1024px;
@@ -61,34 +62,31 @@ const StreamsContainer = styled.div`
   }
 `;
 
-
-
 // ------------------------------------^ SFU
 
 let peopleInRoom = 1;
+let producer;
 
 const Overworld = ({
   myStream,
   setOpenDraw,
-  setOpenDraw2,
   Room,
   roomId,
   charMap,
   socket,
   setOpenPPT,
-  setOpenPPT2,
+  setIsOpenVisitorsBook,
+  setOpenGuide,
 }) => {
   const mediasoupClient = require("mediasoup-client");
-  const [isLoading, setIsLoading] = useState(true);
-  const [isVideoUser, isSetVideoUser] = useState([]);
   const containerEl = useRef();
   const canvasRef = useRef();
   const navigate = useNavigate();
   let reduplication = []; //해결하고 지울게요 ㅜㅜ
-  let audio_reduplication = [];  //해결하고 지울게요 ㅜㅜ
+  let audio_reduplication = []; //해결하고 지울게요 ㅜㅜ
   const directionInput = new DirectionInput();
   directionInput.init();
-  
+
   const map = new OverworldMap(Room);
 
   let closer = 0;
@@ -103,61 +101,119 @@ const Overworld = ({
 
   useEffect(() => {
     const keydownHandler = (e) => {
+      if (e.key !== "x" && e.key !== "X" && e.key !== "ㅌ" && !directionInput.direction) {
+        return;
+      }
       const player = charMap[socket.id];
-      if (
-        (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
-        (player.x === 720 || player.x === 752) &&
-        player.y === 880
-      ) {
-        setOpenDraw((prev) => {
-          if (prev) {
-            socket.emit("closeDraw", player.nickname, 1);
-            return !prev;
-          } else {
-            socket.emit("openDraw", socket.id, 1);
-            return !prev;
-          }
-        });
+      if (player.y === 528 && !directionInput.direction) {
+        if (player.x === 327 || player.x === 359 || player.x === 391) {
+          console.log("openDraw1");
+          setOpenDraw((prev) => {
+            if (prev) {
+              socket.emit("closeDraw", player.nickname, 1);
+              return 0;
+            } else {
+              socket.emit("openDraw", socket.id, 1);
+              return 1;
+            }
+          });
+        } else if (player.x === 455 || player.x === 487) {
+          console.log("openDraw2");
+          setOpenDraw((prev) => {
+            if (prev) {
+              socket.emit("closeDraw", player.nickname, 2);
+              return 0;
+            } else {
+              socket.emit("openDraw", socket.id, 2);
+              return 2;
+            }
+          });
+        } else if (player.x === 551 || player.x === 583 || player.x === 615) {
+          console.log("openDraw3");
+          setOpenDraw((prev) => {
+            if (prev) {
+              socket.emit("closeDraw", player.nickname, 3);
+              return 0;
+            } else {
+              socket.emit("openDraw", socket.id, 3);
+              return 3;
+            }
+          });
+        } else if (player.x === 679 || player.x === 711 || player.x === 743) {
+          console.log("openDraw4");
+          setOpenDraw((prev) => {
+            if (prev) {
+              socket.emit("closeDraw", player.nickname, 4);
+              return 0;
+            } else {
+              socket.emit("openDraw", socket.id, 4);
+              return 4;
+            }
+          });
+        } else if (player.x === 807 || player.x === 839 || player.x === 871) {
+          console.log("openDraw5");
+          setOpenDraw((prev) => {
+            if (prev) {
+              socket.emit("closeDraw", player.nickname, 5);
+              return 0;
+            } else {
+              socket.emit("openDraw", socket.id, 5);
+              return 5;
+            }
+          });
+        }
       } else if (
-        (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
-        (player.x === 848 || player.x === 880) &&
-        player.y === 880
-      ) {
-        setOpenDraw2((prev) => {
-          if (prev) {
-            socket.emit("closeDraw", player.nickname, 2);
-            return !prev;
-          } else {
-            socket.emit("openDraw", socket.id, 2);
-            return !prev;
-          }
-        });
-      } else if (
-        (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
-        player.x === 1680 &&
-        player.y === 1328
+        player.x === 1287 &&
+        player.y === 1008 && !directionInput.direction
       ) {
         setOpenPPT((prev) => !prev);
       } else if (
-        (e.key === "x" || e.key === "X" || e.key === "ㅌ") &&
-        player.x === 1456 &&
-        player.y === 784
+        player.x === 1063 &&
+        player.y === 432 && !directionInput.direction
       ) {
-        setOpenPPT2((prev) => !prev);
-      } else if ((e.key === "x" || e.key === "X" || e.key === "ㅌ") || directionInput.direction) {
-        setOpenPPT2(false);
-        setOpenPPT(false);
-        setOpenDraw((prev) => {
+        setIsOpenVisitorsBook((prev) => !prev);
+      } else if (
+        player.x === 935 &&
+        player.y === 560 && !directionInput.direction
+      ) {
+        setOpenGuide((prev) => {
           if (prev) {
-            socket.emit("closeDraw", player.nickname, 1);
+            return 0;
+          } else {
+            return 1;
           }
-          return false;
         });
-        setOpenDraw2((prev) => {
+      } else if (
+        player.x === 551 &&
+        player.y === 720 && !directionInput.direction
+      ) {
+        setOpenGuide((prev) => {
           if (prev) {
-            socket.emit("closeDraw", player.nickname, 2);
+            return 0;
+          } else {
+            return 2;
           }
-          return false;
+        });
+      } else if (
+        player.x === 1255 &&
+        player.y === 464 && !directionInput.direction
+      ) {
+        setOpenGuide((prev) => {
+          if (prev) {
+            return 0;
+          } else {
+            return 3;
+          }
+        });
+      } else {
+        setOpenPPT(false);
+        setOpenGuide(0);
+        setIsOpenVisitorsBook(false);
+        setOpenDraw((prevNum) => {
+          if (prevNum) {
+            socket.emit("closeDraw", player.nickname, prevNum);
+          }
+          return 0;
         });
       }
     };
@@ -183,16 +239,16 @@ const Overworld = ({
     var remoteConnection = []; // RTCPeerConnection for the "remote"
     let video_stream;
     let audio_stream;
-    
+
     let videoConstraints = {
       audio: false,
       video: true,
-    }
+    };
     let audioConstraints = {
-      audio: true, 
+      audio: true,
       video: false,
-    }
-    
+    };
+
     // WebRTC SFU (mediasoup)
     let params_audio = {
       codecOptions: {
@@ -224,16 +280,13 @@ const Overworld = ({
         videoGoogleStartBitrate: 1000,
       },
     };
-    
+
     let device;
     let rtpCapabilities;
     let producerTransport;
     let consumerTransports = [];
-    let producer;
     let consumer;
     let isProducer = false;
-    
-
 
     initCall();
 
@@ -267,7 +320,7 @@ const Overworld = ({
       streamContainer.appendChild(div);
     }
 
-    async function removeAudio(peerStream, socketId) {}
+    async function removeAudio(peerStream, socketId) { }
     // 영상 connect
     async function paintPeerFace(peerStream, socketId) {
       console.log(`socketID ${socketId} peer의 vidoe 태그 생성`);
@@ -277,6 +330,7 @@ const Overworld = ({
       const nicknameDiv = document.createElement("div");
       nicknameDiv.className = "videoNickname";
       nicknameDiv.innerText = user.nickname;
+      console.log(user.nickname)
       // div.classList.add("userVideoContainer");
       div.id = socketId;
 
@@ -471,7 +525,6 @@ const Overworld = ({
         //   .getAudioTracks()
         //   .forEach((track) => (console.log("@@@@@@@@@@@@@@@@@ track.enabled", track.enabled)));
 
-
         params_audio = {
           track: audio_track,
           ...params_audio,
@@ -584,6 +637,7 @@ const Overworld = ({
             "produce",
             async (parameters, callback, errback) => {
               console.log("producerTransport의 produce 이벤트 실행");
+              console.log("-----", socket.id, parameters.kind);
               try {
                 // tell the server to create a Producer
                 // with the following parameters and produce
@@ -596,7 +650,7 @@ const Overworld = ({
                     rtpParameters: parameters.rtpParameters,
                     appData: parameters.appData,
                   },
-                  ({ id, producersExist }) => {
+                  ({ id, producersExist, kind }) => {
                     // Tell the transport that parameters were transmitted and provide it with the
                     // server side producer's id.
                     callback({ id });
@@ -606,7 +660,7 @@ const Overworld = ({
                     //   "############# producersExist : ",
                     //   producersExist
                     // );
-                    if (producersExist) getProducers();
+                    if (producersExist) getProducers(kind);
                   }
                 );
               } catch (error) {
@@ -653,7 +707,7 @@ const Overworld = ({
       //   console.log("producer");
       //   console.log("transport ended");
 
-      //   // close video track
+        // close video track
       // });
     };
 
@@ -662,10 +716,9 @@ const Overworld = ({
       signalNewConsumerTransport(producerId, socketId)
     );
 
-    const getProducers = () => {
+    const getProducers = (kind) => {
       // console.log("getProducers 실행");
-
-      socket.emit("getProducers", (producerIds) => {
+      socket.emit("getProducers", {kind}, (producerIds) => {
         // console.log("getProducers 콜백 실행");
 
         console.log("", producerIds);
@@ -678,7 +731,7 @@ const Overworld = ({
     };
 
     const signalNewConsumerTransport = async (remoteProducerId, socketId) => {
-      // console.log("signalNewConsumerTransport 실행");
+      console.log("몇번 실행?, signalNewConsumerTransport 실행");
       await socket.emit(
         "createWebRtcTransport",
         { consumer: true },
@@ -790,6 +843,7 @@ const Overworld = ({
             );
             if (check.length === 0) {
               // console.log("video check안으로 들어옴")
+              console.log("only one", reduplication);
               reduplication.push(remoteSocketId);
               await paintPeerFace(peerStream, remoteSocketId);
             }
@@ -841,8 +895,12 @@ const Overworld = ({
     // ---------------------------------------- ^ SFU
 
     socket.on("remove_reduplication", (remoteSocketId) => {
-      reduplication = reduplication.filter((element) => element !== remoteSocketId)
-      audio_reduplication = audio_reduplication.filter((element) => element !== remoteSocketId)
+      reduplication = reduplication.filter(
+        (element) => element !== remoteSocketId
+      );
+      audio_reduplication = audio_reduplication.filter(
+        (element) => element !== remoteSocketId
+      );
     });
 
     // 남는 사람 기준
@@ -851,15 +909,23 @@ const Overworld = ({
       const user = charMap[data.removeSid];
       user.isUserJoin = false;
       user.groupName = 0;
-      reduplication = reduplication.filter((element) => element !== data.removeSid)
-      audio_reduplication = audio_reduplication.filter((element) => element !== data.remveSid)
-      console.log("reduplication video, audio ", reduplication, audio_reduplication)
-      removePeerFace(data.removeSid);
+      reduplication = reduplication.filter(
+        (element) => element !== data.removeSid
+      );
+      audio_reduplication = audio_reduplication.filter(
+        (element) => element !== data.remveSid
+      );
+      console.log(
+        "reduplication video, audio ",
+        reduplication,
+        audio_reduplication
+      );
+      // removePeerFace(data.removeSid);
     });
 
-    socket.on("leave_user", function (data) {
-      removePeerFace(data.id);
-    });
+    // socket.on("leave_user", function (data) {
+    //   removePeerFace(data.id);
+    // });
 
     socket.on("accept_join", async (groupName) => {
       try {
@@ -950,31 +1016,50 @@ const Overworld = ({
         dataBuffer = [];
       }
     };
+    for (let i = 263; i < 936; i += 32) {
+      console.log(`${i},496`);
+      map.walls[`${i},496`] = true
+    }
     const startGameLoop = () => {
       console.log("StartGameLoop");
       const step = () => {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
+        const halfWidth = window.innerWidth / 2;
+        const halfHeight = window.innerHeight / 2;
 
         //Clear off the canvas
         ctx.clearRect(0, 0, canvas?.width, canvas?.height);
 
         //Establish the camera person
-        const cameraPerson = charMap[socket.id] || map.gameObjects.player;
+        const cameraPerson = cloneDeep(charMap[socket.id]) || cloneDeep(map.gameObjects.player);
+        if (cameraPerson.x - halfWidth < 23) {
+          cameraPerson.x = halfWidth + 23;
+        }
+        else
+          if (cameraPerson.x + halfWidth > 1719) {
+            cameraPerson.x = 1719 - halfWidth;
+          }
+        if (cameraPerson.y - halfHeight < 0) {
+          cameraPerson.y = halfHeight;
+        } else if (cameraPerson.y + halfHeight > 1232) {
+          cameraPerson.y = 1232 - halfHeight;
+        }
         const player = charMap[socket.id];
+        // console.log(player?.y, cameraPerson.y, halfHeight);
 
         //Update all objects
         Object.values(charMap).forEach((object) => {
           if (object.id === socket.id) {
             // console.log(object.x, object.y);
-            if (object.x >= 1552 && object.x <= 1616 && object.y <= 720) {
+            if (object.x >= 1159 && object.x <= 1223 && object.y <= 400) {
               socket.close();
               mediaOff();
               navigate(`/room1/${roomId}`);
             } else if (
-              object.x >= 976 &&
-              object.x <= 1040 &&
-              object.y >= 1136
+              object.x >= 583 &&
+              object.x <= 647 &&
+              object.y >= 784
             ) {
               socket.close();
               mediaOff();
@@ -1007,10 +1092,7 @@ const Overworld = ({
                 callee: object.id,
               });
             }
-            // console.log(player.groupName);
-            // console.log(object.groupName);
             if (
-              //기존 object.isUserCalling에서 아래로 대체함 (전에 groupName 고정되어있을때 사용했었음)
               //그룹이 같다.
               object.isUserCalling &&
               // object.groupName &&
@@ -1033,17 +1115,19 @@ const Overworld = ({
             // 내가 가지고있는 다른 사람의 영상을 전부 삭제
             streamContainer.removeChild(streamContainer.firstChild);
           }
+          // producer_audio.emit("producerclose");
+          producer.emit("producerclose");
           socket.emit("leave_Group", player.id);
+          producer.emit("producerclose")
           player.isUserCalling = false;
           player.isUserJoin = false;
           // console.log(`video ${reduplication}, audio ${audio_reduplication}`)
-          reduplication = []
-          audio_reduplication = []
+          reduplication = [];
+          audio_reduplication = [];
           // console.log(`video ${reduplication}, audio ${audio_reduplication}`)
         }
         //Draw Lower layer
         map.drawLowerImage(ctx, cameraPerson);
-
         //Draw Game Objects
         Object.values(charMap)
           .sort((a, b) => {
@@ -1055,21 +1139,31 @@ const Overworld = ({
             const objectNicknameContainer = document.getElementById(
               `${object.nickname}`
             );
+            const x =
+              object.x +
+              ctx.canvas.clientWidth / 2 -
+              cameraPerson.x;
+            const y =
+              object.y -
+              25 +
+              ctx.canvas.clientHeight / 2 -
+              cameraPerson.y;
             // console.dir(objectNicknameContainer);
             if (!objectNicknameContainer) {
               return;
             }
-            objectNicknameContainer.style.top =
-              object.y -
-              25 +
-              utils.withGrid(ctx.canvas.clientHeight / 16 / 2) -
-              cameraPerson.y +
-              "px";
-            objectNicknameContainer.style.left =
-              object.x +
-              utils.withGrid(ctx.canvas.clientWidth / 16 / 2) -
-              cameraPerson.x +
-              "px";
+            if (
+              x < 0 ||
+              x > window.innerWidth ||
+              y < 0 ||
+              y > window.innerHeight
+            ) {
+              objectNicknameContainer.style.left = 0;
+              objectNicknameContainer.style.top = 0;
+            } else {
+              objectNicknameContainer.style.left = x + "px";
+              objectNicknameContainer.style.top = y + "px";
+            }
           });
         if (player) {
           const data = {

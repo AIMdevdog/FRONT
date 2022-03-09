@@ -103,6 +103,18 @@ const images = [
   },
 ];
 
+const MyVideoNickname = styled.div`
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  display: inline;
+  background-color: rgb(0, 0, 0, 0.6);
+  padding: 5px;
+  border-radius: 10px;
+  color: white;
+  z-index: 10;
+`;
+
 const StreamsContainer = styled.div`
   position: fixed;
   display: flex;
@@ -310,15 +322,17 @@ const Room1 = ({ userData }) => {
 
   return (
     <>
-      <div className="roomContainer" style={{ display: "flex", height: "100vh" }}>
+      <div className="roomContainer" style={{ backgroundColor: "rgb(19,19,20)", display: "flex", height: "100vh" }}>
         {socket && myStream ? (
           <>
             <RoomSideBar
+              url={url}
               myStream={myStream}
               socket={socket}
               collapsed={collapsed}
               setCollapsed={setCollapsed}
               characters={isCharacter}
+              roomNum="3"
             />
             <Overworld1
               myStream={myStream}
@@ -341,12 +355,13 @@ const Room1 = ({ userData }) => {
         ) : <LoadingComponent />}
       </div>
 
-      <StreamsContainer id="streams"></StreamsContainer>
+      {/* <StreamsContainer id="streams"></StreamsContainer> */}
       <MyVideoBox>
         <MyVideo id="myFace" autoPlay="autoplay"></MyVideo>
         <CamBtn id="camBtn">
           <VideoButton />
         </CamBtn>
+        <MyVideoNickname>{isUser?.nickname}</MyVideoNickname>
       </MyVideoBox>
       {/* <ScreenBottomBar /> */}
     </>
