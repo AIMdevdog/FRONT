@@ -22,7 +22,8 @@ const images = [
   {
     position: [-3.5 * GOLDENRATIO + 1, 0, 5 * GOLDENRATIO],
     rotation: [0, Math.PI / 2, 0],
-    url: pexel(1606591),
+    // url: pexel(1606591),
+    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/A1.jpeg",
   },
   // {
   //   position: [-4.735 * GOLDENRATIO + 1, 0, 0],
@@ -32,17 +33,20 @@ const images = [
   {
     position: [-3.5 * GOLDENRATIO + 1, 0, 0],
     rotation: [0, Math.PI / 2, 0],
-    url: pexel(1324349)
+    // url: pexel(1324349)
+    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/A2.jpeg",
   },
   {
     position: [-3.5 * GOLDENRATIO + 1, 0, -5 * GOLDENRATIO],
     rotation: [0, Math.PI / 2, 0],
-    url: pexel(1795707)
+    // url: pexel(1795707)
+    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/a3.jpeg",
   },
   {
     position: [-3.5 * GOLDENRATIO + 1, 0, -10 * GOLDENRATIO],
     rotation: [0, Math.PI / 2, 0],
-    url: pexel(1324354),
+    // url: pexel(1324354),
+    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/A4.jpeg",
   },
   // {
   //   position: [-3.5 * GOLDENRATIO + 1, 0, -15 * GOLDENRATIO],
@@ -54,11 +58,13 @@ const images = [
     position: [3.5 * GOLDENRATIO, 0, 5 * GOLDENRATIO],
     rotation: [0, -Math.PI / 2, 0],
     url: pexel(4392540),
+    // url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/B1.jpeg",
   },
   {
     position: [3.5 * GOLDENRATIO, 0, 0],
     rotation: [0, -Math.PI / 2, 0],
     url: pexel(4392537),
+    // url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/B2.jpeg",
   },
   {
     position: [3.5 * GOLDENRATIO + 2, 0, -3.6 * GOLDENRATIO],
