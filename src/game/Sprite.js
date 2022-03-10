@@ -120,7 +120,7 @@ export class Sprite {
         }
         this.isLoaded && ctx.drawImage(this.image, frameX * 32, frameY * 64, 32, 64, x, y, 48, 96);
       }
-      else {
+      else if(isPlayer || angle === 1){
         const x = (this.gameObject.x - cameraPerson.x - 8) + this.xaxios + utils.withGrid(ctx.canvas.clientWidth / 32);
         const y = this.gameObject.y - 18 + this.yaxios + utils.withGrid(ctx.canvas.clientHeight / 32) - cameraPerson.y;
         const [frameX, frameY] = this.frame;
