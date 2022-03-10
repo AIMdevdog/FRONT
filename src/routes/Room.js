@@ -115,7 +115,7 @@ const Room = ({ userData }) => {
 
 
   const ppt1Imgs = [
-    "https://aim-front.s3.ap-northeast-2.amazonaws.com/info.png"
+    "https://aim-front.s3.ap-northeast-2.amazonaws.com/info1.png"
   ];
   const [isCharacter, setIsCharacter] = useState([]);
   const [isUser, setUser] = useState(null);
