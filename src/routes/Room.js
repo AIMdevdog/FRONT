@@ -17,7 +17,6 @@ import PptSlider from "../components/pptSlider";
 import { user } from "../config/api";
 import VisitorsBook from "../components/VisitorBook";
 import ExhibitionGuide from "../components/ExhibitionGuide";
-import mapImage from "../assets/images/game/mapImage.png";
 
 const MyVideoNickname = styled.div`
   position: absolute;
@@ -115,7 +114,7 @@ const Room = ({ userData }) => {
 
 
   const ppt1Imgs = [
-    "https://aim-front.s3.ap-northeast-2.amazonaws.com/info.png"
+    "https://aim-front.s3.ap-northeast-2.amazonaws.com/info1.png"
   ];
   const [isCharacter, setIsCharacter] = useState([]);
   const [isUser, setUser] = useState(null);
@@ -163,21 +162,21 @@ const Room = ({ userData }) => {
 
     getUser();
   }, []);
-
+  const socketJoinUser = () => {
+    console.log("새로운 유저 접속");
+    socket.emit("send_user_info", {
+      src:
+        isUser?.character ||
+        "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png",
+      x: location.state.x,
+      y: location.state.y,
+      nickname: isUser?.nickname,
+      roomId: "room/" + roomId,
+    });
+  }
   useEffect(() => {
     if (isUser && socket) {
-      socket.on("join_user", function () {
-        console.log("새로운 유저 접속");
-        socket.emit("send_user_info", {
-          src:
-            isUser?.character ||
-            "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png",
-          x: location.state.x,
-          y: location.state.y,
-          nickname: isUser?.nickname,
-          roomId: "room/" + roomId,
-        });
-      });
+      socket.on("join_user", socketJoinUser);
 
       socket.on("get_user_info", function (data) {
         const user = joinUser(data.id, data.x, data.y, data.nickname, data.src);

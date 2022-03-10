@@ -31,16 +31,24 @@ const CursorNickname = styled.div.attrs((props) => ({
     border-radius: 5px;
     color: white;
 `;
+
 const DrawCursor = ({ socket, color, nickname }) => {
     const [isCursorX, setIsCursorX] = useState(0);
     const [isCursorY, setIsCursorY] = useState(0);
-    socket.on("shareCursorPosition", (xRatio, yRatio, socketNickname) => {
+    const socketShareCursorPosition = (xRatio, yRatio, socketNickname) => {
         if (nickname === socketNickname) {
             const ref = document.querySelector(".frame");
             setIsCursorX(ref.offsetLeft + xRatio * ref.clientWidth);
             setIsCursorY(ref.offsetTop + yRatio * ref.clientHeight);
         }
-    });
+    };
+
+    useEffect(() => {
+        socket.on("shareCursorPosition", socketShareCursorPosition);
+        return () => {
+            socket.off("shareCursorPosition", socketShareCursorPosition);
+        }
+    }, [])
     return (
         <>
             <CursorNickname
@@ -48,7 +56,7 @@ const DrawCursor = ({ socket, color, nickname }) => {
                 isCursorY={isCursorY}
             >{nickname}</CursorNickname>
             <CursorDiv className="cursor" isCursorX={isCursorX} isCursorY={isCursorY}>
-                <GiArrowCursor size="24" color={color}/>
+                <GiArrowCursor size="24" color={color} />
             </CursorDiv>
             {/* <Cursor
                 isCursorX={isCursorX}
