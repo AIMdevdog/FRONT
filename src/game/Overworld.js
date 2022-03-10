@@ -79,7 +79,6 @@ const Overworld = ({
   setOpenGuide,
 }) => {
   const mediasoupClient = require("mediasoup-client");
-  const [isSpeakingUser, setSpeakingUser] = useState(false);
   const containerEl = useRef();
   const canvasRef = useRef();
   const navigate = useNavigate();
@@ -300,60 +299,47 @@ const Overworld = ({
 
     initCall();
 
-    // async function handleAddStream(event, remoteSocketId) {
-    //   const peerStream = event.stream;
-    //   // console.log(peerStream);
-    //   const user = charMap[remoteSocketId]; // person.js에 있는 거랑 같이
-    //   // console.log("haddleAddStream USER: ", user);
-    //   if (!user.isUserJoin) {
-    //     // 유저가 어떤 그룹에도 속하지 않을 때 영상을 키겠다
-    //     user.isUserJoin = true;
-    //     try {
-    //       await paintPeerFace(peerStream, remoteSocketId);
-    //     } catch (err) {
-    //       console.error(err);
-    //     }
-    //   }
-    // }
     // 음성 connect
     async function setAudio(peerStream, socketId) {
       console.log(`socketID ${socketId} peer의 audio 태그 생성`);
+      const streamContainer = document.querySelector(".streams-container");
       try {
-        const streamContainer = document.querySelector(".streams-container");
-
-        const div = document.querySelector(`#${socketId}`);
-        let elem = document.createElement("audio");
+        // const div = document.querySelector(`#${socketId}`);
+        const div = document.getElementById(`${socketId}`);
+        console.log(div, "audio 넣을 div 찾았다");
+        const elem = document.createElement("audio");
         elem.srcObject = await peerStream;
-        elem.playsinline = false;
+        elem.playsinline = true;
         elem.autoplay = true;
 
-        div.appendChild(elem);
-        streamContainer.appendChild(div);
-
-        await getUserMedia(peerStream, socketId);
-        
+        setTimeout(() => {
+          div.appendChild(elem);
+          streamContainer.appendChild(div);
+        }, 0);
+        await activeSpeaker(peerStream, socketId);
       } catch (e) {
         console.log(e);
       }
     }
 
-    const getUserMedia = async (stream, socketId) => {
+    const activeSpeaker = async (stream, socketId) => {
       try {
         const speechEvents = await hark(stream);
-        const streamVideo = await document.querySelector(
-          `#${socketId} > video`
-        );
+        const streamVideo = document.getElementById(`${socketId}`);
+        const videoTag = streamVideo.getElementsByTagName("video");
+
+        console.log(videoTag);
 
         speechEvents.on("speaking", () => {
-          streamVideo.style.outline = "3px solid green";
-          console.log("start", streamVideo);
+          videoTag[0].style.outline = "4px solid green";
+          console.log("start", videoTag[0]);
           // setSpeakingUser(true);
 
           // console.log("speaking", socket?.id);
         });
         speechEvents.on("stopped_speaking", () => {
-          streamVideo.style.outline = "none";
-          console.log("stop", streamVideo);
+          videoTag[0].style.outline = "none";
+          console.log("stop", videoTag[0]);
           // setSpeakingUser(false);
           // console.log("stopped_speaking");
         });
@@ -365,7 +351,7 @@ const Overworld = ({
     async function removeAudio(peerStream, socketId) {}
     // 영상 connect
     async function paintPeerFace(peerStream, socketId) {
-      console.log(`socketID ${socketId} peer의 vidoe 태그 생성`);
+      console.log(`socketID ${socketId} peer의 vidoe 태그 생성 중`);
       const user = charMap[socketId];
       const streamContainer = document.querySelector(".streams-container");
       const div = document.createElement("div");
@@ -395,6 +381,7 @@ const Overworld = ({
         if (divSelector?.length > 4) {
           streamContainer.style.justifyContent = "flex-start";
         }
+        console.log(`socketID ${socketId} peer의 vidoe 태그 생성 완료`);
         // await sortStreams();
       } catch (err) {
         console.error(err);
@@ -413,103 +400,6 @@ const Overworld = ({
         }
       });
     }
-
-    // async function createConnection(remoteSocketId, remoteNickname) {
-    //   try {
-    //     const myPeerConnection = new RTCPeerConnection({
-    //       iceServers: [
-    //         {
-    //           urls: [
-    //             "stun:stun.l.google.com:19302",
-    //             "stun:stun1.l.google.com:19302",
-    //             "stun:stun2.l.google.com:19302",
-    //             "stun:stun3.l.google.com:19302",
-    //             "stun:stun4.l.google.com:19302",
-    //           ],
-    //         },
-    //       ],
-    //     });
-    //     myPeerConnection.addEventListener("icecandidate", async (event) => {
-    //       try {
-    //         await handleIce(event, remoteSocketId, remoteNickname);
-    //       } catch (e) {
-    //         console.log(e);
-    //       }
-    //       // console.log("+------Ice------+");
-    //     });
-    //     myPeerConnection.addEventListener("addstream", async (event) => {
-    //       try {
-    //         await handleAddStream(event, remoteSocketId, remoteNickname);
-    //       } catch (err) {
-    //         console.error(err);
-    //       }
-    //       // console.log("+------addstream------+");
-    //     });
-
-    //     // console.log("+------before getTracks------+");
-    //     myStream
-    //       .getTracks()
-    //       .forEach((track) => myPeerConnection.addTrack(track, myStream));
-    //     // console.log("+------getTracks------+", myStream);
-
-    //     pcObj[remoteSocketId] = myPeerConnection;
-
-    //     ++peopleInRoom;
-    //     // sortStreams();
-    //     return myPeerConnection;
-    //   } catch (e) {
-    //     console.log(e);
-    //   }
-    // }
-
-    // function handleIce(event, remoteSocketId, remoteNickname) {
-    //   if (event.candidate) {
-    //     socket.emit("ice", event.candidate, remoteSocketId, remoteNickname);
-    //   }
-    // }
-
-    // async function handleScreenSharing() {
-    //   try {
-    //     console.log("handleScreenSharing 실행");
-    //     await getMedia(true);
-    //     const peerConnectionObjArr = Object.values(pcObj);
-    //     if (peerConnectionObjArr.length > 0) {
-    //       const newVideoTrack = myStream.getVideoTracks()[0];
-    //       peerConnectionObjArr.forEach((peerConnection) => {
-    //         console.log("peerConnection", peerConnection);
-    //         const peerVideoSender = peerConnection
-    //           .getSenders()
-    //           .find((sender) => sender.track.kind === "video");
-    //         peerVideoSender.replaceTrack(newVideoTrack);
-    //       });
-    //     }
-    //   } catch (error) {
-    //     console.log(error);
-    //   }
-    // }
-    // async function closeScreenSharing() {
-    //   try {
-    //     console.log("closeScreenSharing 실행");
-    //     await getMedia(false);
-    //     const peerConnectionObjArr = Object.values(pcObj);
-    //     if (peerConnectionObjArr.length > 0) {
-    //       const newVideoTrack = myStream.getVideoTracks()[0];
-    //       peerConnectionObjArr.forEach((peerConnection) => {
-    //         console.log("peerConnection", peerConnection);
-    //         const peerVideoSender = peerConnection
-    //           .getSenders()
-    //           .find((sender) => sender.track.kind === "video");
-    //         peerVideoSender.replaceTrack(newVideoTrack);
-    //       });
-    //     }
-    //   } catch (error) {
-    //     console.log(error);
-    //   }
-    // }
-    // const shareBtn = document.querySelector("#shareBtn");
-    // const myFaceBtn = document.querySelector("#myFaceBtn");
-    // shareBtn.addEventListener("click", handleScreenSharing);
-    // myFaceBtn.addEventListener("click", closeScreenSharing);
 
     function handleMuteClick() {
       myStream
@@ -540,32 +430,17 @@ const Overworld = ({
     cameraBtn.addEventListener("click", handleCameraClick);
     muteBtn.addEventListener("click", handleMuteClick);
 
-    // var displayMediaOptions = {
-    //   video: {
-    //     cursor: "always",
-    //   },
-    //   audio: true,
-    // };
-
     async function getMedia(sharing) {
       const myFace = document.querySelector("#myFace");
       const camBtn = document.querySelector("#camBtn");
       camBtn.style.display = "block";
       if (!sharing) {
-        // console.log("mystream", myStream);
-        // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
-        // video_stream = navigator.mediaDevices.getUserMedia(videoConstraints);
-        // audio_stream = navigator.mediaDevices.getUserMedia(audioConstraints);
         myStream // mute default
           .getAudioTracks()
           .forEach((track) => (track.enabled = true));
         const video_track = myStream.getVideoTracks()[0];
         const audio_track = myStream.getAudioTracks()[0];
         myFace.srcObject = new MediaStream([video_track]);
-        // myFace.muted = true;
-        // myStream // mute default
-        //   .getAudioTracks()
-        //   .forEach((track) => (console.log("@@@@@@@@@@@@@@@@@ track.enabled", track.enabled)));
 
         params_audio = {
           track: audio_track,
@@ -577,20 +452,6 @@ const Overworld = ({
           ...params_video,
         };
       }
-      // console.log("----------- myTrack : ", track);
-      // } else {
-      //   myStream = await navigator.mediaDevices.getDisplayMedia(
-      //     displayMediaOptions
-      //   );
-      //   // console.log("mystream", myStream);
-      //   // stream을 mute하는 것이 아니라 HTML video element를 mute한다.
-      //   myFace.srcObject = myStream;
-      //   myFace.muted = false;
-
-      //   myStream // mute default
-      //     .getAudioTracks()
-      //     .forEach((track) => (track.enabled = true));
-      // }
     }
 
     async function initCall() {
@@ -610,11 +471,9 @@ const Overworld = ({
       try {
         // console.log("createDevice 실행");
         device = new mediasoupClient.Device();
+        console.log(device, " -  sad");
         // device = getMedia(false)
         // console.log("**********device체크", device);
-
-        // https://mediasoup.org/documentation/v3/mediasoup-client/api/#device-load
-        // Loads the device with RTP capabilities of the Router (server side)
         await device.load({
           // see getRtpCapabilities() below
           routerRtpCapabilities: rtpCapabilities,
@@ -632,10 +491,6 @@ const Overworld = ({
     };
 
     const createSendTransport = () => {
-      // console.log("createSendTransport 실행");
-
-      // see server's socket.on('createWebRtcTransport', sender?, ...)
-      // this is a call from Producer, so sender = true
       socket.emit(
         "createWebRtcTransport",
         { consumer: false },
@@ -877,7 +732,7 @@ const Overworld = ({
 
           if (track.kind === "video") {
             console.log("!!!!video  태그 추가 요청", remoteSocketId);
-            let check = reduplication.filter(
+            const check = reduplication.filter(
               (element) => element === remoteSocketId
             );
             if (check.length === 0) {
@@ -885,10 +740,11 @@ const Overworld = ({
               console.log("only one", reduplication);
               reduplication.push(remoteSocketId);
               await paintPeerFace(peerStream, remoteSocketId);
+              console.log("!!!!video 태그 추가 완료", remoteSocketId);
             }
-          } else {
+          } else if (track.kind === "audio") {
             console.log("!!!!audio 태그 추가 요청", remoteSocketId);
-            let check = audio_reduplication.filter(
+            const check = audio_reduplication.filter(
               (element) => element === remoteSocketId
             );
             if (check.length === 0) {
@@ -896,6 +752,7 @@ const Overworld = ({
               audio_reduplication.push(remoteSocketId);
               console.log("only one", audio_reduplication);
               await setAudio(peerStream, remoteSocketId);
+              console.log("!!!!audio 태그 추가 완료", remoteSocketId);
             }
           }
 
@@ -1071,7 +928,7 @@ const Overworld = ({
     }
     minX = min([503, 1047 - window.innerWidth / 2]);
     minY = min([400, 880 - window.innerWidth / 2]);
-    maxX = max([2103, 1572 + window.innerHeight/ 2]);
+    maxX = max([2103, 1572 + window.innerHeight / 2]);
     maxY = max([1552, 1232 + window.innerHeight / 2]);
 
     const startGameLoop = () => {
