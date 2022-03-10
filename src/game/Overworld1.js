@@ -78,7 +78,6 @@ const Overworld1 = ({
   socket,
   setCameraPosition,
   setYCameraPosition,
-  setZIndex,
 }) => {
   const mediasoupClient = require("mediasoup-client");
   const containerEl = useRef();
@@ -698,10 +697,6 @@ const Overworld1 = ({
               socket.close();
               mediaOff();
               navigate(url, { state: { x: 1559, y: 784 } });
-            } else if(object.y < -1120){
-              setZIndex(5);
-            } else if(object.y > -1120){
-              setZIndex(0);
             }
             object.update({
               arrow: directionInput.direction,

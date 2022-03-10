@@ -10,133 +10,13 @@ import { joinUser, updateLocation } from "../utils/game/character";
 import { io } from "socket.io-client";
 import _const from "../config/const";
 import Overworld1 from "../game/Overworld1";
-import Gallery1 from "../components/Gallery1";
 import LoadingComponent from "../components/Loading.js";
+import ThreeCanvas from "../components/ThreeCanvas";
+import { user } from "../config/api";
 
 const pexel = (id) =>
   `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260`;
 const GOLDENRATIO = 1.61803398875;
-
-const images = [
-  {
-    position: [0, 0, 12 * GOLDENRATIO],
-    rotation: [0, 0, 0],
-    url: pexel(695644),
-    wall: "wall",
-  },
-  // left
-  {
-    position: [-4.735 * GOLDENRATIO + 1, 0, 10 * GOLDENRATIO],
-    rotation: [0, - Math.PI / 2, 0],
-    url: pexel(416430)
-  },
-  {
-    position: [-3.5 * GOLDENRATIO + 1, 0, 5 * GOLDENRATIO],
-    rotation: [0, Math.PI / 2, 0],
-    // url: pexel(1606591),
-    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/A1.jpeg",
-  },
-  {
-    position: [-3.5 * GOLDENRATIO + 1, 0, 0],
-    rotation: [0, Math.PI / 2, 0],
-    // url: pexel(1324349)
-    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/A2.jpeg",
-  },
-  {
-    position: [-3.5 * GOLDENRATIO + 1, 0, -5 * GOLDENRATIO],
-    rotation: [0, Math.PI / 2, 0],
-    // url: pexel(1795707)
-    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/a3.jpeg",
-  },
-  {
-    position: [-3.5 * GOLDENRATIO + 1, 0, -10 * GOLDENRATIO],
-    rotation: [0, Math.PI / 2, 0],
-    // url: pexel(1324354),
-    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/A4.jpeg",
-  },
-  // {
-  //   position: [-3.5 * GOLDENRATIO + 1, 0, -15 * GOLDENRATIO],
-  //   rotation: [0, Math.PI / 2, 0],
-  //   url: "https://www.comedywildlifephoto.com/images/wysiwyg/00000048/jan-piecha_chinese-whispers.jpg",
-  // },
-  // Right
-    {
-    position: [5 * GOLDENRATIO - 0.42, 0, 10 * GOLDENRATIO],
-    rotation: [0, Math.PI/2, 0],
-    url: pexel(6932226),
-  },
-  {
-    position: [3.5 * GOLDENRATIO, 0, 5 * GOLDENRATIO],
-    rotation: [0, -Math.PI / 2, 0],
-    url: pexel(4392540),
-    // url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/B1.jpeg",
-  },
-  {
-    position: [3.5 * GOLDENRATIO, 0, 0],
-    rotation: [0, -Math.PI / 2, 0],
-    url: pexel(4392537),
-    // url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/B2.jpeg",
-  },
-  {
-    position: [3.5 * GOLDENRATIO + 2, 0, -3.6 * GOLDENRATIO],
-    rotation: [0, Math.PI / 2, 0],
-    url: pexel(358574),
-    half: "half",
-  },
-  //BACK right
-  {
-    position: [2.6 + 5 * GOLDENRATIO, 0, -5.35 * GOLDENRATIO - 0.2],
-    rotation: [0, Math.PI, 0],
-    url: pexel(2860810),
-  },
-  //ceil
-  {
-    position: [12, 5.7, 3],
-    rotation: [-Math.PI / 2, 0, 0],
-    url: pexel(4175054),
-    ceil: "ceil",
-  },
-];
-
-const images2 = [
-  // BACK left
-  {
-    position: [-3.6, 0, -10 * GOLDENRATIO - 3.03],
-    rotation: [0, 0, 0],
-    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/BB1.jpg",
-    half: "half",
-  },
-  {
-    position: [0, 0, -10 * GOLDENRATIO - 3.03],
-    rotation: [0, 0, 0],
-    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/BB2.jpeg",
-    half: "half",
-  },
-  {
-    position: [3.6, 0, -10 * GOLDENRATIO - 3.03],
-    rotation: [0, 0, 0],
-    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/BB3.jpg",
-    half: "half",
-  },
-  {
-    position: [7.2, 0, -10 * GOLDENRATIO - 3.03],
-    rotation: [0, 0, 0],
-    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/BB4.jpg",
-    half: "half",
-  },
-  {
-    position: [10.8, 0, -10 * GOLDENRATIO - 3.03],
-    rotation: [0, 0, 0],
-    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/BB5.jpeg",
-    half: "half",
-  },
-  {
-    position: [14.4, 0, -10 * GOLDENRATIO - 3.03],
-    rotation: [0, 0, 0],
-    url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/BB6.jpeg",
-    half: "half",
-  },
-];
 
 const MyVideoNickname = styled.div`
   position: absolute;
@@ -209,22 +89,138 @@ const CamBtn = styled.div`
   }
 `;
 
-const ThreeCanvas = styled.div`
-  position: fixed;
-  z-index: ${(props)=> (props.zIdx)};
-  canvas {
-    width: 100vw;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-  }
-`;
+
 
 const cameraConstraints = {
   audio: true,
   video: true,
 };
+
+//ceil
+const ceil = [
+  {
+    position: [12, 5.7, 3],
+    rotation: [-Math.PI / 2, 0, 0],
+    url: pexel(4175054),
+    ceil: "ceil",
+  },
+  {
+    position: [0, 0, 10 * GOLDENRATIO],
+    rotation: [0, 0, 0],
+    url: pexel(695644),
+    wall: "wall",
+  },
+];
+
+const images = [
+  //BACK right
+  [
+    {
+      position: [6 * GOLDENRATIO + 0.18, 0, -3.1 * GOLDENRATIO - 0.2],
+      rotation: [0, Math.PI, 0],
+      url: pexel(2860810),
+    },
+  ],
+  //left
+  [
+    {
+      position: [-4.735 * GOLDENRATIO + 1, 0, 8 * GOLDENRATIO],
+      rotation: [0, - Math.PI / 2, 0],
+      url: pexel(416430)
+    },
+    {
+      position: [-3.5 * GOLDENRATIO + 1, 0, 4 * GOLDENRATIO],
+      rotation: [0, Math.PI / 2, 0],
+      // url: pexel(1606591),
+      url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/A1.jpeg",
+    },
+    {
+      position: [-3.5 * GOLDENRATIO + 1, 0, 0],
+      rotation: [0, Math.PI / 2, 0],
+      // url: pexel(1324349)
+      url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/A2.jpeg",
+    },
+    {
+      position: [-3.5 * GOLDENRATIO + 1, 0, -4 * GOLDENRATIO],
+      rotation: [0, Math.PI / 2, 0],
+      // url: pexel(1795707)
+      url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/a3.jpeg",
+    },
+    {
+      position: [-3.5 * GOLDENRATIO + 1, 0, -8 * GOLDENRATIO],
+      rotation: [0, Math.PI / 2, 0],
+      // url: pexel(1324354),
+      url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/A4.jpeg",
+    },
+  ],
+  // BACK left
+  [
+
+    {
+      position: [-4, 0, -9 * GOLDENRATIO - 0.5],
+      rotation: [0, 0, 0],
+      url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/BB1.jpg",
+      half: "half",
+    },
+    {
+      position: [-0.8, 0, -9 * GOLDENRATIO - 0.5],
+      rotation: [0, 0, 0],
+      url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/BB2.jpeg",
+      half: "half",
+    },
+    {
+      position: [2.4, 0, -9 * GOLDENRATIO - 0.5],
+      rotation: [0, 0, 0],
+      url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/BB3.jpg",
+      half: "half",
+    },
+    {
+      position: [5.6, 0, -9 * GOLDENRATIO - 0.5],
+      rotation: [0, 0, 0],
+      url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/BB4.jpg",
+      half: "half",
+    },
+    {
+      position: [8.8, 0, -9 * GOLDENRATIO - 0.5],
+      rotation: [0, 0, 0],
+      url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/BB5.jpeg",
+      half: "half",
+    },
+    {
+      position: [12.0, 0, -9 * GOLDENRATIO - 0.5],
+      rotation: [0, 0, 0],
+      url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/BB6.jpeg",
+      half: "half",
+    },
+  ],
+  // Right
+  [
+    {
+      position: [5 * GOLDENRATIO - 0.42, 0, 9 * GOLDENRATIO],
+      rotation: [0, Math.PI / 2, 0],
+      url: pexel(6932226),
+    },
+    {
+      position: [3.5 * GOLDENRATIO, 0, 5 * GOLDENRATIO],
+      rotation: [0, -Math.PI / 2, 0],
+      url: pexel(4392540),
+      // url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/B1.jpeg",
+    },
+    {
+      position: [3.5 * GOLDENRATIO, 0, GOLDENRATIO],
+      rotation: [0, -Math.PI / 2, 0],
+      url: pexel(4392537),
+      // url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/B2.jpeg",
+    },
+    {
+      position: [3.5 * GOLDENRATIO + 2, 0, -1.6 * GOLDENRATIO],
+      rotation: [0, Math.PI / 2, 0],
+      url: pexel(358574),
+      half: "half",
+    },
+  ]
+];
+
 
 const Room1 = ({ userData }) => {
   const charMap = {};
@@ -239,16 +235,80 @@ const Room1 = ({ userData }) => {
   const [isUser, setUser] = useState(null);
 
   const url = `/room/${roomId}`;
-  const [zIdx ,setZIndex] = useState(0);
   const [cameraPosition, setCameraPosition] = useState(0);
   const [yCameraPosition, setYCameraPosition] = useState(0);
+  const [cameraAngle, setCameraAngle] = useState(0);
 
+  const room = {
+    RoomSrc: null,
+    roomNum: 3,
+    gameObjects: {
+      player: new Person({
+        id: null,
+        isPlayerControlled: true,
+        x: 80,
+        y: 80,
+        src:
+          isUser?.character ||
+          "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png",
+      }),
+    },
+  };
+
+  const cameraRotate = (e) => {
+    switch (e.key) {
+      case "e":
+      case "E":
+      case "ㄷ":
+        setCameraAngle(prev => {
+          prev = prev + 1;
+          if (prev > 3) {
+            prev = 0;
+          }
+          return prev;
+        });
+        break;
+
+      case "q":
+      case "Q":
+      case "ㅂ":
+        setCameraAngle(prev => {
+          prev = prev - 1;
+          if (prev < 0) {
+            prev = 3;
+          }
+          return prev;
+        });
+        break;
+    }
+  }
+
+
+  // useEffect(async () => {
+  //   setMyStream(await navigator.mediaDevices.getUserMedia(cameraConstraints));
+  //   userData.then((data) => {
+  //     setUser(data);
+  //     setSocket(io(_const.HOST));
+  //   });
+  // }, []);
   useEffect(async () => {
     setMyStream(await navigator.mediaDevices.getUserMedia(cameraConstraints));
-    userData.then((data) => {
-      setUser(data);
-      setSocket(io(_const.HOST));
-    });
+    const getUser = async () => {
+      try {
+        const requestUserData = await user.getUserInfo();
+        const {
+          data: { result },
+        } = requestUserData;
+        if (result) {
+          setUser(result);
+          setSocket(io(_const.HOST));
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    getUser();
   }, []);
 
   useEffect(() => {
@@ -293,22 +353,14 @@ const Room1 = ({ userData }) => {
       });
     }
   }, [isUser, socket]);
+  useEffect(() => {
+    window.addEventListener("keydown", cameraRotate);
+    // Remove event listeners on cleanup
+    return () => {
+      window.removeEventListener("keydown", cameraRotate);
+    };
+  }, []);
 
-  const room = {
-    RoomSrc: null,
-    roomNum: 3,
-    gameObjects: {
-      player: new Person({
-        id: null,
-        isPlayerControlled: true,
-        x: 80,
-        y: 80,
-        src:
-          isUser?.character ||
-          "https://dynamic-assets.gather.town/sprite/avatar-M8h5xodUHFdMzyhLkcv9-IJzSdBMLblNeA34QyMJg-qskNbC9Z4FBsCfj5tQ1i-KqnHZDZ1tsvV3iIm9RwO-g483WRldPrpq2XoOAEhe-MPN2TapcbBVMdbCP0jR6.png",
-      }),
-    },
-  };
 
   return (
     <>
@@ -322,29 +374,29 @@ const Room1 = ({ userData }) => {
               collapsed={collapsed}
               setCollapsed={setCollapsed}
               characters={isCharacter}
-              setZIndex={setZIndex}
               roomNum="3"
             />
-            <ThreeCanvas className="gallery" zIdx={zIdx}>
-              <Suspense fallback={null}>
-                <Gallery1 images={images2} roomId={roomId} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
-              </Suspense>
-            </ThreeCanvas>
+
+            <ThreeCanvas images={ceil} cameraAngle={cameraAngle} setCameraAngle={setCameraAngle} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
+
+
+            {
+              images.map((image, i) => {
+                return <ThreeCanvas idx={i} images={image} cameraAngle={cameraAngle} setCameraAngle={setCameraAngle} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
+              })
+            }
+
+
+
             <Overworld1
               myStream={myStream}
               Room={room}
               url={url}
               charMap={charMap}
               socket={socket}
-              setZIndex={setZIndex}
               setCameraPosition={setCameraPosition}
               setYCameraPosition={setYCameraPosition}
             />
-            <ThreeCanvas className="gallery">
-              <Suspense fallback={null}>
-                <Gallery1 images={images} roomId={roomId} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
-              </Suspense>
-            </ThreeCanvas>
             {/* <CharacterNickname nicknames={nicknames} /> */}
 
           </>

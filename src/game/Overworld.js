@@ -1017,7 +1017,7 @@ const Overworld = ({
     }
     minX = min([503, 1047 - window.innerWidth / 2]);
     minY = min([400, 880 - window.innerWidth / 2]);
-    maxX = max([2039, 1572 + window.innerHeight/ 2]);
+    maxX = max([2103, 1572 + window.innerHeight/ 2]);
     maxY = max([1552, 1232 + window.innerHeight / 2]);
 
 
@@ -1058,7 +1058,6 @@ const Overworld = ({
         //Update all objects
         Object.values(charMap).forEach((object) => {
           if (object.id === socket.id) {
-            // console.log(object.x, object.y);
             if (object.x >= 1527 && object.x <= 1591 && object.y <= 736) {
               socket.close();
               mediaOff();

@@ -18,9 +18,6 @@ const GOLDENRATIO = 1.61803398875
 
 
 export default function Gallery2({ images, roomId }) {
-  const [zCameraPosition, setZCameraPosition] = useState(0);
-  const [cameraPosition, setCameraPosition] = useState(0);
-  const [yCameraPosition, setYCameraPosition] = useState(0);
   return (
     <Canvas
       // gl={{ alpha: false }}
@@ -37,8 +34,8 @@ export default function Gallery2({ images, roomId }) {
       {/* <color attach="background" args={['rgb(19,19,20,0)']} />
       <fog attach="fog" args={['#191920', 0, 15]} /> */}
       <Environment preset="city" />
-      <group position={[cameraPosition, zCameraPosition, yCameraPosition - 20]}>
-        <Frames images={images} roomId={roomId} setCameraPosition={setCameraPosition} setYCameraPosition={setYCameraPosition} setZCameraPosition={setZCameraPosition} />
+      <group position={[0, 0, 0]}>
+        <Frames images={images} />
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -6.75, 2]}>
           <planeGeometry args={[58, 25]} />
           <MeshReflectorMaterial
@@ -59,35 +56,38 @@ export default function Gallery2({ images, roomId }) {
   )
 }
 
-function Frames({ images, roomId, setCameraPosition, setYCameraPosition, setZCameraPosition, q = new THREE.Quaternion(), p = new THREE.Vector3() }) {
+function Frames({ images, q = new THREE.Quaternion(), p = new THREE.Vector3() }) {
   const ref = useRef();
   const clicked = useRef();
   const [, params] = useRoute('/item/:id');
   const [rotationAngle, setRotationAngle] = useState(0);
+  const [cameraPosition, setCameraPosition] = useState(0);
+  const [yCameraPosition, setYCameraPosition] = useState(-1);
+  const [zCameraPosition, setZCameraPosition] = useState(15);
   // console.log(yCameraPosition);
   const cameraMove = (e) => {
     switch (e.key) {
       case "s":
       case "S":
       case "ㄴ":
-        setZCameraPosition(prev => prev + 0.2);
+        setYCameraPosition(prev => prev - 0.2);
         break;
       case "w":
       case "W":
       case "ㅈ":
-        setZCameraPosition(prev => prev - 0.2);
-        break;
-      case "ArrowUp":
         setYCameraPosition(prev => prev + 0.2);
         break;
+      case "ArrowUp":
+        setZCameraPosition(prev => prev - 0.2);
+        break;
       case "ArrowDown":
-        setYCameraPosition(prev => prev - 0.2);
+        setZCameraPosition(prev => prev + 0.2);
         break;
       case "ArrowLeft":
-        setCameraPosition(prev => prev + 0.2);
+        setCameraPosition(prev => prev - 0.2);
         break;
       case "ArrowRight":
-        setCameraPosition(prev => prev - 0.2);
+        setCameraPosition(prev => prev + 0.2);
         break;
       case "a":
       case "A":
@@ -113,7 +113,8 @@ function Frames({ images, roomId, setCameraPosition, setYCameraPosition, setZCam
   useFrame((state, dt) => {
     state.camera.position.lerp(p, THREE.MathUtils.damp(0, 1, 3, dt));
     state.camera.quaternion.slerp(q, THREE.MathUtils.damp(0, 1, 3, dt));
-    state.camera.rotation.set(0, Math.PI/180*rotationAngle, 0);
+    state.camera.rotation.set(0, Math.PI / 180 * rotationAngle, 0);
+    state.camera.position.set(cameraPosition, yCameraPosition, zCameraPosition);
   })
   return (
     <group

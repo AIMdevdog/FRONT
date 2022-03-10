@@ -401,7 +401,6 @@ const RoomSideBar = ({
   socket,
   characters,
   roomNum,
-  setZIndex,
 }) => {
   const navigate = useNavigate();
   const [exitModal, setExitModal] = useState(false);

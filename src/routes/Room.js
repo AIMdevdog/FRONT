@@ -203,20 +203,25 @@ const Room = ({ userData }) => {
   }, [isUser, socket]);
 
   const openDrawFuction = (openDraw) => {
-    switch (openDraw) {
-      case 1:
-        return <PictureFrame socket={socket} drawNum={1} />;
-      case 2:
-        return <PictureFrame socket={socket} drawNum={2} />;
-      case 3:
-        return <PictureFrame socket={socket} drawNum={3} />;
-      case 4:
-        return <PictureFrame socket={socket} drawNum={4} />;
-      case 5:
-        return <PictureFrame socket={socket} drawNum={5} />;
-      default:
-        return null;
+    if(openDraw){
+      <PictureFrame socket={socket} drawNum={openDraw} />
+    }else{
+      return null;
     }
+    // switch (openDraw) {
+    //   case 1:
+    //     return ;
+    //   case 2:
+    //     return <PictureFrame socket={socket} drawNum={2} />;
+    //   case 3:
+    //     return <PictureFrame socket={socket} drawNum={3} />;
+    //   case 4:
+    //     return <PictureFrame socket={socket} drawNum={4} />;
+    //   case 5:
+    //     return <PictureFrame socket={socket} drawNum={5} />;
+    //   default:
+    //     return null;
+    // }
   }
 
   const openGuideFuction = (openGuide) => {

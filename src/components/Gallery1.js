@@ -7,128 +7,58 @@ import getUuid from 'uuid-by-string'
 
 const GOLDENRATIO = 1.61803398875
 
-// function CameraRotation() {
-//   const camera = useThree(state => state.camera);
-//   useEffect(() => {
-//     camera.rotation.set(0, 0, 0.5);
-//     camera.updateProjectionMatrix();
-//   }, []);
-//   return null;
-// }
 
-
-export default function Gallery1({ images, roomId, cameraPosition, yCameraPosition }) {
+export default function Gallery1({ images, cameraAngle, cameraPosition, yCameraPosition }) {
   const [xRotation, setXRotation] = useState(0);
   const [yRotation, setYRotation] = useState(0);
 
   return (
     <Canvas
-      // gl={{ alpha: false }}
-      // dpr={[1, 1.5]}
       camera={{ position: [0, 2, 15] }}
-      style={{width: "100vw", height: "100vh"}}
+      style={{ width: "100vw", height: "100vh" }}
     >
-      {/* <CameraRotation/> */}
-      {/* <color attach="background" args={['rgb(19,19,20,0)']} /> */}
-      {/* <fog attach="fog" args={['#191920', 0, 15]} />
-      <Environment preset="city" /> */}
-      <group position={[cameraPosition + xRotation, -1.5, yCameraPosition + yRotation - 12]}>
-        <Frames images={images} roomId={roomId} yCameraPosition={yCameraPosition} setXRotation={setXRotation}  setYRotation={setYRotation}/>
-        {/* <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
-          <planeGeometry args={[50, 50]} />
-          <MeshReflectorMaterial
-            blur={[300, 100]}
-            resolution={2048}
-            mixBlur={1}
-            mixStrength={60}
-            roughness={1}
-            depthScale={1.2}
-            minDepthThreshold={0.4}
-            maxDepthThreshold={1.4}
-            color="#151515"
-            metalness={0.5}
-          />
-        </mesh> */}
+      <group position={[cameraPosition + xRotation + 1, 1, yCameraPosition + yRotation+1]}>
+        <Frames images={images} cameraAngle={cameraAngle} yCameraPosition={yCameraPosition} setXRotation={setXRotation} setYRotation={setYRotation} />
       </group>
     </Canvas>
   )
 }
 
-function Frames({ images, roomId, yCameraPosition, setXRotation, setYRotation ,q = new THREE.Quaternion(), p = new THREE.Vector3() }) {
+function Frames({ images, cameraAngle, yCameraPosition, setXRotation, setYRotation, q = new THREE.Quaternion(), p = new THREE.Vector3() }) {
   const ref = useRef()
   const clicked = useRef()
   const [, params] = useRoute('/item/:id')
   const [, setLocation] = useLocation()
-  const [cameraAngle, setCameraAngle] = useState(1);
-
-  // console.log(yCameraPosition);
-  const cameraRotate = (e) => {
-    switch (e.key) {
-      case "e":
-      case "E":
-      case "ㄷ":
-        setCameraAngle(prev => {
-          prev = prev + 1;
-          if (prev > 4) {
-            prev = 1;
-          }
-          return prev;
-        });
-        break;
-
-      case "q":
-      case "Q":
-      case "ㅂ":
-        setCameraAngle(prev => {
-          prev = prev - 1;
-          if (prev < 1) {
-            prev = 4;
-          }
-          return prev;
-        });
-        break;
-    }
-  }
-
-  useEffect(() => {
-    window.addEventListener("keydown", cameraRotate);
-    // Remove event listeners on cleanup
-    return () => {
-      window.removeEventListener("keydown", cameraRotate);
-    };
-  }, []);
 
   useFrame((state, dt) => {
-    state.camera.position.lerp(p, THREE.MathUtils.damp(0, 1, 3, dt))
-    state.camera.quaternion.slerp(q, THREE.MathUtils.damp(0, 1, 3, dt))
+    // state.camera.position.lerp(p, THREE.MathUtils.damp(0, 1, 3, dt))
+    // state.camera.quaternion.slerp(q, THREE.MathUtils.damp(0, 1, 3, dt))
     switch (cameraAngle) {
-      case 1:
+      case 0:
         state.camera.rotation.set(0, 0, 0);
         setXRotation(0);
         setYRotation(0);
         break;
-      case 2:
+      case 1:
         state.camera.rotation.set(0, - Math.PI / 2, 0);
-        setXRotation(6);
-        setYRotation(6);
+        setXRotation(4);
+        setYRotation(4);
         break;
-      case 3:
+      case 2:
         state.camera.rotation.set(0, - Math.PI, 0);
         setXRotation(0);
-        setYRotation(12);
+        setYRotation(8);
         break;
-      case 4:
+      case 3:
         state.camera.rotation.set(0, Math.PI / 2, 0);
-        setXRotation(-6);
-        setYRotation(6);
+        setXRotation(-4);
+        setYRotation(4);
         break;
     }
   })
   return (
     <group
       ref={ref}
-    // onClick={(e) => (e.stopPropagation(), setLocation(clicked.current === e.object ? `/room3/${roomId}` : '/item/' + e.object.name))}
-    // onPointerMissed={() => setLocation(`/room3/${roomId}`)}
     >
       {images.map((props) => <Frame yCameraPosition={yCameraPosition} key={props.url} {...props} />)}
     </group>
@@ -140,22 +70,22 @@ function Frame({ yCameraPosition, url, c = new THREE.Color(), ...props }) {
   const image = useRef()
   const frame = useRef()
   const name = getUuid(url)
-  let xScale = GOLDENRATIO * 5;
+  let xScale = GOLDENRATIO * 4;
   let yScale = 5.5;
   useCursor(hovered)
   useFrame((state) => {
     // image.current.material.zoom = 2 + Math.sin(rnd * 10000 + state.clock.elapsedTime / 3) / 2
-    image.current.scale.x = THREE.MathUtils.lerp(image.current.scale.x, 0.85, 0.1)
-    image.current.scale.y = THREE.MathUtils.lerp(image.current.scale.y, 0.9, 0.1)
+    image.current.scale.x = THREE.MathUtils.lerp(image.current.scale.x, 0.85, 0.85)
+    image.current.scale.y = THREE.MathUtils.lerp(image.current.scale.y, 0.9, 0.85)
     // frame.current.material.color.lerp(c.set(hovered ? 'orange' : 'white').convertSRGBToLinear(), 0.1)
   })
   if (props.ceil) {
     xScale *= 8;
     yScale *= 12;
-  } else if(props.half){
+  } else if (props.half) {
     xScale /= 2;
-  } else if(props.wall){
-    xScale *= 2;
+  } else if (props.wall) {
+    xScale *= 3;
   }
 
   return (
