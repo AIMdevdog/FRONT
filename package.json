@@ -16,6 +16,8 @@
     "cors": "^2.8.5",
     "expired-storage": "^1.0.2",
     "express": "^4.17.2",
+    "getusermedia": "^2.0.1",
+    "hark": "^1.2.3",
     "lodash": "^4.17.21",
     "material-icons": "^1.10.7",
     "mediasoup": "^3.9.7",

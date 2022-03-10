@@ -5,6 +5,8 @@ import _const from "../config/const.js";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import styled from "styled-components";
+import getUserMedia from "getusermedia";
+import hark from "hark";
 import { max, min, throttle } from "lodash";
 import { cloneDeep } from "lodash";
 
@@ -21,6 +23,7 @@ const StreamsContainer = styled.div`
   .streams-container {
     max-width: 1024px;
     min-width: 1024px;
+    padding-top: 5px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -76,6 +79,7 @@ const Overworld = ({
   setOpenGuide,
 }) => {
   const mediasoupClient = require("mediasoup-client");
+  const [isSpeakingUser, setSpeakingUser] = useState(false);
   const containerEl = useRef();
   const canvasRef = useRef();
   const navigate = useNavigate();
@@ -98,7 +102,12 @@ const Overworld = ({
 
   useEffect(() => {
     const keydownHandler = (e) => {
-      if (e.key !== "x" && e.key !== "X" && e.key !== "ㅌ" && !directionInput.direction) {
+      if (
+        e.key !== "x" &&
+        e.key !== "X" &&
+        e.key !== "ㅌ" &&
+        !directionInput.direction
+      ) {
         return;
       }
       const player = charMap[socket.id];
@@ -133,7 +142,11 @@ const Overworld = ({
               return 3;
             }
           });
-        } else if (player.x === 1047 || player.x === 1079 || player.x === 1111) {
+        } else if (
+          player.x === 1047 ||
+          player.x === 1079 ||
+          player.x === 1111
+        ) {
           setOpenDraw((prev) => {
             if (prev) {
               socket.emit("closeDraw", player.nickname, 4);
@@ -143,7 +156,11 @@ const Overworld = ({
               return 4;
             }
           });
-        } else if (player.x === 1175 || player.x === 1207 || player.x === 1239) {
+        } else if (
+          player.x === 1175 ||
+          player.x === 1207 ||
+          player.x === 1239
+        ) {
           setOpenDraw((prev) => {
             if (prev) {
               socket.emit("closeDraw", player.nickname, 5);
@@ -164,17 +181,20 @@ const Overworld = ({
         }
       } else if (
         player.x === 1655 &&
-        player.y === 1328 && !directionInput.direction
+        player.y === 1328 &&
+        !directionInput.direction
       ) {
         setOpenPPT((prev) => !prev);
       } else if (
         player.x === 1431 &&
-        player.y === 784 && !directionInput.direction
+        player.y === 784 &&
+        !directionInput.direction
       ) {
         setIsOpenVisitorsBook((prev) => !prev);
       } else if (
         player.x === 919 &&
-        player.y === 1040 && !directionInput.direction
+        player.y === 1040 &&
+        !directionInput.direction
       ) {
         setOpenGuide((prev) => {
           if (prev) {
@@ -185,7 +205,8 @@ const Overworld = ({
         });
       } else if (
         player.x === 1623 &&
-        player.y === 784 && !directionInput.direction
+        player.y === 784 &&
+        !directionInput.direction
       ) {
         setOpenGuide((prev) => {
           if (prev) {
@@ -297,19 +318,49 @@ const Overworld = ({
     // 음성 connect
     async function setAudio(peerStream, socketId) {
       console.log(`socketID ${socketId} peer의 audio 태그 생성`);
-      const streamContainer = document.querySelector(".streams-container");
+      try {
+        const streamContainer = document.querySelector(".streams-container");
 
-      const div = document.querySelector(`#${socketId}`);
-      let elem = document.createElement("audio");
-      elem.srcObject = peerStream;
-      elem.playsinline = false;
-      elem.autoplay = true;
+        const div = document.querySelector(`#${socketId}`);
+        let elem = document.createElement("audio");
+        elem.srcObject = await peerStream;
+        elem.playsinline = false;
+        elem.autoplay = true;
 
-      div.appendChild(elem);
-      streamContainer.appendChild(div);
+        div.appendChild(elem);
+        streamContainer.appendChild(div);
+        await getUserMedia(peerStream, socketId);
+      } catch (e) {
+        console.log(e);
+      }
     }
 
-    async function removeAudio(peerStream, socketId) { }
+    const getUserMedia = async (stream, socketId) => {
+      try {
+        const speechEvents = await hark(stream);
+        const streamVideo = await document.querySelector(
+          `#${socketId} > video`
+        );
+
+        speechEvents.on("speaking", () => {
+          streamVideo.style.outline = "3px solid green";
+          console.log("start", streamVideo);
+          // setSpeakingUser(true);
+
+          // console.log("speaking", socket?.id);
+        });
+        speechEvents.on("stopped_speaking", () => {
+          streamVideo.style.outline = "none";
+          console.log("stop", streamVideo);
+          // setSpeakingUser(false);
+          // console.log("stopped_speaking");
+        });
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    async function removeAudio(peerStream, socketId) {}
     // 영상 connect
     async function paintPeerFace(peerStream, socketId) {
       console.log(`socketID ${socketId} peer의 vidoe 태그 생성`);
@@ -319,7 +370,7 @@ const Overworld = ({
       const nicknameDiv = document.createElement("div");
       nicknameDiv.className = "videoNickname";
       nicknameDiv.innerText = user.nickname;
-      console.log(user.nickname)
+      console.log(user.nickname);
       // div.classList.add("userVideoContainer");
       div.id = socketId;
 
@@ -821,6 +872,7 @@ const Overworld = ({
           // console.log("---------------- consumer : ", consumer);
           // console.log("---------------- params : ", params)
           const peerStream = new MediaStream([track]);
+
           if (track.kind === "video") {
             console.log("!!!!video  태그 추가 요청", remoteSocketId);
             let check = reduplication.filter(
@@ -1013,13 +1065,12 @@ const Overworld = ({
       }
     };
     for (let i = 631; i < 1304; i += 32) {
-      map.walls[`${i},848`] = true
+      map.walls[`${i},848`] = true;
     }
     minX = min([503, 1047 - window.innerWidth / 2]);
     minY = min([400, 880 - window.innerWidth / 2]);
-    maxX = max([2039, 1572 + window.innerHeight/ 2]);
+    maxX = max([2039, 1572 + window.innerHeight / 2]);
     maxY = max([1552, 1232 + window.innerHeight / 2]);
-
 
     const startGameLoop = () => {
       console.log("StartGameLoop");
@@ -1033,22 +1084,22 @@ const Overworld = ({
         ctx.clearRect(0, 0, canvas?.width, canvas?.height);
 
         //Establish the camera person
-        const cameraPerson = cloneDeep(charMap[socket.id]) || cloneDeep(map.gameObjects.player);
+        const cameraPerson =
+          cloneDeep(charMap[socket.id]) || cloneDeep(map.gameObjects.player);
         if (cameraPerson.x - halfWidth < minX) {
           cameraPerson.x = halfWidth + minX;
+        } else if (cameraPerson.x + halfWidth > maxX) {
+          cameraPerson.x = maxX - halfWidth;
         }
-        else if (cameraPerson.x + halfWidth > maxX) {
-            cameraPerson.x = maxX - halfWidth;
-          }
         if (cameraPerson.y - halfHeight < minY) {
           cameraPerson.y = halfHeight + minY;
         } else if (cameraPerson.y + halfHeight > maxY) {
           cameraPerson.y = maxY - halfHeight;
         }
-        if(cameraPerson.x < halfWidth){
+        if (cameraPerson.x < halfWidth) {
           cameraPerson.x = halfWidth;
         }
-        if(cameraPerson.y < halfHeight){
+        if (cameraPerson.y < halfHeight) {
           cameraPerson.y = halfHeight;
         }
 
@@ -1131,7 +1182,7 @@ const Overworld = ({
           // producer_audio.emit("producerclose");
           producer.emit("producerclose");
           socket.emit("leave_Group", player.id);
-          producer.emit("producerclose")
+          producer.emit("producerclose");
           player.isUserCalling = false;
           player.isUserJoin = false;
           // console.log(`video ${reduplication}, audio ${audio_reduplication}`)
@@ -1152,15 +1203,9 @@ const Overworld = ({
             const objectNicknameContainer = document.getElementById(
               `${object.nickname}`
             );
-            const x =
-              object.x +
-              ctx.canvas.clientWidth / 2 -
-              cameraPerson.x;
+            const x = object.x + ctx.canvas.clientWidth / 2 - cameraPerson.x;
             const y =
-              object.y -
-              25 +
-              ctx.canvas.clientHeight / 2 -
-              cameraPerson.y;
+              object.y - 25 + ctx.canvas.clientHeight / 2 - cameraPerson.y;
             // console.dir(objectNicknameContainer);
             if (!objectNicknameContainer) {
               return;
