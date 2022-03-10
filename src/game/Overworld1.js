@@ -689,7 +689,7 @@ const Overworld1 = ({
         //Update all objects
         Object.values(charMap).forEach((object) => {
           if (object.id === socket.id) {
-            // console.log(object.x, object.y);
+            console.log(object.x, object.y);
             if (
               (map.roomNum === 3 && object.y > 656) ||
               (object.y < -1250 && object.x > 1232)
