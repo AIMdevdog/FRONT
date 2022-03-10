@@ -11,7 +11,7 @@ const GameLayout = styled.div`
   position: fixed;
   align-items: center;
   background-color: rgb(19, 19, 20, 0);
-  // z-index: 10;
+  z-index: 2;
 `;
 
 const StreamsContainer = styled.div`
@@ -76,6 +76,8 @@ const Overworld1 = ({
   Room,
   charMap,
   socket,
+  setZIdex,
+  zIdx,
   setCameraPosition,
   setYCameraPosition,
 }) => {
@@ -697,6 +699,10 @@ const Overworld1 = ({
               socket.close();
               mediaOff();
               navigate(url, { state: { x: 1559, y: 784 } });
+            } else if (object.y < -1072) {
+              setZIdex(5);
+            } else if (object.y >= -1072) {
+              setZIdex(0);
             }
             object.update({
               arrow: directionInput.direction,

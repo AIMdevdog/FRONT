@@ -113,14 +113,7 @@ const ceil = [
 ];
 
 const images = [
-  //BACK right
-  [
-    {
-      position: [6 * GOLDENRATIO + 0.18, 0, -3.1 * GOLDENRATIO - 0.2],
-      rotation: [0, Math.PI, 0],
-      url: pexel(2860810),
-    },
-  ],
+  [],
   //left
   [
     {
@@ -187,10 +180,15 @@ const images = [
       half: "half",
     },
     {
-      position: [12.0, 0, -9 * GOLDENRATIO - 0.5],
+      position: [12, 0, -9 * GOLDENRATIO - 0.5],
       rotation: [0, 0, 0],
       url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/BB6.jpeg",
       half: "half",
+    },
+    {
+      position: [16.8, 0, -11 * GOLDENRATIO + 0.74],
+      rotation: [0, Math.PI, 0],
+      url: pexel(1324354),
     },
   ],
   // Right
@@ -218,7 +216,26 @@ const images = [
       url: pexel(358574),
       half: "half",
     },
+    // {
+    //   position: [-3.5 * GOLDENRATIO + 1, 0, -4 * GOLDENRATIO],
+    //   rotation: [0, Math.PI / 2, 0],
+    //   url: pexel(1795707)
+
+    // },
   ]
+];
+const backRight =   //BACK right
+[
+  {
+    position: [6 * GOLDENRATIO + 0.18, 0, -3.1 * GOLDENRATIO - 0.2],
+    rotation: [0, Math.PI, 0],
+    url: pexel(2860810),
+  },
+  {
+    position: [16.3, 0, -2 * GOLDENRATIO+0.02],
+    rotation: [0, 0, 0],
+    url: pexel(1324349),
+  },
 ];
 
 
@@ -235,6 +252,9 @@ const Room1 = ({ userData }) => {
   const [isUser, setUser] = useState(null);
 
   const url = `/room/${roomId}`;
+
+  const [zIdx, setZIdex] = useState(0);
+
   const [cameraPosition, setCameraPosition] = useState(0);
   const [yCameraPosition, setYCameraPosition] = useState(0);
   const [cameraAngle, setCameraAngle] = useState(0);
@@ -378,22 +398,21 @@ const Room1 = ({ userData }) => {
             />
 
             <ThreeCanvas images={ceil} cameraAngle={cameraAngle} setCameraAngle={setCameraAngle} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
-
-
+            <ThreeCanvas images={backRight} zIdx={zIdx} cameraAngle={cameraAngle} setCameraAngle={setCameraAngle} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition}/>
             {
               images.map((image, i) => {
                 return <ThreeCanvas idx={i} images={image} cameraAngle={cameraAngle} setCameraAngle={setCameraAngle} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
               })
             }
 
-
-
             <Overworld1
               myStream={myStream}
+              zIdx={zIdx}
               Room={room}
               url={url}
               charMap={charMap}
               socket={socket}
+              setZIdex={setZIdex}
               setCameraPosition={setCameraPosition}
               setYCameraPosition={setYCameraPosition}
             />

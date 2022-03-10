@@ -331,6 +331,7 @@ const Overworld = ({
         streamContainer.appendChild(div);
 
         await getUserMedia(peerStream, socketId);
+        
       } catch (e) {
         console.log(e);
       }

@@ -41,18 +41,18 @@ function Frames({ images, cameraAngle, yCameraPosition, setXRotation, setYRotati
         break;
       case 1:
         state.camera.rotation.set(0, - Math.PI / 2, 0);
-        setXRotation(4);
-        setYRotation(4);
+        setXRotation(5);
+        setYRotation(5);
         break;
       case 2:
         state.camera.rotation.set(0, - Math.PI, 0);
         setXRotation(0);
-        setYRotation(8);
+        setYRotation(10);
         break;
       case 3:
         state.camera.rotation.set(0, Math.PI / 2, 0);
-        setXRotation(-4);
-        setYRotation(4);
+        setXRotation(-5);
+        setYRotation(5);
         break;
     }
   })

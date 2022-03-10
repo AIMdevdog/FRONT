@@ -2,7 +2,11 @@ import React, { Suspense } from "react";
 import styled from "styled-components";
 import Gallery1 from "./Gallery1";
 
-const CanvasContainer = styled.div`
+const CanvasContainer = styled.div.attrs((props) => ({
+    style: {
+        zIndex: props.zIdx,
+    },
+}))`
   position: fixed;
   opacity: ${(props) => props.angleCheck};
   canvas {
@@ -13,10 +17,9 @@ const CanvasContainer = styled.div`
     overflow: hidden;
   }
 `;
-
-const ThreeCanvas = ({ idx, images, cameraAngle, setCameraAngle, cameraPosition, yCameraPosition }) => {
+const ThreeCanvas = ({ idx, images, zIdx, cameraAngle, setCameraAngle, cameraPosition, yCameraPosition }) => {
     return (
-        <CanvasContainer angleCheck={idx === cameraAngle ? 0 : 1} className="gallery">
+        <CanvasContainer zIdx={zIdx? zIdx: (idx+cameraAngle)%4} angleCheck={idx === cameraAngle ? 0 : 1} className="gallery">
             <Suspense fallback={null}>
                 <Gallery1 images={images} cameraAngle={cameraAngle} setCameraAngle={setCameraAngle} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
             </Suspense>
