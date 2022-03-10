@@ -543,13 +543,12 @@ const RoomSideBar = ({
     socket.on("chat", (isChatInfo) => {
       onChatWrite(isChatInfo);
     });
-
     return () => {
       socket.off("chat");
     };
   }, [socket]);
+  
   // chat socket
-
   const isShareIconAction = () => {
     // if (openDraw) return alert("이미 공유 중 입니다.");
     setShareCollapsed((prev) => !prev);
@@ -567,7 +566,6 @@ const RoomSideBar = ({
   };
 
   const isShareingArtWorks = (props) => {
-    console.log(props.target.value);
     const myInfo = characters?.filter((char) => char?.id === socket?.id);
     const myInfoDestruct = myInfo?.map((info) => {
       return {
@@ -575,11 +573,11 @@ const RoomSideBar = ({
         nickname: info?.nickname,
       };
     });
-
     const checkAddrDestruct = checkedArr?.map((check) => {
       return { id: check?.id, nickname: check?.nickname };
     });
-
+    
+    socket.emit("openDraw", socket.id, drawNum);
     socket.emit("ArtsAddr", myInfoDestruct, checkAddrDestruct, props.target.value);
     isShareIconAction();
     setCheckedArr([]);

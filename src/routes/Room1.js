@@ -10,7 +10,7 @@ import { joinUser, updateLocation } from "../utils/game/character";
 import { io } from "socket.io-client";
 import _const from "../config/const";
 import Overworld1 from "../game/Overworld1";
-import Gallery3 from "../components/Gallery3";
+import Gallery1 from "../components/Gallery1";
 import LoadingComponent from "../components/Loading.js";
 
 const pexel = (id) =>
@@ -18,18 +18,24 @@ const pexel = (id) =>
 const GOLDENRATIO = 1.61803398875;
 
 const images = [
+  {
+    position: [0, 0, 12 * GOLDENRATIO],
+    rotation: [0, 0, 0],
+    url: pexel(695644),
+    wall: "wall",
+  },
   // left
+  {
+    position: [-4.735 * GOLDENRATIO + 1, 0, 10 * GOLDENRATIO],
+    rotation: [0, - Math.PI / 2, 0],
+    url: pexel(416430)
+  },
   {
     position: [-3.5 * GOLDENRATIO + 1, 0, 5 * GOLDENRATIO],
     rotation: [0, Math.PI / 2, 0],
     // url: pexel(1606591),
     url: "https://aim-front.s3.ap-northeast-2.amazonaws.com/A1.jpeg",
   },
-  // {
-  //   position: [-4.735 * GOLDENRATIO + 1, 0, 0],
-  //   rotation: [0, - Math.PI / 2, 0],
-  //   url: pexel(416430)
-  // },
   {
     position: [-3.5 * GOLDENRATIO + 1, 0, 0],
     rotation: [0, Math.PI / 2, 0],
@@ -54,6 +60,11 @@ const images = [
   //   url: "https://www.comedywildlifephoto.com/images/wysiwyg/00000048/jan-piecha_chinese-whispers.jpg",
   // },
   // Right
+    {
+    position: [5 * GOLDENRATIO - 0.42, 0, 10 * GOLDENRATIO],
+    rotation: [0, Math.PI/2, 0],
+    url: pexel(6932226),
+  },
   {
     position: [3.5 * GOLDENRATIO, 0, 5 * GOLDENRATIO],
     rotation: [0, -Math.PI / 2, 0],
@@ -78,14 +89,9 @@ const images = [
     rotation: [0, Math.PI, 0],
     url: pexel(2860810),
   },
-  // {
-  //   position: [2.6 + 10 * GOLDENRATIO, 0, -8 * GOLDENRATIO - 0.2],
-  //   rotation: [0, Math.PI, 0],
-  //   url: pexel(6932226),
-  // },
   //ceil
   {
-    position: [0, 5.7, -5],
+    position: [12, 5.7, 3],
     rotation: [-Math.PI / 2, 0, 0],
     url: pexel(4175054),
     ceil: "ceil",
@@ -142,47 +148,6 @@ const MyVideoNickname = styled.div`
   border-radius: 10px;
   color: white;
   z-index: 10;
-`;
-
-const StreamsContainer = styled.div`
-  position: fixed;
-  display: flex;
-  left: 50%;
-  top: 60px;
-  width: 20%;
-  height: 100px;
-  justify-content: center;
-  align-items: center;
-
-  div {
-    width: 200px;
-    margin-right: 20px;
-
-    .userVideo {
-      width: 200px;
-      border-radius: 10px;
-      /*Mirror code starts*/
-      transform: rotateY(180deg);
-      -webkit-transform: rotateY(180deg); /* Safari and Chrome */
-      -moz-transform: rotateY(180deg); /* Firefox */
-
-      /*Mirror code ends*/
-      &:hover {
-        outline: 2px solid red;
-        cursor: pointer;
-      }
-    }
-    .videoNickname{
-      position: relative;
-      bottom: 140px;
-      left: 5px;
-      display: inline;
-      background-color: rgb(0, 0, 0, 0.6);
-      padding: 5px;
-      border-radius: 10px;
-      color: white;
-    }
-  }
 `;
 
 const MyVideoBox = styled.div`
@@ -243,6 +208,7 @@ const CamBtn = styled.div`
     left: 50%;
   }
 `;
+
 const ThreeCanvas = styled.div`
   position: fixed;
   z-index: ${(props)=> (props.zIdx)};
@@ -361,7 +327,7 @@ const Room1 = ({ userData }) => {
             />
             <ThreeCanvas className="gallery" zIdx={zIdx}>
               <Suspense fallback={null}>
-                <Gallery3 images={images2} roomId={roomId} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
+                <Gallery1 images={images2} roomId={roomId} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
               </Suspense>
             </ThreeCanvas>
             <Overworld1
@@ -376,7 +342,7 @@ const Room1 = ({ userData }) => {
             />
             <ThreeCanvas className="gallery">
               <Suspense fallback={null}>
-                <Gallery3 images={images} roomId={roomId} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
+                <Gallery1 images={images} roomId={roomId} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
               </Suspense>
             </ThreeCanvas>
             {/* <CharacterNickname nicknames={nicknames} /> */}

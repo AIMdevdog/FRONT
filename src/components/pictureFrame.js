@@ -128,22 +128,30 @@ const PictureFrame = ({ socket, drawNum }) => {
     socket.emit("cursorPosition", xRatio, yRatio, socket.id);
   }
   const throttleUpdateDisplay = throttle(updateDisplay, 48);
+
+  const socketDrawUser = (nickname, num) => {
+    if (num === drawNum) {
+      setDrawUser((prev) => {
+        if (prev.findIndex((e) => e === nickname) === -1) {
+          return [...prev, nickname];
+        } else {
+          return prev;
+        }
+      });
+    }
+  }
+  const socketCloseUser = (nickname) => {
+    setDrawUser((prev) => prev.filter((e) => e !== nickname));
+  }
+
+
   useEffect(() => {
-    socket.on("drawUser", (nickname, num) => {
-      console.log("drawNum, num: ", drawNum, num)
-      if (num === drawNum) {
-        setDrawUser((prev) => {
-          if (prev.findIndex((e) => e === nickname) === -1) {
-            return [...prev, nickname];
-          } else {
-            return prev;
-          }
-        });
-      }
-    });
-    socket.on("closeUser", (nickname) => {
-      setDrawUser((prev) => prev.filter((e) => e !== nickname));
-    });
+    socket.on("drawUser", socketDrawUser);
+    socket.on("closeUser", socketCloseUser);
+    return () => {
+      socket.off("drawUser", socketDrawUser);
+      socket.off("closeUser", socketCloseUser);
+    }
   }, [])
 
   return (
@@ -174,7 +182,7 @@ const PictureFrame = ({ socket, drawNum }) => {
             <div className="bigger"><span>제목:</span> {image[`${drawNum - 1}`].title}</div>
             <div className="bigger"><span>작가:</span> {image[`${drawNum - 1}`].painter}</div>
             <div>
-              <span>작품 설명</span> <br/><br/> {image[`${drawNum - 1}`].discription}
+              <span>작품 설명</span> <br /><br /> {image[`${drawNum - 1}`].discription}
             </div>
           </InfoInnerContainer>
         </PictureInfoContainer>
