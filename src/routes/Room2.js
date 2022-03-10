@@ -257,6 +257,7 @@ const customStyles = {
   },
   overlay: {
     background: "rgba(0, 0, 0, 0.6)",
+    zIndex: 15,
   },
 };
 
@@ -293,6 +294,7 @@ const Room2 = ({ userData }) => {
   }
 
   const onExitRoom = () => {
+    console.log("hello");
     myStream.getTracks().forEach(track => track.stop());
     socket.close();
     navigate(url, { state: { x: 983, y: 1072 } });

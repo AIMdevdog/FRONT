@@ -721,8 +721,8 @@ const Overworld1 = ({
             });
             if (
               !object.isUserCalling &&
-              Math.abs(player?.x - object.x) < 64 &&
-              Math.abs(player?.y - object.y) < 96
+              Math.abs(player?.x - object.x) < 128 &&
+              Math.abs(player?.y - object.y) < 128
             ) {
               //화상 통화 연결
               closer.push(object.id);
@@ -736,8 +736,8 @@ const Overworld1 = ({
             }
             if (
               object.isUserCalling &&
-              (Math.abs(player.x - object.x) > 96 ||
-                Math.abs(player.y - object.y) > 128)
+              (Math.abs(player.x - object.x) > 128 ||
+                Math.abs(player.y - object.y) > 160)
             ) {
               console.log("멀어짐");
               closer = closer.filter((element) => element !== object.id);
