@@ -964,7 +964,6 @@ const Overworld = ({
     // socket.on("leave_user", function (data) {
     //   removePeerFace(data.id);
     // });
-
     socket.on("accept_join", async (groupName) => {
       try {
         // SFU
@@ -1164,25 +1163,29 @@ const Overworld = ({
                 Math.abs(player?.y - object.y) > 128)
             ) {
               closer -= 1;
-              console.log("멀어짐 closer: ", closer);
               object.isUserCalling = false;
               object.isUserJoin = false;
             }
           }
         });
         const playercheck = player ? player.isUserCalling : false;
-        // console.log("멀어짐 로직 player.socketId", player.socketId,"근처에 있는",closer)
+        console.log("근처에 있는",closer)
+       
         if (playercheck && closer === 0) {
           // 나가는 사람 기준
+          
           const streamContainer = document.querySelector(".streams-container");
           while (streamContainer.hasChildNodes()) {
             // 내가 가지고있는 다른 사람의 영상을 전부 삭제
             streamContainer.removeChild(streamContainer.firstChild);
           }
           // producer_audio.emit("producerclose");
-          producer.emit("producerclose");
+          if (producer){
+            producer.emit("producerclose");
+          } else {
+            console.log("producer생성되지 않았습니다.");
+          }
           socket.emit("leave_Group", player.id);
-          producer.emit("producerclose");
           player.isUserCalling = false;
           player.isUserJoin = false;
           // console.log(`video ${reduplication}, audio ${audio_reduplication}`)
