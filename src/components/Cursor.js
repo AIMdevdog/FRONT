@@ -3,33 +3,33 @@ import styled from "styled-components";
 import { GiArrowCursor } from "react-icons/gi";
 
 const CursorDiv = styled.div.attrs((props) => ({
-    style: {
-        left: props.isCursorX + "px",
-        top: props.isCursorY + "px",
-    },
+  style: {
+    left: props.isCursorX + "px",
+    top: props.isCursorY + "px",
+  },
 }))`
-    z-index: 99;
-    width: 24px;
-    height: 24px;
-    outline: none;
-    position: fixed;
+  z-index: 99;
+  width: 24px;
+  height: 24px;
+  outline: none;
+  position: fixed;
 `;
 
 const CursorNickname = styled.div.attrs((props) => ({
-    style: {
-        left: props.isCursorX + 16 + "px",
-        top: props.isCursorY + 20 + "px",
-    },
+  style: {
+    left: props.isCursorX + 16 + "px",
+    top: props.isCursorY + 20 + "px",
+  },
 }))`
-    font-size: 12px;
-    z-index: 99;
-    position: fixed;
-    bottom: 140px;
-    height: 16px;
-    background-color: rgb(0, 0, 0, 0.6);
-    padding: 3px;
-    border-radius: 5px;
-    color: white;
+  font-size: 12px;
+  z-index: 99;
+  position: fixed;
+  bottom: 140px;
+  height: 16px;
+  background-color: rgb(0, 0, 0, 0.6);
+  padding: 3px;
+  border-radius: 5px;
+  color: white;
 `;
 
 const DrawCursor = ({ socket, color, nickname }) => {
@@ -65,9 +65,8 @@ const DrawCursor = ({ socket, color, nickname }) => {
                 src="https://img.icons8.com/ios-glyphs/344/cursor--v1.png"
                 alt="img"
             /> */}
-        </>
-    )
-}
-
+    </>
+  );
+};
 
 export default DrawCursor;
