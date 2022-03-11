@@ -112,9 +112,8 @@ const Room = ({ userData }) => {
 
   const [openGuide, setOpenGuide] = useState(0);
 
-
   const ppt1Imgs = [
-    "https://aim-front.s3.ap-northeast-2.amazonaws.com/info1.png"
+    "https://aim-front.s3.ap-northeast-2.amazonaws.com/info1.png",
   ];
   const [isCharacter, setIsCharacter] = useState([]);
   const [isUser, setUser] = useState(null);
@@ -139,8 +138,7 @@ const Room = ({ userData }) => {
       [`1623,752`]: true,
       [`1431,752`]: true,
       [`919,1072`]: true,
-
-    }
+    },
   };
 
   useEffect(async () => {
@@ -173,7 +171,7 @@ const Room = ({ userData }) => {
       nickname: isUser?.nickname,
       roomId: "room/" + roomId,
     });
-  }
+  };
   useEffect(() => {
     if (isUser && socket) {
       socket.on("join_user", socketJoinUser);
@@ -222,13 +220,16 @@ const Room = ({ userData }) => {
       default:
         return null;
     }
-  }
+  };
 
   const openGuideFuction = (openGuide) => {
     const Guide = [
       {
         title: "1층 전시관 이용 방법",
-        description: ["'X' 버튼을 작품 앞에서 클릭하면 그림을 크게 볼 수 있습니다.", "그림을 감상하는 중에는 좌측 바에 있는 화살표 아이콘을 클릭하시고 원하는 유저를 선택 후 공유하기 버튼을 누르면 해당 유저와 그림을 공유하게 되고 공유 중에는 서로의 마우스 위치가 보이게 됩니다."],
+        description: [
+          "'X' 버튼을 작품 앞에서 클릭하면 그림을 크게 볼 수 있습니다.",
+          "그림을 감상하는 중에는 좌측 바에 있는 화살표 아이콘을 클릭하시고 원하는 유저를 선택 후 공유하기 버튼을 누르면 해당 유저와 그림을 공유하게 되고 공유 중에는 서로의 마우스 위치가 보이게 됩니다.",
+        ],
       },
       {
         title: "파노라마 전시관 이용 방법",
@@ -241,21 +242,28 @@ const Room = ({ userData }) => {
         drawing: [
           "작품명: 수련 : 구름 (Les Nymphéas : les Nuages)",
           "작가 : 모네",
-          "작품설명: 이 그림은 거대한 화폭을 자랑하는데, 그만큼 모네의 작업은 대담하고 자유로웠다는 것을 방증한다. 모네가 큰 화폭을 선택한 까닭은 실물 크기로 수련을 그리기 위한 것이었다. 즉, 보이는 그대로 수련을 물감의 재료성으로 옮겨놓고자 한 것이다. ‘수련' 연작은 파노라마처럼 현실의 세계를 재현하고, 다양한 기법을 실험했는데, 이러한 방식의 표현으로 인해 작품을 마주하는 관객은 파노라마 안에서 모네의 수련 정원을 통해 걷는 듯한 환영을 경험하게 된다."
-        ]
+          "작품설명: 이 그림은 거대한 화폭을 자랑하는데, 그만큼 모네의 작업은 대담하고 자유로웠다는 것을 방증한다. 모네가 큰 화폭을 선택한 까닭은 실물 크기로 수련을 그리기 위한 것이었다. 즉, 보이는 그대로 수련을 물감의 재료성으로 옮겨놓고자 한 것이다. ‘수련' 연작은 파노라마처럼 현실의 세계를 재현하고, 다양한 기법을 실험했는데, 이러한 방식의 표현으로 인해 작품을 마주하는 관객은 파노라마 안에서 모네의 수련 정원을 통해 걷는 듯한 환영을 경험하게 된다.",
+        ],
       },
       {
         title: "3D 전시관 이용 방법",
-        description: ["3D관은 사용자에게 실제 전시공간과 유사한 경험을 제공해주기 위해 만들어진 공간입니다.", "조작방법", "Q : 좌측 화면 전환, E : 우측 화면 전환", "← ↑ → ↓ : 캐릭터 조작"],
+        description: [
+          "3D관은 사용자에게 실제 전시공간과 유사한 경험을 제공해주기 위해 만들어진 공간입니다.",
+          "조작방법",
+          "Q : 좌측 화면 전환, E : 우측 화면 전환",
+          "← ↑ → ↓ : 캐릭터 조작",
+        ],
       },
-    ]
+    ];
 
     if (openGuide) {
-      return <ExhibitionGuide
-        title={Guide[openGuide - 1].title}
-        description={Guide[openGuide - 1].description}
-        drawing={Guide[openGuide - 1].drawing}
-      />;
+      return (
+        <ExhibitionGuide
+          title={Guide[openGuide - 1].title}
+          description={Guide[openGuide - 1].description}
+          drawing={Guide[openGuide - 1].drawing}
+        />
+      );
     } else {
       return null;
     }
@@ -269,7 +277,7 @@ const Room = ({ userData }) => {
     //   default:
     //     return null;
     // }
-  }
+  };
   return (
     <>
       <div className="roomContainer" style={{ display: "flex" }}>

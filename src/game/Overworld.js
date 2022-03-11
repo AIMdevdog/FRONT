@@ -923,9 +923,98 @@ const Overworld = ({
         }
       }
     };
-    for (let i = 631; i < 1304; i += 32) {
+    // y축 고정
+    for (let i = 631; i <= 1335; i += 32) {
       map.walls[`${i},848`] = true;
     }
+    // y축 고정
+    for (let i = 1367; i <= 1495; i += 32) {
+      map.walls[`${i},752`] = true;
+    }
+    // y축 고정
+    for (let i = 1623; i <= 1751; i += 32) {
+      map.walls[`${i},752`] = true;
+    }
+    // y축 고정
+    for (let i = 631; i <= 887; i += 32) {
+      map.walls[`${i},1136`] = true;
+    }
+    // y축 고정
+    for (let i = 1047; i <= 1303; i += 32) {
+      map.walls[`${i},1136`] = true;
+    }
+    // y축 고정
+    for (let i = 1367; i <= 1751; i += 32) {
+      map.walls[`${i},1488`] = true;
+    }
+    // y축 고정
+    for (let i = 1623; i <= 1751; i += 32) {
+      map.walls[`${i},1136`] = true;
+    }
+    // y축 고정
+    for (let i = 1655; i <= 1751; i += 32) {
+      map.walls[`${i},1296`] = true;
+    }
+    // y축 고정
+    for (let i = 1623; i <= 1751; i += 32) {
+      map.walls[`${i},1264`] = true;
+    }
+    // y축 고정
+    for (let i = 1623; i <= 1751; i += 32) {
+      map.walls[`${i},1104`] = true;
+    }
+    // y축 고정
+    for (let i = 1623; i <= 1623; i += 32) {
+      map.walls[`${i},1104`] = true;
+    }
+    
+    // x축 고정
+    for (let i = 1168; i <= 1168; i += 32) {
+      map.walls[`1751,${i}`] = true;
+    }
+    // x축 고정
+    for (let i = 1008; i <= 1104; i += 32) {
+      map.walls[`1335,${i}`] = true;
+    }
+    // x축 고정
+    for (let i = 880; i <= 1104; i += 32) {
+      map.walls[`599,${i}`] = true;
+    }
+    // x축 고정
+    for (let i = 1008; i <= 1456; i += 32) {
+      map.walls[`1335,${i}`] = true;
+    }
+    // x축 고정
+    for (let i = 1328; i <= 1456; i += 32) {
+      map.walls[`1783,${i}`] = true;
+    }
+    // x축 고정
+    for (let i = 1264; i <= 1296; i += 32) {
+      map.walls[`1623,${i}`] = true;
+    }
+    // x축 고정
+    for (let i = 1264; i <= 1264; i += 32) {
+      map.walls[`1623,${i}`] = true;
+    }
+    // x축 고정
+    for (let i = 1200; i <= 1264; i += 32) {
+      map.walls[`1783,${i}`] = true;
+    }
+    // x축 고정
+    for (let i = 1104; i <= 1136; i += 32) {
+      map.walls[`1623,${i}`] = true;
+    }
+    // x축 고정
+    for (let i = 784; i <= 1072; i += 32) {
+      map.walls[`1783,${i}`] = true;
+    }
+    // x축 고정
+    for (let i = 784; i <= 848; i += 32) {
+      map.walls[`1335,${i}`] = true;
+    }
+    
+    
+    
     minX = min([503, 1047 - window.innerWidth / 2]);
     minY = min([400, 880 - window.innerWidth / 2]);
     maxX = max([2103, 1572 + window.innerHeight / 2]);
@@ -968,6 +1057,7 @@ const Overworld = ({
         //Update all objects
         Object.values(charMap).forEach((object) => {
           if (object.id === socket.id) {
+            console.log(object.x, object.y);
             if (object.x >= 1527 && object.x <= 1591 && object.y <= 736) {
               socket.close();
               mediaOff();

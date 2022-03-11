@@ -5,6 +5,7 @@ import _const from "../config/const.js";
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import styled from "styled-components";
+import hark from "hark";
 const GameLayout = styled.div`
   display: flex;
   justify-content: center;
@@ -89,7 +90,7 @@ const Overworld1 = ({
   const map = new OverworldMap(Room);
   let closer = [];
   let reduplication = []; //해결하고 지울게요 ㅜㅜ
-  let audio_reduplication = [];  //해결하고 지울게요 ㅜㅜ
+  let audio_reduplication = []; //해결하고 지울게요 ㅜㅜ
 
   const mediaOff = () => {
     myStream.getTracks().forEach((track) => track.stop());
@@ -124,11 +125,11 @@ const Overworld1 = ({
     let videoConstraints = {
       audio: false,
       video: true,
-    }
+    };
     let audioConstraints = {
       audio: true,
       video: false,
-    }
+    };
 
     // WebRTC SFU (mediasoup)
     let params_audio = {
@@ -174,16 +175,51 @@ const Overworld1 = ({
     async function setAudio(peerStream, socketId) {
       console.log(`socketID ${socketId} peer의 audio 태그 생성`);
       const streamContainer = document.querySelector(".streams-container");
+      try {
+        // const div = document.querySelector(`#${socketId}`);
+        const div = document.getElementById(`${socketId}`);
+        console.log(div, "audio 넣을 div 찾았다");
+        const elem = document.createElement("audio");
+        elem.srcObject = await peerStream;
+        elem.playsinline = true;
+        elem.autoplay = true;
 
-      const div = document.querySelector(`#${socketId}`);
-      let elem = document.createElement("audio");
-      elem.srcObject = peerStream;
-      elem.playsinline = false;
-      elem.autoplay = true;
-
-      div.appendChild(elem);
-      streamContainer.appendChild(div);
+        setTimeout(() => {
+          div.appendChild(elem);
+          streamContainer.appendChild(div);
+        }, 0);
+        await activeSpeaker(peerStream, socketId);
+      } catch (e) {
+        console.log(e);
+      }
     }
+
+    const activeSpeaker = async (stream, socketId) => {
+      try {
+        const speechEvents = await hark(stream);
+        const streamVideo = document.getElementById(`${socketId}`);
+        const videoTag = streamVideo.getElementsByTagName("video");
+
+        console.log(videoTag);
+
+        speechEvents.on("speaking", () => {
+          videoTag[0].style.outline = "4px solid green";
+          console.log("start", videoTag[0]);
+          // setSpeakingUser(true);
+
+          // console.log("speaking", socket?.id);
+        });
+        speechEvents.on("stopped_speaking", () => {
+          videoTag[0].style.outline = "none";
+          console.log("stop", videoTag[0]);
+          // setSpeakingUser(false);
+          // console.log("stopped_speaking");
+        });
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
     // 영상 connect
     async function paintPeerFace(peerStream, socketId) {
       console.log(`socketID ${socketId} peer의 vidoe 태그 생성`);
@@ -559,7 +595,7 @@ const Overworld1 = ({
               reduplication.push(remoteSocketId);
               await paintPeerFace(peerStream, remoteSocketId);
             }
-          } else {
+          } else if (track.kind === "audio") {
             console.log("!!!!audio 태그 추가 요청", remoteSocketId);
             let check = audio_reduplication.filter(
               (element) => element === remoteSocketId
@@ -607,8 +643,12 @@ const Overworld1 = ({
     // ---------------------------------------- ^ SFU
 
     socket.on("remove_reduplication", (remoteSocketId) => {
-      reduplication = reduplication.filter((element) => element !== remoteSocketId)
-      audio_reduplication = audio_reduplication.filter((element) => element !== remoteSocketId)
+      reduplication = reduplication.filter(
+        (element) => element !== remoteSocketId
+      );
+      audio_reduplication = audio_reduplication.filter(
+        (element) => element !== remoteSocketId
+      );
     });
 
     // 남는 사람 기준
@@ -617,9 +657,17 @@ const Overworld1 = ({
       const user = charMap[data.removeSid];
       user.isUserJoin = false;
       user.groupName = 0;
-      reduplication = reduplication.filter((element) => element !== data.removeSid)
-      audio_reduplication = audio_reduplication.filter((element) => element !== data.remveSid)
-      console.log("reduplication video, audio ", reduplication, audio_reduplication)
+      reduplication = reduplication.filter(
+        (element) => element !== data.removeSid
+      );
+      audio_reduplication = audio_reduplication.filter(
+        (element) => element !== data.remveSid
+      );
+      console.log(
+        "reduplication video, audio ",
+        reduplication,
+        audio_reduplication
+      );
       removePeerFace(data.removeSid);
     });
 
@@ -668,6 +716,22 @@ const Overworld1 = ({
         dataBuffer = [];
       }
     };
+    //Y축 고정
+    for (let i = -352; i <= 1136; i += 48) {
+      map.walls[`${i},-1984`] = true;
+    }
+    //Y축 고정
+    for (let i = 560; i <= 1136; i += 48) {
+      map.walls[`${i},-1168`] = true;
+    }
+    //X축 고정
+    for (let i = -1984; i <= 176; i += 48) {
+      map.walls[`-352,${i}`] = true;
+    }
+    //X축 고정
+    for (let i = -1168; i <= 176; i += 48) {
+      map.walls[`560,${i}`] = true;
+    }
 
     const startGameLoop = () => {
       const step = () => {

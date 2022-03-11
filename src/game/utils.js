@@ -6,10 +6,10 @@ const utils = {
     return `${x * 16},${y * 16}`;
   },
   
-  nextPosition(initialX, initialY, direction) {
+  nextPosition(initialX, initialY, direction, size) {
     let x = initialX;
     let y = initialY;
-    const size = 32;
+    // const size = 32;
     if (direction === "left") {
       x -= size;
     } else if (direction === "right") {
