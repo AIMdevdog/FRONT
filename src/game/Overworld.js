@@ -1132,7 +1132,11 @@ const Overworld = ({
             streamContainer.removeChild(streamContainer.firstChild);
           }
           // producer_audio.emit("producerclose");
-          producer.emit("producerclose");
+          try {
+            producer.emit("producerclose");
+          } catch (e) {
+            console.log(e)
+          }
           socket.emit("leave_Group", player.id);
           player.isUserCalling = false;
           player.isUserJoin = false;
