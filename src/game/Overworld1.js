@@ -719,6 +719,22 @@ const Overworld1 = ({
         dataBuffer = [];
       }
     };
+    //Y축 고정
+    for (let i = -352; i <= 1136; i += 48) {
+      map.walls[`${i},-1984`] = true;
+    }
+    //Y축 고정
+    for (let i = 560; i <= 1136; i += 48) {
+      map.walls[`${i},-1168`] = true;
+    }
+    //X축 고정
+    for (let i = -1984; i <= 176; i += 48) {
+      map.walls[`-352,${i}`] = true;
+    }
+    //X축 고정
+    for (let i = -1168; i <= 176; i += 48) {
+      map.walls[`560,${i}`] = true;
+    }
 
     const startGameLoop = () => {
       const step = () => {

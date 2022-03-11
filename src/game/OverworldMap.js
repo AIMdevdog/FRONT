@@ -29,8 +29,13 @@ export class OverworldMap {
     );
   }
   isSpaceTaken(currentX, currentY, direction) {
-    const { x, y } = utils.nextPosition(currentX, currentY, direction);
-    return this.walls[`${x},${y}`] || false;
+    if(this.roomNum === 0){
+      const { x, y } = utils.nextPosition(currentX, currentY, direction, 32);
+      return this.walls[`${x},${y}`] || false;
+    }else{      
+      const { x, y } = utils.nextPosition(currentX, currentY, direction, 48);
+      return this.walls[`${x},${y}`] || false; 
+    }
   }
 
   addWall(x, y) {
