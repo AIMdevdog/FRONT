@@ -336,7 +336,7 @@ const Room1 = ({ userData }) => {
 
   useEffect(() => {
     loadImage = []
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 5; i++) {
       if (i === cameraAngle) {
         continue;
       } else {

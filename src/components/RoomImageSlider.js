@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 const roomImage =
   // "https://aim-front.s3.ap-northeast-2.amazonaws.com/room_images.png";
-  "https://aim-front.s3.ap-northeast-2.amazonaws.com/KakaoTalk_Photo_2022-03-02-22-46-03-1.png";
+  "https://aim-front.s3.ap-northeast-2.amazonaws.com/aim-map-0303.png";
 
 const RoomImageSliderContainer = styled.div`
   display: flex;

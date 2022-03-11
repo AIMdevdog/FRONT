@@ -801,6 +801,9 @@ const Overworld = ({
     
     socket.on("update_closer", ()=> {
       closer -= 1;
+      if (closer < 0) {
+        closer = 0;
+      }
     });
 
     // 남는 사람 기준
