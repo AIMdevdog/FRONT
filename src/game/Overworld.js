@@ -328,18 +328,18 @@ const Overworld = ({
         const streamVideo = document.getElementById(`${socketId}`);
         const videoTag = streamVideo.getElementsByTagName("video");
 
-        console.log(videoTag);
+        // console.log(videoTag);
 
         speechEvents.on("speaking", () => {
           videoTag[0].style.outline = "4px solid green";
-          console.log("start", videoTag[0]);
+          // console.log("start", videoTag[0]);
           // setSpeakingUser(true);
 
           // console.log("speaking", socket?.id);
         });
         speechEvents.on("stopped_speaking", () => {
           videoTag[0].style.outline = "none";
-          console.log("stop", videoTag[0]);
+          // console.log("stop", videoTag[0]);
           // setSpeakingUser(false);
           // console.log("stopped_speaking");
         });
@@ -798,6 +798,10 @@ const Overworld = ({
         (element) => element !== remoteSocketId
       );
     });
+    
+    socket.on("update_closer", ()=> {
+      closer -= 1;
+    });
 
     // 남는 사람 기준
     socket.on("leave_succ", function (data) {
@@ -1057,7 +1061,7 @@ const Overworld = ({
         //Update all objects
         Object.values(charMap).forEach((object) => {
           if (object.id === socket.id) {
-            console.log(object.x, object.y);
+            // console.log(object.x, object.y);
             if (object.x >= 1527 && object.x <= 1591 && object.y <= 736) {
               socket.close();
               mediaOff();
@@ -1130,7 +1134,6 @@ const Overworld = ({
           // producer_audio.emit("producerclose");
           producer.emit("producerclose");
           socket.emit("leave_Group", player.id);
-          producer.emit("producerclose");
           player.isUserCalling = false;
           player.isUserJoin = false;
           // console.log(`video ${reduplication}, audio ${audio_reduplication}`)

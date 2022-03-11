@@ -91,7 +91,7 @@ const Overworld1 = ({
   directionInput.init();
 
   const map = new OverworldMap(Room);
-  let closer = [];
+  let closer = 0;
   let reduplication = []; //해결하고 지울게요 ㅜㅜ
   let audio_reduplication = []; //해결하고 지울게요 ㅜㅜ
 
@@ -203,18 +203,18 @@ const Overworld1 = ({
         const streamVideo = document.getElementById(`${socketId}`);
         const videoTag = streamVideo.getElementsByTagName("video");
 
-        console.log(videoTag);
+        // console.log(videoTag);
 
         speechEvents.on("speaking", () => {
           videoTag[0].style.outline = "4px solid green";
-          console.log("start", videoTag[0]);
+          // console.log("start", videoTag[0]);
           // setSpeakingUser(true);
 
           // console.log("speaking", socket?.id);
         });
         speechEvents.on("stopped_speaking", () => {
           videoTag[0].style.outline = "none";
-          console.log("stop", videoTag[0]);
+          // console.log("stop", videoTag[0]);
           // setSpeakingUser(false);
           // console.log("stopped_speaking");
         });
@@ -654,6 +654,10 @@ const Overworld1 = ({
       );
     });
 
+    socket.on("update_closer", ()=> {
+      closer -= 1;
+    });
+
     // 남는 사람 기준
     socket.on("leave_succ", function (data) {
       console.log("leave_succ");
@@ -755,7 +759,7 @@ const Overworld1 = ({
         //Update all objects
         Object.values(charMap).forEach((object) => {
           if (object.id === socket.id) {
-            console.log(object.x, object.y);
+            // console.log(object.x, object.y);
             if (
               (map.roomNum === 3 && object.y > 656) ||
               (object.y < -1250 && object.x > 1232)
@@ -789,7 +793,7 @@ const Overworld1 = ({
               Math.abs(player?.y - object.y) < 128
             ) {
               //화상 통화 연결
-              closer.push(object.id);
+              closer += 1;
               console.log("가까워짐");
               player.isUserCalling = true;
               object.isUserCalling = true;
@@ -804,20 +808,21 @@ const Overworld1 = ({
                 Math.abs(player.y - object.y) > 160)
             ) {
               console.log("멀어짐");
-              closer = closer.filter((element) => element !== object.id);
+              closer -= 1;
               object.isUserCalling = false;
               object.isUserJoin = false;
             }
           }
         });
         const playercheck = player ? player.isUserCalling : false;
-        if (playercheck && closer.length === 0) {
+        if (playercheck && closer === 0) {
           // 나가는 사람 기준
           const streamContainer = document.querySelector(".streams-container");
           while (streamContainer.hasChildNodes()) {
             // 내가 가지고있는 다른 사람의 영상을 전부 삭제
             streamContainer.removeChild(streamContainer.firstChild);
           }
+          producer.emit("producerclose");
           socket.emit("leave_Group", player.id);
           player.isUserCalling = false;
           player.isUserJoin = false;
