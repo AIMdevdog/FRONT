@@ -12,14 +12,20 @@ const CanvasContainer = styled.div`
     overflow: hidden;
   }
 `;
-const ThreeCanvas = ({ images, cameraAngle, setCameraAngle, cameraPosition, yCameraPosition }) => {
-    return (
+const ThreeCanvas = ({ isImageLoad, images, cameraAngle, setCameraAngle, cameraPosition, yCameraPosition }) => {
+  return (
+    <>
+      {isImageLoad ?
         <CanvasContainer className="gallery">
-            <Suspense fallback={null}>
-                <Gallery1 images={images} cameraAngle={cameraAngle} setCameraAngle={setCameraAngle} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
-            </Suspense>
+          <Suspense fallback={null}>
+            <Gallery1 images={images} cameraAngle={cameraAngle} setCameraAngle={setCameraAngle} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
+          </Suspense>
         </CanvasContainer>
-    );
+        : null}
+
+    </>
+
+  );
 }
 
 export default ThreeCanvas;

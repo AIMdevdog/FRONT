@@ -97,14 +97,14 @@ const cameraConstraints = {
 };
 
 //ceil
-const ceil = [
-  {
-    position: [12, 5.7, 3],
-    rotation: [-Math.PI / 2, 0, 0],
-    url: pexel(4175054),
-    ceil: "ceil",
-  },
-];
+// const ceil = [
+//   {
+//     position: [12, 5.7, 3],
+//     rotation: [-Math.PI / 2, 0, 0],
+//     url: pexel(4175054),
+//     ceil: "ceil",
+//   },
+// ];
 
 const images = [
   //BACK right
@@ -234,6 +234,14 @@ const images = [
     //   url: pexel(1795707)
 
     // },
+  ],
+  [
+    {
+      position: [12, 5.7, 3],
+      rotation: [-Math.PI / 2, 0, 0],
+      url: pexel(4175054),
+      ceil: "ceil",
+    },
   ]
 ];
 
@@ -271,8 +279,8 @@ const Room1 = ({ userData }) => {
 
   const url = `/room/${roomId}`;
 
-  const [zIdx, setZIdex] = useState(0);
-
+  const [isImageLoad, setIsImageLoad] = useState(true);
+  const [dummyLoad, setDummyLoad] = useState(false);
   const [cameraPosition, setCameraPosition] = useState(0);
   const [yCameraPosition, setYCameraPosition] = useState(0);
   const [cameraAngle, setCameraAngle] = useState(0);
@@ -323,6 +331,10 @@ const Room1 = ({ userData }) => {
 
 
   useEffect(() => {
+    setIsImageLoad(true);
+  }, [dummyLoad]);
+
+  useEffect(() => {
     loadImage = []
     for (let i = 0; i < 4; i++) {
       if (i === cameraAngle) {
@@ -331,7 +343,9 @@ const Room1 = ({ userData }) => {
         loadImage.push(...images[i]);
       }
     }
+    setDummyLoad(prev => !prev);
   }, [cameraAngle]);
+
   useEffect(async () => {
     setMyStream(await navigator.mediaDevices.getUserMedia(cameraConstraints));
     const getUser = async () => {
@@ -417,9 +431,9 @@ const Room1 = ({ userData }) => {
               characters={isCharacter}
               roomNum="3"
             />
+            {/* // <ThreeCanvas images={ceil} cameraAngle={cameraAngle} setCameraAngle={setCameraAngle} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} /> */}
+            <ThreeCanvas isImageLoad={isImageLoad} images={loadImage} cameraAngle={cameraAngle} setCameraAngle={setCameraAngle} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
 
-            <ThreeCanvas images={ceil} cameraAngle={cameraAngle} setCameraAngle={setCameraAngle} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
-            <ThreeCanvas images={loadImage} cameraAngle={cameraAngle} setCameraAngle={setCameraAngle} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
             {/* {
               images.map((image, i) => {
                 return <ThreeCanvas idx={i} images={image} cameraAngle={cameraAngle} setCameraAngle={setCameraAngle} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
