@@ -301,12 +301,12 @@ const Overworld = ({
 
     // 음성 connect
     async function setAudio(peerStream, socketId) {
-      console.log(`socketID ${socketId} peer의 audio 태그 생성`);
+      // console.log(`socketID ${socketId} peer의 audio 태그 생성`);
       const streamContainer = document.querySelector(".streams-container");
       try {
         // const div = document.querySelector(`#${socketId}`);
         const div = document.getElementById(`${socketId}`);
-        console.log(div, "audio 넣을 div 찾았다");
+        // console.log(div, "audio 넣을 div 찾았다");
         const elem = document.createElement("audio");
         elem.srcObject = await peerStream;
         elem.playsinline = true;
@@ -328,18 +328,18 @@ const Overworld = ({
         const streamVideo = document.getElementById(`${socketId}`);
         const videoTag = streamVideo.getElementsByTagName("video");
 
-        console.log(videoTag);
+        // console.log(videoTag);
 
         speechEvents.on("speaking", () => {
           videoTag[0].style.outline = "4px solid green";
-          console.log("start", videoTag[0]);
+          // console.log("start", videoTag[0]);
           // setSpeakingUser(true);
 
           // console.log("speaking", socket?.id);
         });
         speechEvents.on("stopped_speaking", () => {
           videoTag[0].style.outline = "none";
-          console.log("stop", videoTag[0]);
+          // console.log("stop", videoTag[0]);
           // setSpeakingUser(false);
           // console.log("stopped_speaking");
         });
@@ -1057,7 +1057,7 @@ const Overworld = ({
         //Update all objects
         Object.values(charMap).forEach((object) => {
           if (object.id === socket.id) {
-            console.log(object.x, object.y);
+            // console.log(object.x, object.y);
             if (object.x >= 1527 && object.x <= 1591 && object.y <= 736) {
               socket.close();
               mediaOff();

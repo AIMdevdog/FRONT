@@ -204,14 +204,14 @@ const Overworld1 = ({
 
         speechEvents.on("speaking", () => {
           videoTag[0].style.outline = "4px solid green";
-          console.log("start", videoTag[0]);
+          // console.log("start", videoTag[0]);
           // setSpeakingUser(true);
 
           // console.log("speaking", socket?.id);
         });
         speechEvents.on("stopped_speaking", () => {
           videoTag[0].style.outline = "none";
-          console.log("stop", videoTag[0]);
+          // console.log("stop", videoTag[0]);
           // setSpeakingUser(false);
           // console.log("stopped_speaking");
         });
@@ -752,7 +752,7 @@ const Overworld1 = ({
         //Update all objects
         Object.values(charMap).forEach((object) => {
           if (object.id === socket.id) {
-            console.log(object.x, object.y);
+            // console.log(object.x, object.y);
             if (
               (map.roomNum === 3 && object.y > 656) ||
               (object.y < -1250 && object.x > 1232)
