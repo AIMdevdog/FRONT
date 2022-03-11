@@ -11,7 +11,6 @@ const GameLayout = styled.div`
   position: fixed;
   align-items: center;
   background-color: rgb(19, 19, 20, 0);
-  z-index: 2;
 `;
 
 const StreamsContainer = styled.div`
@@ -76,8 +75,6 @@ const Overworld1 = ({
   Room,
   charMap,
   socket,
-  setZIdex,
-  zIdx,
   setCameraPosition,
   setYCameraPosition,
 }) => {
@@ -699,10 +696,6 @@ const Overworld1 = ({
               socket.close();
               mediaOff();
               navigate(url, { state: { x: 1559, y: 784 } });
-            } else if (object.y < -1072) {
-              setZIdex(5);
-            } else if (object.y >= -1072) {
-              setZIdex(0);
             }
             object.update({
               arrow: directionInput.direction,
@@ -721,8 +714,8 @@ const Overworld1 = ({
             });
             if (
               !object.isUserCalling &&
-              Math.abs(player?.x - object.x) < 128 &&
-              Math.abs(player?.y - object.y) < 128
+              Math.abs(player?.x - object.x) < 256 &&
+              Math.abs(player?.y - object.y) < 256
             ) {
               //화상 통화 연결
               closer.push(object.id);
@@ -736,8 +729,8 @@ const Overworld1 = ({
             }
             if (
               object.isUserCalling &&
-              (Math.abs(player.x - object.x) > 128 ||
-                Math.abs(player.y - object.y) > 160)
+              (Math.abs(player.x - object.x) > 256 ||
+                Math.abs(player.y - object.y) > 320)
             ) {
               console.log("멀어짐");
               closer = closer.filter((element) => element !== object.id);
@@ -773,6 +766,8 @@ const Overworld1 = ({
           .forEach((object) => {
             if (object.id === player.id) {
               object.sprite.draw(ctx, player, map.roomNum, true, rotationAngle);
+            } else if (player.y > -880 && object.x > 656) {
+              return;
             } else {
               object.sprite.draw(
                 ctx,

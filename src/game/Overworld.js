@@ -189,7 +189,7 @@ const Overworld = ({
         player.y === 784 &&
         !directionInput.direction
       ) {
-        setIsOpenVisitorsBook((prev) => !prev);
+        setIsOpenVisitorsBook((prev) => true);
       } else if (
         player.x === 919 &&
         player.y === 1040 &&
@@ -215,9 +215,9 @@ const Overworld = ({
           }
         });
       } else {
+        setIsOpenVisitorsBook(false);
         setOpenPPT(false);
         setOpenGuide(0);
-        setIsOpenVisitorsBook(false);
         setOpenDraw((prevNum) => {
           if (prevNum) {
             socket.emit("closeDraw", player.nickname, prevNum);
@@ -348,7 +348,7 @@ const Overworld = ({
       }
     };
 
-    async function removeAudio(peerStream, socketId) {}
+    async function removeAudio(peerStream, socketId) { }
     // 영상 connect
     async function paintPeerFace(peerStream, socketId) {
       console.log(`socketID ${socketId} peer의 vidoe 태그 생성 중`);

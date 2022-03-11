@@ -93,7 +93,7 @@ export class Sprite {
     }
     else {
       const gab = this.gameObject.y - cameraPerson.y;
-      if (gab < -64.6 && angle === 1) {
+      if (gab < -74.805 && angle === 1) {
         const dif = Math.abs(gab);
         const diff = - dif / 3000 + 1;
         const x = (this.gameObject.x - cameraPerson.x) * (Math.exp(-dif / 1200)) - 8 + this.xaxios + utils.withGrid(ctx.canvas.clientWidth / 16 / 2);
@@ -119,30 +119,34 @@ export class Sprite {
           frameX = (frameX + 6) % 12;
         }
         this.isLoaded && ctx.drawImage(this.image, frameX * 32, frameY * 64, 32, 64, x, y, 48, 96);
-      }
-      else if(isPlayer || angle === 1){
+      } else if (
+        // isPlayer || 
+        angle === 1) {
         const x = (this.gameObject.x - cameraPerson.x - 8) + this.xaxios + utils.withGrid(ctx.canvas.clientWidth / 32);
         const y = this.gameObject.y - 18 + this.yaxios + utils.withGrid(ctx.canvas.clientHeight / 32) - cameraPerson.y;
         const [frameX, frameY] = this.frame;
         this.isLoaded && ctx.drawImage(this.image, frameX * 32, frameY * 64, 32, 64, x, y, 48, 96);
+      } else if (angle === 4) {
+        const diff = - Math.abs(this.gameObject.x - cameraPerson.x) / 5000 + 1;
+        const x = 0.35 * (this.gameObject.x - cameraPerson.x) + this.xaxios + utils.withGrid(ctx.canvas.clientWidth / 32);
+        const y = -(this.gameObject.y - cameraPerson.y) + this.yaxios + utils.withGrid(ctx.canvas.clientHeight / 32);
+        let [frameX, frameY] = this.frame;
+        if (!isPlayer) {
+          frameX = (frameX + 3) % 12;
+        }
+        this.isLoaded && ctx.drawImage(this.image, frameX * 32, frameY * 64, 32, 64, y, x, 48*diff, 96*diff);
       }
-      // else if (angle === 4) {
-      //   // const x = this.gameObject.x - 18 + this.xaxios + utils.withGrid(ctx.canvas.clientWidth / 16 / 2) - cameraPerson.x;
-      //   // const y = this.gameObject.y - 8 + this.yaxios + utils.withGrid(ctx.canvas.clientHeight / 16 / 2) - cameraPerson.y;
-      //   // const [frameX, frameY] = this.frame;
-      //   // this.isLoaded && ctx.drawImage(this.image, frameX * 32, frameY * 64, 32, 64, y, x, 48, 96);
-      //   const dif = Math.abs(gab);
-      //   const diff = - dif / 3000 + 1;
-      //   const x = (this.gameObject.x - cameraPerson.x) * (Math.exp(-dif / 1200)) - 8 + this.xaxios + utils.withGrid(ctx.canvas.clientWidth / 16 / 2);
-      //   const y = - 18.5 * Math.pow(Math.abs(gab), 0.3) - 18 + this.yaxios + utils.withGrid(ctx.canvas.clientHeight / 16 / 2);
-      //   const [frameX, frameY] = this.frame;
-      //   this.isLoaded && ctx.drawImage(this.image, frameX * 32, frameY * 64, 32, 64, y, x - 20, 48 * diff, 96 * diff);
-      // } else if (angle === 2){
-      //   const x = this.gameObject.x - 18 + this.xaxios + utils.withGrid(ctx.canvas.clientWidth / 16 / 2) - cameraPerson.x;
-      //   const y = this.gameObject.y - 8 + this.yaxios + utils.withGrid(ctx.canvas.clientHeight / 16 / 2) - cameraPerson.y;
-      //   const [frameX, frameY] = this.frame;
-      //   this.isLoaded && ctx.drawImage(this.image, frameX * 32, frameY * 64, 32, 64, -y, x, 48, 96);
-      // }
+      else if (angle === 2) {
+        const diff = - Math.abs(this.gameObject.x - cameraPerson.x) / 5000 + 1;
+        const x = -0.35 * (this.gameObject.x - cameraPerson.x) + this.xaxios + utils.withGrid(ctx.canvas.clientWidth / 32);
+        const y = this.gameObject.y - cameraPerson.y + this.yaxios + utils.withGrid(ctx.canvas.clientHeight / 32);
+        let [frameX, frameY] = this.frame;
+        if (!isPlayer) {
+          frameX = (frameX + 9) % 12;
+        }
+        this.isLoaded && ctx.drawImage(this.image, frameX * 32, frameY * 64, 32, 64, y, x, 48, 96);
+        // this.isLoaded && ctx.drawImage(this.image, frameX * 32, frameY * 64, 32, 64, y * 0.8, x, 48, 96);
+      }
     }
 
 

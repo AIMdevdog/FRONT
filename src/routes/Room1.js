@@ -104,16 +104,28 @@ const ceil = [
     url: pexel(4175054),
     ceil: "ceil",
   },
-  {
-    position: [0, 0, 10 * GOLDENRATIO],
-    rotation: [0, 0, 0],
-    url: pexel(695644),
-    wall: "wall",
-  },
 ];
 
 const images = [
-  [],
+  //BACK right
+  [
+    {
+      position: [0, 0, 10 * GOLDENRATIO],
+      rotation: [0, 0, 0],
+      url: pexel(695644),
+      wall: "wall",
+    },
+    {
+      position: [6 * GOLDENRATIO + 0.18, 0, -3.1 * GOLDENRATIO - 0.2],
+      rotation: [0, Math.PI, 0],
+      url: pexel(2860810),
+    },
+    {
+      position: [16.3, 0, -2 * GOLDENRATIO + 0.02],
+      rotation: [0, 0, 0],
+      url: pexel(1324349),
+    },
+  ],
   //left
   [
     {
@@ -224,19 +236,25 @@ const images = [
     // },
   ]
 ];
+
+
 const backRight =   //BACK right
-[
-  {
-    position: [6 * GOLDENRATIO + 0.18, 0, -3.1 * GOLDENRATIO - 0.2],
-    rotation: [0, Math.PI, 0],
-    url: pexel(2860810),
-  },
-  {
-    position: [16.3, 0, -2 * GOLDENRATIO+0.02],
-    rotation: [0, 0, 0],
-    url: pexel(1324349),
-  },
-];
+  [
+    {
+      position: [6 * GOLDENRATIO + 0.18, 0, -3.1 * GOLDENRATIO - 0.2],
+      rotation: [0, Math.PI, 0],
+      url: pexel(2860810),
+    },
+    {
+      position: [16.3, 0, -2 * GOLDENRATIO + 0.02],
+      rotation: [0, 0, 0],
+      url: pexel(1324349),
+    },
+  ];
+
+let loadImage = [
+
+]
 
 
 const Room1 = ({ userData }) => {
@@ -304,13 +322,16 @@ const Room1 = ({ userData }) => {
   }
 
 
-  // useEffect(async () => {
-  //   setMyStream(await navigator.mediaDevices.getUserMedia(cameraConstraints));
-  //   userData.then((data) => {
-  //     setUser(data);
-  //     setSocket(io(_const.HOST));
-  //   });
-  // }, []);
+  useEffect(() => {
+    loadImage = []
+    for (let i = 0; i < 4; i++) {
+      if (i === cameraAngle) {
+        continue;
+      } else {
+        loadImage.push(...images[i]);
+      }
+    }
+  }, [cameraAngle]);
   useEffect(async () => {
     setMyStream(await navigator.mediaDevices.getUserMedia(cameraConstraints));
     const getUser = async () => {
@@ -398,21 +419,19 @@ const Room1 = ({ userData }) => {
             />
 
             <ThreeCanvas images={ceil} cameraAngle={cameraAngle} setCameraAngle={setCameraAngle} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
-            <ThreeCanvas images={backRight} zIdx={zIdx} cameraAngle={cameraAngle} setCameraAngle={setCameraAngle} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition}/>
-            {
+            <ThreeCanvas images={loadImage} cameraAngle={cameraAngle} setCameraAngle={setCameraAngle} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
+            {/* {
               images.map((image, i) => {
                 return <ThreeCanvas idx={i} images={image} cameraAngle={cameraAngle} setCameraAngle={setCameraAngle} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
               })
-            }
+            } */}
 
             <Overworld1
               myStream={myStream}
-              zIdx={zIdx}
               Room={room}
               url={url}
               charMap={charMap}
               socket={socket}
-              setZIdex={setZIdex}
               setCameraPosition={setCameraPosition}
               setYCameraPosition={setYCameraPosition}
             />

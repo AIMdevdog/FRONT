@@ -126,6 +126,7 @@ const PictureFrame = ({ socket, drawNum }) => {
       (event.pageY - ref.current.offsetTop) / ref.current.clientHeight;
     socket.emit("cursorPosition", xRatio, yRatio, socket.id);
   }
+  
   const throttleUpdateDisplay = throttle(updateDisplay, 48);
 
   const socketDrawUser = (nickname, num) => {
