@@ -97,23 +97,35 @@ const cameraConstraints = {
 };
 
 //ceil
-const ceil = [
-  {
-    position: [12, 5.7, 3],
-    rotation: [-Math.PI / 2, 0, 0],
-    url: pexel(4175054),
-    ceil: "ceil",
-  },
-  {
-    position: [0, 0, 10 * GOLDENRATIO],
-    rotation: [0, 0, 0],
-    url: pexel(695644),
-    wall: "wall",
-  },
-];
+// const ceil = [
+//   {
+//     position: [12, 5.7, 3],
+//     rotation: [-Math.PI / 2, 0, 0],
+//     url: pexel(4175054),
+//     ceil: "ceil",
+//   },
+// ];
 
 const images = [
-  [],
+  //BACK right
+  [
+    {
+      position: [0, 0, 10 * GOLDENRATIO],
+      rotation: [0, 0, 0],
+      url: pexel(695644),
+      wall: "wall",
+    },
+    {
+      position: [6 * GOLDENRATIO + 0.18, 0, -3.1 * GOLDENRATIO - 0.2],
+      rotation: [0, Math.PI, 0],
+      url: pexel(2860810),
+    },
+    {
+      position: [16.3, 0, -2 * GOLDENRATIO + 0.02],
+      rotation: [0, 0, 0],
+      url: pexel(1324349),
+    },
+  ],
   //left
   [
     {
@@ -222,21 +234,35 @@ const images = [
     //   url: pexel(1795707)
 
     // },
+  ],
+  [
+    {
+      position: [12, 5.7, 3],
+      rotation: [-Math.PI / 2, 0, 0],
+      url: pexel(4175054),
+      ceil: "ceil",
+    },
   ]
 ];
+
+
 const backRight =   //BACK right
-[
-  {
-    position: [6 * GOLDENRATIO + 0.18, 0, -3.1 * GOLDENRATIO - 0.2],
-    rotation: [0, Math.PI, 0],
-    url: pexel(2860810),
-  },
-  {
-    position: [16.3, 0, -2 * GOLDENRATIO+0.02],
-    rotation: [0, 0, 0],
-    url: pexel(1324349),
-  },
-];
+  [
+    {
+      position: [6 * GOLDENRATIO + 0.18, 0, -3.1 * GOLDENRATIO - 0.2],
+      rotation: [0, Math.PI, 0],
+      url: pexel(2860810),
+    },
+    {
+      position: [16.3, 0, -2 * GOLDENRATIO + 0.02],
+      rotation: [0, 0, 0],
+      url: pexel(1324349),
+    },
+  ];
+
+let loadImage = [
+
+]
 
 
 const Room1 = ({ userData }) => {
@@ -253,8 +279,8 @@ const Room1 = ({ userData }) => {
 
   const url = `/room/${roomId}`;
 
-  const [zIdx, setZIdex] = useState(0);
-
+  const [isImageLoad, setIsImageLoad] = useState(true);
+  const [dummyLoad, setDummyLoad] = useState(false);
   const [cameraPosition, setCameraPosition] = useState(0);
   const [yCameraPosition, setYCameraPosition] = useState(0);
   const [cameraAngle, setCameraAngle] = useState(0);
@@ -304,13 +330,22 @@ const Room1 = ({ userData }) => {
   }
 
 
-  // useEffect(async () => {
-  //   setMyStream(await navigator.mediaDevices.getUserMedia(cameraConstraints));
-  //   userData.then((data) => {
-  //     setUser(data);
-  //     setSocket(io(_const.HOST));
-  //   });
-  // }, []);
+  useEffect(() => {
+    setIsImageLoad(true);
+  }, [dummyLoad]);
+
+  useEffect(() => {
+    loadImage = []
+    for (let i = 0; i < 4; i++) {
+      if (i === cameraAngle) {
+        continue;
+      } else {
+        loadImage.push(...images[i]);
+      }
+    }
+    setDummyLoad(prev => !prev);
+  }, [cameraAngle]);
+
   useEffect(async () => {
     setMyStream(await navigator.mediaDevices.getUserMedia(cameraConstraints));
     const getUser = async () => {
@@ -396,23 +431,21 @@ const Room1 = ({ userData }) => {
               characters={isCharacter}
               roomNum="3"
             />
+            {/* // <ThreeCanvas images={ceil} cameraAngle={cameraAngle} setCameraAngle={setCameraAngle} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} /> */}
+            <ThreeCanvas isImageLoad={isImageLoad} images={loadImage} cameraAngle={cameraAngle} setCameraAngle={setCameraAngle} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
 
-            <ThreeCanvas images={ceil} cameraAngle={cameraAngle} setCameraAngle={setCameraAngle} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
-            <ThreeCanvas images={backRight} zIdx={zIdx} cameraAngle={cameraAngle} setCameraAngle={setCameraAngle} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition}/>
-            {
+            {/* {
               images.map((image, i) => {
                 return <ThreeCanvas idx={i} images={image} cameraAngle={cameraAngle} setCameraAngle={setCameraAngle} cameraPosition={cameraPosition} yCameraPosition={yCameraPosition} />
               })
-            }
+            } */}
 
             <Overworld1
               myStream={myStream}
-              zIdx={zIdx}
               Room={room}
               url={url}
               charMap={charMap}
               socket={socket}
-              setZIdex={setZIdex}
               setCameraPosition={setCameraPosition}
               setYCameraPosition={setYCameraPosition}
             />
