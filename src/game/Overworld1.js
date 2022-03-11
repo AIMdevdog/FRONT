@@ -815,7 +815,11 @@ const Overworld1 = ({
             // 내가 가지고있는 다른 사람의 영상을 전부 삭제
             streamContainer.removeChild(streamContainer.firstChild);
           }
-          producer.emit("producerclose");
+          try {
+            producer.emit("producerclose");
+          } catch (e) {
+            console.log(e)
+          }
           socket.emit("leave_Group", player.id);
           player.isUserCalling = false;
           player.isUserJoin = false;

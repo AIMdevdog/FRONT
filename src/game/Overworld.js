@@ -956,12 +956,8 @@ const Overworld = ({
       map.walls[`${i},1136`] = true;
     }
     // y축 고정
-    for (let i = 1655; i <= 1751; i += 32) {
-      map.walls[`${i},1296`] = true;
-    }
-    // y축 고정
     for (let i = 1623; i <= 1751; i += 32) {
-      map.walls[`${i},1264`] = true;
+      map.walls[`${i},1296`] = true;
     }
     // y축 고정
     for (let i = 1623; i <= 1751; i += 32) {
