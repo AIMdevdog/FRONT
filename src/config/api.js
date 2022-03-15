@@ -14,8 +14,8 @@ export const sign = {
 
 export const user = {
   saveUserInfo: (nickname, character) =>
-    axios.post("/users/update/profile", { nickname, character }),
-  getUserInfo: () => axios.get("/users/get/userinfo"),
+    axios.put("/users/profile", { nickname, character }),
+  getUserInfo: () => axios.get("/users/userinfo"),
 };
 
 export const room = {
@@ -26,11 +26,11 @@ export const room = {
     axios.post("/room/create", { mapId, title, description }),
 
   // in room
-  getVisitorBookComment: (roomId) => axios.get(`/board/read/${roomId}`),
+  getVisitorBookComment: (roomId) => axios.get(`/board/${roomId}`),
   createVisitorBookComment: (roomId, contents) =>
-    axios.post("/board/create", { roomId, contents }),
+    axios.post("/board", { roomId, contents }),
   editVisitorBookComment: (boardId, contents) =>
-    axios.put("/board/update", { boardId, contents }),
+    axios.put("/board", { boardId, contents }),
   deleteVisitorBookComment: (boardId) =>
-    axios.post("/board/delete", { boardId }),
+    axios.delete("/board/", { boardId }),
 };
