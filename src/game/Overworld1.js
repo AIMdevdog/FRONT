@@ -200,20 +200,11 @@ const Overworld1 = ({
         const streamVideo = document.getElementById(`${socketId}`);
         const videoTag = streamVideo.getElementsByTagName("video");
 
-        // console.log(videoTag);
-
         speechEvents.on("speaking", () => {
           videoTag[0].style.outline = "4px solid green";
-          // console.log("start", videoTag[0]);
-          // setSpeakingUser(true);
-
-          // console.log("speaking", socket?.id);
         });
         speechEvents.on("stopped_speaking", () => {
           videoTag[0].style.outline = "none";
-          // console.log("stop", videoTag[0]);
-          // setSpeakingUser(false);
-          // console.log("stopped_speaking");
         });
       } catch (e) {
         console.log(e);
@@ -229,13 +220,9 @@ const Overworld1 = ({
       const nicknameDiv = document.createElement("div");
       nicknameDiv.className = "videoNickname";
       nicknameDiv.innerText = user.nickname;
-      // div.classList.add("userVideoContainer");
       div.id = socketId;
 
-      // console.log("-------- 커넥션 상태 --------", pcObj[id].iceConnectionState);
-
       try {
-        // console.log("******peerstream", peerStream);
         const video = document.createElement("video");
         video.srcObject = await peerStream;
         video.className = "userVideo";
@@ -245,13 +232,6 @@ const Overworld1 = ({
         div.appendChild(video);
         div.appendChild(nicknameDiv);
         streamContainer.appendChild(div);
-
-        // const divSelector = document.querySelectorAll(".streams-container div");
-
-        // if (divSelector?.length > 4) {
-        //   streamContainer.style.justifyContent = "flex-start";
-        // }
-        // await sortStreams();
       } catch (err) {
         console.error(err);
       }
@@ -262,7 +242,6 @@ const Overworld1 = ({
       console.log("삭제되어야해!", id);
       const streamContainer = document.querySelector(".streams-container");
       const streamArr = streamContainer.querySelectorAll("div");
-      // console.log("총 길이 " , streamArr.length);
       streamArr.forEach((streamElement) => {
         if (streamElement.id === id) {
           streamContainer.removeChild(streamElement);
@@ -651,7 +630,7 @@ const Overworld1 = ({
       );
     });
 
-    socket.on("update_closer", ()=> {
+    socket.on("update_closer", () => {
       closer -= 1;
     });
 
@@ -818,7 +797,7 @@ const Overworld1 = ({
           try {
             producer.emit("producerclose");
           } catch (e) {
-            console.log(e)
+            console.log(e);
           }
           socket.emit("leave_Group", player.id);
           player.isUserCalling = false;
