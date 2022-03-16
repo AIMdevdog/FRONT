@@ -350,14 +350,14 @@ const Overworld = ({
     async function removeAudio(peerStream, socketId) { }
     // 영상 connect
     async function paintPeerFace(peerStream, socketId) {
-      console.log(`socketID ${socketId} peer의 vidoe 태그 생성 중`);
+      // console.log(`socketID ${socketId} peer의 vidoe 태그 생성 중`);
       const user = charMap[socketId];
       const streamContainer = document.querySelector(".streams-container");
       const div = document.createElement("div");
       const nicknameDiv = document.createElement("div");
       nicknameDiv.className = "videoNickname";
       nicknameDiv.innerText = user.nickname;
-      console.log(user.nickname);
+      // console.log(user.nickname);
       // div.classList.add("userVideoContainer");
       div.id = socketId;
 
@@ -380,7 +380,7 @@ const Overworld = ({
         if (divSelector?.length > 4) {
           streamContainer.style.justifyContent = "flex-start";
         }
-        console.log(`socketID ${socketId} peer의 vidoe 태그 생성 완료`);
+        // console.log(`socketID ${socketId} peer의 vidoe 태그 생성 완료`);
         // await sortStreams();
       } catch (err) {
         console.error(err);
@@ -730,7 +730,7 @@ const Overworld = ({
           const peerStream = new MediaStream([track]);
 
           if (track.kind === "video") {
-            console.log("!!!!video  태그 추가 요청", remoteSocketId);
+            // console.log("!!!!video  태그 추가 요청", remoteSocketId);
             // const check = reduplication.filter(
             //   (element) => element === remoteSocketId
             // );
@@ -742,7 +742,7 @@ const Overworld = ({
             console.log("!!!!video 태그 추가 완료", remoteSocketId);
             // }
           } else if (track.kind === "audio") {
-            console.log("!!!!audio 태그 추가 요청", remoteSocketId);
+            // console.log("!!!!audio 태그 추가 요청", remoteSocketId);
             // const check = audio_reduplication.filter(
             //   (element) => element === remoteSocketId
             // );
@@ -787,16 +787,6 @@ const Overworld = ({
       removePeerFace(remoteSocketId);
     });
 
-    // ---------------------------------------- ^ SFU
-
-    // socket.on("remove_reduplication", (remoteSocketId) => {
-    //   reduplication = reduplication.filter(
-    //     (element) => element !== remoteSocketId
-    //   );
-    //   audio_reduplication = audio_reduplication.filter(
-    //     (element) => element !== remoteSocketId
-    //   );
-    // });
     
     socket.on("update_closer", ()=> {
       closer -= 1;
@@ -811,25 +801,50 @@ const Overworld = ({
       const user = charMap[data.removeSid];
       user.isUserJoin = false;
       user.groupName = 0;
-      // reduplication = reduplication.filter(
-      //   (element) => element !== data.removeSid
-      // );
-      // audio_reduplication = audio_reduplication.filter(
-      //   (element) => element !== data.remveSid
-      // );
-      // console.log(
-      //   "reduplication video, audio ",
-      //   reduplication,
-      //   audio_reduplication
-      // );
-      // removePeerFace(data.removeSid);
+    });
+
+    // mesh 정리
+    socket.on("leave_all", (userObjArr) => {
+      console.log('&&&&&&&&&&&leave_all 실행 =========')
+      userObjArr.forEach((userObj) => {
+        console.log("-----------------", userObj.socketId);
+        removePeerFace(userObj.socketId);
+      })
+      socket.emit("leave_Group", true);
     });
 
     // socket.on("leave_user", function (data) {
     //   removePeerFace(data.id);
     // });
 
-    socket.on("accept_join", async (groupName) => {
+    socket.on("accept_join_mesh", async (userObjArr) => {
+      console.log('accept_join_mesh 함수 실행 userObjArr는', userObjArr);
+      try {
+        const length = userObjArr.length;
+        if (length === 1) {
+          return;
+        }
+        for (let i = 0; i < length - 1; ++i) {
+          const newPC = await createConnection(
+            userObjArr[i].socketId,
+            userObjArr[i].nickname
+          );
+          const offer = await newPC.createOffer();
+          await newPC.setLocalDescription(offer);
+          socket.emit(
+            "offer",
+            offer,
+            userObjArr[i].socketId,
+            userObjArr[i].nickname
+          );
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    });
+      
+
+    socket.on("accept_join_sfu", async (groupName) => {
       try {
         // SFU
         charMap[socket.id].groupName = groupName;
@@ -841,60 +856,111 @@ const Overworld = ({
 
           // once we have rtpCapabilities from the Router, create Device
           createDevice();
-
-          // Mesh코드~
-          // const length = userObjArr.length;
-          // if (length === 1) {
-          //   return;
-          // }
-
-          // for (let i = 0; i < length - 1; ++i) {
-          //   const newPC = await createConnection(
-          //     userObjArr[i].socketId,
-          //     userObjArr[i].nickname
-          //   );
-          //   const offer = await newPC.createOffer();
-          //   await newPC.setLocalDescription(offer);
-          //   socket.emit(
-          //     "offer",
-          //     offer,
-          //     userObjArr[i].socketId,
-          //     userObjArr[i].nickname
-          //   );
-          // }
         });
       } catch (err) {
         console.error(err);
       }
     });
 
-    // socket.on("offer", async (offer, remoteSocketId, remoteNickname) => {
-    //   try {
-    //     const newPC = await createConnection(remoteSocketId, remoteNickname);
-    //     await newPC.setRemoteDescription(offer);
-    //     const answer = await newPC.createAnswer();
-    //     await newPC.setLocalDescription(answer);
-    //     socket.emit("answer", answer, remoteSocketId);
-    //   } catch (err) {
-    //     console.error(err);
-    //   }
-    // });
 
-    // socket.on("answer", async (answer, remoteSocketId) => {
-    //   await pcObj[remoteSocketId].setRemoteDescription(answer);
-    // });
+  async function createConnection(remoteSocketId, remoteNickname) {
+    try {
+      const myPeerConnection = new RTCPeerConnection({
+        iceServers: [
+          {
+            urls: [
+              "stun:stun.l.google.com:19302",
+              "stun:stun1.l.google.com:19302",
+              "stun:stun2.l.google.com:19302",
+              "stun:stun3.l.google.com:19302",
+              "stun:stun4.l.google.com:19302",
+            ],
+          },
+        ],
+      });
+      myPeerConnection.addEventListener("icecandidate", async (event) => {
+        try {
+          await handleIce(event, remoteSocketId, remoteNickname);
+        } catch (e) {
+          console.log(e);
+        }
+        console.log("+------Ice------+");
+      });
+      myPeerConnection.addEventListener("addstream", async (event) => {
+        try {
+          await handleAddStream(event, remoteSocketId, remoteNickname);
+        } catch (err) {
+          console.error(err);
+        }
+        console.log("+------addstream------+");
+      });
 
-    // socket.on("ice", async (ice, remoteSocketId, remoteNickname) => {
-    //   await pcObj[remoteSocketId].addIceCandidate(ice);
-    // const state = pcObj[remoteSocketId].iceConnectionState;
-    // if (state === "failed" || state === "closed") {
-    //   const newPC = await createConnection(remoteSocketId, remoteNickname);
-    //   const offer = await newPC.createOffer();
-    //   await newPC.setLocalDescription(offer);
-    //   socket.emit("offer", offer, remoteSocketId, remoteNickname);
-    //   console.log("iceCandidate 실패! 재연결 시도");
-    // }
-    // });
+      console.log("+------before getTracks------+");
+      myStream
+        .getTracks()
+        .forEach((track) => myPeerConnection.addTrack(track, myStream));
+      console.log("+------getTracks------+", myStream);
+
+      pcObj[remoteSocketId] = myPeerConnection;
+      // console.log(pcObj);
+
+      // ++peopleInRoom;
+      // sortStreams();
+      return myPeerConnection;
+    } catch (e) {
+      console.log(e);
+    }
+  }
+  
+  async function handleAddStream(event, remoteSocketId, remoteNickname) {
+    const peerStream = event.stream;
+    // console.log(peerStream);
+    const user = charMap[remoteSocketId]; // person.js에 있는 거랑 같이
+
+    if (!user.isUserJoin) {
+      // 유저가 어떤 그룹에도 속하지 않을 때 영상을 키겠다
+      user.isUserJoin = true;
+      try {
+        await paintPeerFace(peerStream, remoteSocketId, remoteNickname);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
+
+  function handleIce(event, remoteSocketId, remoteNickname) {
+    if (event.candidate) {
+      socket.emit("ice", event.candidate, remoteSocketId, remoteNickname);
+    }
+  }
+
+  socket.on("offer", async (offer, remoteSocketId, remoteNickname) => {
+    try {
+      const newPC = await createConnection(remoteSocketId, remoteNickname);
+      await newPC.setRemoteDescription(offer);
+      const answer = await newPC.createAnswer();
+      await newPC.setLocalDescription(answer);
+      socket.emit("answer", answer, remoteSocketId);
+    } catch (err) {
+      console.error(err);
+    }
+  });
+
+  socket.on("answer", async (answer, remoteSocketId) => {
+    await pcObj[remoteSocketId].setRemoteDescription(answer);
+  });
+
+  socket.on("ice", async (ice, remoteSocketId, remoteNickname) => {
+    await pcObj[remoteSocketId].addIceCandidate(ice);
+  const state = pcObj[remoteSocketId].iceConnectionState;
+  if (state === "failed" || state === "closed") {
+    const newPC = await createConnection(remoteSocketId, remoteNickname);
+    const offer = await newPC.createOffer();
+    await newPC.setLocalDescription(offer);
+    socket.emit("offer", offer, remoteSocketId, remoteNickname);
+    console.log("iceCandidate 실패! 재연결 시도");
+  }
+  });
   }, []);
 
   useEffect(() => {
@@ -1136,13 +1202,9 @@ const Overworld = ({
           } catch (e) {
             console.log(e)
           }
-          socket.emit("leave_Group", player.id);
+          socket.emit("leave_Group", player.id,  false);
           player.isUserCalling = false;
           player.isUserJoin = false;
-          // console.log(`video ${reduplication}, audio ${audio_reduplication}`)
-          // reduplication = [];
-          // audio_reduplication = [];
-          // console.log(`video ${reduplication}, audio ${audio_reduplication}`)
         }
         //Draw Lower layer
         map.drawLowerImage(ctx, cameraPerson);
