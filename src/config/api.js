@@ -21,7 +21,7 @@ export const user = {
 export const room = {
   // lobby room
   getRoom: () => axios.get("/userRoom"),
-  deleteRoom: (roomId) => axios.delete("/userRoom", { roomId }),
+  deleteRoom: (roomId) => axios.delete(`/userRoom/${roomId}`),
   createRoom: (mapId, title, description) =>
     axios.post("/room", { mapId, title, description }), // 서버(app.js->room.js)로 보내는 신호
 
@@ -32,5 +32,5 @@ export const room = {
   editVisitorBookComment: (boardId, contents) =>
     axios.put("/board", { boardId, contents }),
   deleteVisitorBookComment: (boardId) =>
-    axios.delete("/board", { boardId }),
+    axios.delete(`/board/${boardId}`),
 };
