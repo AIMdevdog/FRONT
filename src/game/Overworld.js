@@ -65,7 +65,8 @@ const StreamsContainer = styled.div`
   }
 `;
 
-let producer;
+let producer_video;
+let producer_audio;
 
 const Overworld = ({
   myStream,
@@ -82,8 +83,6 @@ const Overworld = ({
   const containerEl = useRef();
   const canvasRef = useRef();
   const navigate = useNavigate();
-  let reduplication = []; //해결하고 지울게요 ㅜㅜ
-  let audio_reduplication = []; //해결하고 지울게요 ㅜㅜ
   const directionInput = new DirectionInput();
   directionInput.init();
 
@@ -573,35 +572,35 @@ const Overworld = ({
       // we now call produce() to instruct the producer transport
       // to send media to the Router
       // this action will trigger the 'connect' and 'produce' events above
-      producer = await producerTransport.produce(params_video);
-      await producerTransport.produce(params_audio);
+      producer_video = await producerTransport.produce(params_video);
+      producer_audio = await producerTransport.produce(params_audio);
 
-      producer.on("trackended", () => {
+      producer_video.on("trackended", () => {
         console.log("track ended");
         // close video track
       });
 
-      producer.on("transportclose", () => {
+      producer_video.on("transportclose", () => {
         console.log("transport ended");
         // close video track
       });
 
-      // producer_audio.on("trackended", () => {
-      //   console.log("producer의 trackended 이벤트 실행");
+      producer_audio.on("trackended", () => {
+        console.log("producer의 trackended 이벤트 실행");
 
-      //   console.log("track ended");
+        console.log("track ended");
 
-      //   // close video track
-      // });
+        // close audio track
+      });
 
-      // producer_audio.on("transportclose", () => {
-      //   console.log("producer의 transportclose 이벤트 실행");
+      producer_audio.on("transportclose", () => {
+        console.log("producer의 transportclose 이벤트 실행");
 
-      //   console.log("producer");
-      //   console.log("transport ended");
+        console.log("producer");
+        console.log("transport ended");
 
-      // close video track
-      // });
+      // close audio track
+      });
     };
 
     // server informs the client of a new producer just joined
@@ -732,28 +731,28 @@ const Overworld = ({
 
           if (track.kind === "video") {
             console.log("!!!!video  태그 추가 요청", remoteSocketId);
-            const check = reduplication.filter(
-              (element) => element === remoteSocketId
-            );
-            if (check.length === 0) {
-              // console.log("video check안으로 들어옴")
-              console.log("only one", reduplication);
-              reduplication.push(remoteSocketId);
-              await paintPeerFace(peerStream, remoteSocketId);
-              console.log("!!!!video 태그 추가 완료", remoteSocketId);
-            }
+            // const check = reduplication.filter(
+            //   (element) => element === remoteSocketId
+            // );
+            // if (check.length === 0) {
+            //   // console.log("video check안으로 들어옴")
+            //   console.log("only one", reduplication);
+              // reduplication.push(remoteSocketId);
+            await paintPeerFace(peerStream, remoteSocketId);
+            console.log("!!!!video 태그 추가 완료", remoteSocketId);
+            // }
           } else if (track.kind === "audio") {
             console.log("!!!!audio 태그 추가 요청", remoteSocketId);
-            const check = audio_reduplication.filter(
-              (element) => element === remoteSocketId
-            );
-            if (check.length === 0) {
-              // console.log("audio check안으로 들어옴")
-              audio_reduplication.push(remoteSocketId);
-              console.log("only one", audio_reduplication);
-              await setAudio(peerStream, remoteSocketId);
-              console.log("!!!!audio 태그 추가 완료", remoteSocketId);
-            }
+            // const check = audio_reduplication.filter(
+            //   (element) => element === remoteSocketId
+            // );
+            // if (check.length === 0) {
+            //   // console.log("audio check안으로 들어옴")
+            //   audio_reduplication.push(remoteSocketId);
+            //   console.log("only one", audio_reduplication);
+            await setAudio(peerStream, remoteSocketId);
+            console.log("!!!!audio 태그 추가 완료", remoteSocketId);
+            // }
           }
 
           // document.getElementById(remoteProducerId).srcObject = new MediaStream([track])
@@ -790,14 +789,14 @@ const Overworld = ({
 
     // ---------------------------------------- ^ SFU
 
-    socket.on("remove_reduplication", (remoteSocketId) => {
-      reduplication = reduplication.filter(
-        (element) => element !== remoteSocketId
-      );
-      audio_reduplication = audio_reduplication.filter(
-        (element) => element !== remoteSocketId
-      );
-    });
+    // socket.on("remove_reduplication", (remoteSocketId) => {
+    //   reduplication = reduplication.filter(
+    //     (element) => element !== remoteSocketId
+    //   );
+    //   audio_reduplication = audio_reduplication.filter(
+    //     (element) => element !== remoteSocketId
+    //   );
+    // });
     
     socket.on("update_closer", ()=> {
       closer -= 1;
@@ -812,17 +811,17 @@ const Overworld = ({
       const user = charMap[data.removeSid];
       user.isUserJoin = false;
       user.groupName = 0;
-      reduplication = reduplication.filter(
-        (element) => element !== data.removeSid
-      );
-      audio_reduplication = audio_reduplication.filter(
-        (element) => element !== data.remveSid
-      );
-      console.log(
-        "reduplication video, audio ",
-        reduplication,
-        audio_reduplication
-      );
+      // reduplication = reduplication.filter(
+      //   (element) => element !== data.removeSid
+      // );
+      // audio_reduplication = audio_reduplication.filter(
+      //   (element) => element !== data.remveSid
+      // );
+      // console.log(
+      //   "reduplication video, audio ",
+      //   reduplication,
+      //   audio_reduplication
+      // );
       // removePeerFace(data.removeSid);
     });
 
@@ -1132,7 +1131,8 @@ const Overworld = ({
           }
           // producer_audio.emit("producerclose");
           try {
-            producer.emit("producerclose");
+            producer_video.emit("producerclose");
+            producer_audio.emit("producerclose");
           } catch (e) {
             console.log(e)
           }
@@ -1140,8 +1140,8 @@ const Overworld = ({
           player.isUserCalling = false;
           player.isUserJoin = false;
           // console.log(`video ${reduplication}, audio ${audio_reduplication}`)
-          reduplication = [];
-          audio_reduplication = [];
+          // reduplication = [];
+          // audio_reduplication = [];
           // console.log(`video ${reduplication}, audio ${audio_reduplication}`)
         }
         //Draw Lower layer
