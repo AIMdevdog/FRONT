@@ -23,7 +23,7 @@ export const room = {
   getRoom: () => axios.get("/userRoom"),
   deleteRoom: (roomId) => axios.delete("/userRoom", { roomId }),
   createRoom: (mapId, title, description) =>
-    axios.post("/room", { mapId, title, description }),
+    axios.post("/room", { mapId, title, description }), // 서버(app.js->room.js)로 보내는 신호
 
   // in room
   getVisitorBookComment: (roomId) => axios.get(`/board/${roomId}`),
